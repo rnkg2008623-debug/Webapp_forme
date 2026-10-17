@@ -2,24 +2,30 @@
 const form = document.getElementById('login-form');
 const pass = document.getElementById('pass');
 const eye = document.getElementById('eye');
-const error = document.getElementById('error');
+const msg = document.getElementById('msg');
+
+function show(text, info) {
+  msg.textContent = text;
+  msg.classList.toggle('info', !!info);
+  msg.hidden = false;
+}
 
 eye.addEventListener('click', () => {
-  const show = pass.type === 'password';
-  pass.type = show ? 'text' : 'password';
-  eye.classList.toggle('is-on', show);
-  eye.setAttribute('aria-label', show ? 'パスワードを隠す' : 'パスワードを表示');
+  const visible = pass.type === 'password';
+  pass.type = visible ? 'text' : 'password';
+  eye.classList.toggle('is-on', visible);
+  eye.setAttribute('aria-label', visible ? 'パスワードを隠す' : 'パスワードを表示');
 });
 
 form.addEventListener('submit', e => {
   e.preventDefault();
-  if (!form.user.value.trim() || !pass.value) {
-    error.textContent = 'メールアドレス（またはユーザー名）とパスワードを入力してください。';
-    error.hidden = false;
+  if (!form.email.value.trim() || !pass.value) {
+    show('メールアドレスとパスワードを入力してください。');
     return;
   }
   try { sessionStorage.setItem('loggedIn', '1'); } catch (_) {}
   location.href = 'home.html';
 });
 
-document.getElementById('signup').addEventListener('click', e => e.preventDefault());
+document.getElementById('google').addEventListener('click', () => show('Google ログインは準備中です。', true));
+document.getElementById('signup').addEventListener('click', e => { e.preventDefault(); show('新規登録は準備中です。', true); });
