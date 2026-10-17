@@ -39,7 +39,7 @@
       <label class="field" for="pass">
         <svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><circle cx="12" cy="16" r="1" fill="currentColor"/></svg>
         <input id="pass" name="pass" type="password" placeholder="Password" autocomplete="current-password" required>
-        <button type="button" class="eye" id="eye" aria-label="パスワードを表示">
+        <button type="button" class="eye" data-for="pass" aria-label="パスワードを表示">
           <svg viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="slash" d="M4 4l16 16"/></svg>
         </button>
       </label>
@@ -58,6 +58,50 @@
   </section>
   <section class="panel-right" aria-hidden="true"></section>
 </main>
+
+<section class="signup-view" id="signup-view" aria-hidden="true" inert>
+  <form class="signup-card" id="signup-form" novalidate>
+    <h2 class="signup-title">Sign up</h2>
+    <p class="signup-sub">Create a new account</p>
+
+    <label class="field" for="su-email">
+      <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5L12 13l8.5-6.5"/></svg>
+      <input id="su-email" name="email" type="email" placeholder="Email" autocomplete="email" required>
+    </label>
+
+    <label class="field" for="su-pass">
+      <svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><circle cx="12" cy="16" r="1" fill="currentColor"/></svg>
+      <input id="su-pass" name="pass" type="password" placeholder="Password" autocomplete="new-password" required>
+      <button type="button" class="eye" data-for="su-pass" aria-label="パスワードを表示">
+        <svg viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="slash" d="M4 4l16 16"/></svg>
+      </button>
+    </label>
+
+    <label class="field" for="su-confirm">
+      <svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><circle cx="12" cy="16" r="1" fill="currentColor"/></svg>
+      <input id="su-confirm" name="confirm" type="password" placeholder="Confirm password" autocomplete="new-password" required>
+      <button type="button" class="eye" data-for="su-confirm" aria-label="パスワードを表示">
+        <svg viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="slash" d="M4 4l16 16"/></svg>
+      </button>
+    </label>
+
+    <p class="msg" id="su-msg" role="alert" hidden></p>
+
+    <button type="submit" class="submit-btn">
+      <span>Sign up</span>
+      <svg viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></svg>
+    </button>
+
+    <div class="or"><span>or</span></div>
+
+    <button type="button" class="google-btn" id="su-google">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 0 1 0-9.4l-7.9-6.1a24 24 0 0 0 0 21.6l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>
+      <span>Sign up with Google</span>
+    </button>
+
+    <p class="signup">Already have an account? <a href="#" id="to-login">Log in</a></p>
+  </form>
+</section>
 
 <script src="login.js"></script>
 </body>
