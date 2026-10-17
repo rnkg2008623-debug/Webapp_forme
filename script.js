@@ -62,7 +62,7 @@ document.getElementById('friend-list').innerHTML = friends.map(f =>
 })();
 
 // nav: アクティブ切り替え
-document.querySelectorAll('.nav-item').forEach(btn => btn.addEventListener('click', () => {
-  document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('is-active', b === btn));
+document.querySelectorAll('.nav-item[data-target]').forEach(btn => btn.addEventListener('click', () => {
+  document.querySelectorAll('.nav-item[data-target]').forEach(b => b.classList.toggle('is-active', b === btn));
   document.getElementById(btn.dataset.target)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }));

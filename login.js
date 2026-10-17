@@ -1,4 +1,5 @@
-// デモ用: サーバー認証はまだ無いので、入力が埋まっていればログイン成功として扱う
+import { signUp, logIn, withGoogle, onUser, errorMessage, isCancelled } from './auth.js';
+
 const body = document.body;
 const loginPanel = document.querySelector('.panel-left');
 const signupView = document.getElementById('signup-view');
@@ -8,6 +9,10 @@ function show(el, text, info) {
   el.classList.toggle('info', !!info);
   el.hidden = false;
 }
+const enter = () => location.replace('home.html');
+
+// ログイン済みならそのままホームへ
+onUser(user => { if (user) enter(); });
 
 // パスワード表示切り替え(ログイン・新規登録共通)
 document.querySelectorAll('.eye').forEach(btn => btn.addEventListener('click', () => {
@@ -18,9 +23,17 @@ document.querySelectorAll('.eye').forEach(btn => btn.addEventListener('click', (
   btn.setAttribute('aria-label', visible ? 'パスワードを隠す' : 'パスワードを表示');
 }));
 
-function enter() {
-  try { sessionStorage.setItem('loggedIn', '1'); } catch (_) {}
-  location.href = 'home.html';
+// 送信中はボタンを無効にして二重送信を防ぐ
+async function run(el, button, task) {
+  el.hidden = true;
+  button.disabled = true;
+  try {
+    await task();
+    enter();
+  } catch (e) {
+    if (!isCancelled(e)) show(el, errorMessage(e));
+    button.disabled = false;
+  }
 }
 
 // ---- ログイン ----
@@ -28,13 +41,12 @@ const form = document.getElementById('login-form');
 const msg = document.getElementById('msg');
 form.addEventListener('submit', e => {
   e.preventDefault();
-  if (!form.email.value.trim() || !form.pass.value) {
-    show(msg, 'メールアドレスとパスワードを入力してください。');
-    return;
-  }
-  enter();
+  const email = form.email.value.trim();
+  if (!email || !form.pass.value) return show(msg, 'メールアドレスとパスワードを入力してください。');
+  run(msg, form.querySelector('.submit-btn'), () => logIn(email, form.pass.value));
 });
-document.getElementById('google').addEventListener('click', () => show(msg, 'Google ログインは準備中です。', true));
+const googleBtn = document.getElementById('google');
+googleBtn.addEventListener('click', () => run(msg, googleBtn, withGoogle));
 
 // ---- 画面切り替え(背景に入っていく演出。CSS側で0.4秒後に新規登録カードが出る) ----
 function setMode(signup) {
@@ -58,6 +70,7 @@ sForm.addEventListener('submit', e => {
   if (!/^\S+@\S+\.\S+$/.test(email)) return show(sMsg, 'メールアドレスの形式が正しくありません。');
   if (sForm.pass.value.length < 8) return show(sMsg, 'パスワードは8文字以上にしてください。');
   if (sForm.pass.value !== sForm.confirm.value) return show(sMsg, 'パスワードが一致しません。');
-  enter();
+  run(sMsg, sForm.querySelector('.submit-btn'), () => signUp(email, sForm.pass.value));
 });
-document.getElementById('su-google').addEventListener('click', () => show(sMsg, 'Google 登録は準備中です。', true));
+const suGoogle = document.getElementById('su-google');
+suGoogle.addEventListener('click', () => run(sMsg, suGoogle, withGoogle));

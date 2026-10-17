@@ -103,3 +103,5 @@ body.mode-signup .signup-view {
 @media (prefers-reduced-motion: reduce) {
   .bg > *, .panel-left, .signup-view { transition-duration: .01s !important; transition-delay: 0s !important; }
 }
+
+.google-btn:disabled, .submit-btn:disabled { opacity: .6; cursor: progress; }

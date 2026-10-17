@@ -159,3 +159,6 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   .nav-item { width: 64px; }
   .logo { font-size: 28px; }
 }
+
+/* 認証の確認が終わるまでホーム画面を隠す */
+html.auth-pending body { visibility: hidden; }
