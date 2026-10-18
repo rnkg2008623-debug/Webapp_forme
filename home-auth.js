@@ -1,6 +1,6 @@
 // ホーム画面はログイン済みのユーザーだけが見られる。未ログインならログイン画面へ戻す。
-import { onUser, logOut } from './auth.js?v=9';
-import { mountFriends } from './friends-ui.js?v=9';
+import { onUser, logOut } from './auth.js?v=10';
+import { mountFriends } from './friends-ui.js?v=10';
 
 let social;
 onUser(async user => {

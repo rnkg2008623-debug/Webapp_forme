@@ -1,7 +1,7 @@
 // フレンド機能の画面: 右サイドバーの一覧と、ページの上に重ねて表示するフレンドUI
 //   左のレール: 人のマーク = フレンド一覧 / 人+のマーク = フレンド申請
-import { startSocial, formatCode, SOCIAL_MESSAGES, LIMITS } from './social.js?v=9';
-import { errorMessage } from './auth.js?v=9';
+import { startSocial, formatCode, SOCIAL_MESSAGES, LIMITS } from './social.js?v=10';
+import { errorMessage } from './auth.js?v=10';
 
 const $ = id => document.getElementById(id);
 const LABELS = { online: 'Online', busy: 'Busy', offline: 'Offline' };
@@ -256,14 +256,15 @@ function open(next) {
   overlay.hidden = false;
   document.body.classList.add('fo-open');
   render(last);
-  $('fo-close').focus();
+  $('fo-main').focus({ preventScroll: true });
 }
 function close() {
   overlay.hidden = true;
   document.body.classList.remove('fo-open');
   opener?.focus?.();
 }
-document.querySelector('[data-target="friend"]').addEventListener('click', () => open());
+document.querySelector('[data-target="friend"]').addEventListener('click', () => (overlay.hidden ? open() : close()));
+overlay.addEventListener('click', e => { if (e.target === overlay) close(); }); // パネルの外側をクリックで閉じる
 $('fo-close').addEventListener('click', close);
 document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;

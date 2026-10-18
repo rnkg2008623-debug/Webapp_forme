@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Home</title>
 <script>document.documentElement.classList.add("auth-pending")</script>
-<link rel="stylesheet" href="style.css?v=9">
+<link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
 
@@ -72,6 +72,7 @@
 </aside>
 
 <div class="fo" id="friend-overlay" hidden>
+<div class="fo-panel">
   <nav class="fo-rail" aria-label="フレンド">
     <button type="button" class="fo-tab is-on" data-view="friends" aria-label="フレンド一覧" aria-pressed="true">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
@@ -81,11 +82,12 @@
       <span class="badge" id="rail-badge" hidden>0</span>
     </button>
   </nav>
-  <section class="fo-main" role="dialog" aria-modal="true" aria-label="フレンド">
+  <section class="fo-main" id="fo-main" tabindex="-1" role="dialog" aria-modal="true" aria-label="フレンド">
     <button type="button" class="fo-close" id="fo-close" aria-label="閉じる">×</button>
     <div class="fo-bar" id="fo-bar"></div>
     <div class="fo-list" id="fo-list"></div>
   </section>
+</div>
 </div>
 
 <div class="ed" id="ed" hidden>
@@ -101,7 +103,7 @@
   </form>
 </div>
 
-<script src="script.js?v=9"></script>
-<script type="module" src="home-auth.js?v=9"></script>
+<script src="script.js?v=10"></script>
+<script type="module" src="home-auth.js?v=10"></script>
 </body>
 </html>
