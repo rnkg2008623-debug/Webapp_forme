@@ -1,7 +1,8 @@
 // Timer: 数字(時間:分)をクリックしてキーボードで設定 → Start でカウントダウン。
 // 時計の針は1本。経過に合わせて進み、通った部分を薄い水色で塗る。針が12に戻ったら、終了。
 // 終わると(または途中で終了すると)学習ログに記録する。
-import { firestore } from './auth.js?v=20';
+import { firestore } from './auth.js?v=22';
+import { unlockAudio, beep } from './sound.js?v=22';
 
 const $ = id => document.getElementById(id);
 const MAX_MIN = 720;                 // 12時間(Firestore のルールの上限に合わせる)
@@ -17,7 +18,7 @@ export function fieldsToMinutes(hText, mText) {
 }
 
 const state = { minutes: DEFAULT_MIN, mode: 'idle', total: 0, endAt: 0, remaining: 0 };
-let user, db, f, audio, ticker, raf;
+let user, db, f, ticker, raf;
 const H = () => $('tm-h'), M = () => $('tm-m');
 
 // ---- 表示 ----
@@ -94,18 +95,6 @@ for (const input of [H(), M()]) {
 }
 
 // ---- 動作 ----
-function beep() {
-  if (!audio) return;
-  [0, 0.28, 0.56].forEach(t => {
-    const osc = audio.createOscillator(), gain = audio.createGain();
-    osc.type = 'sine'; osc.frequency.value = 880;
-    gain.gain.setValueAtTime(0.0001, audio.currentTime + t);
-    gain.gain.exponentialRampToValueAtTime(0.25, audio.currentTime + t + 0.03);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + t + 0.22);
-    osc.connect(gain).connect(audio.destination);
-    osc.start(audio.currentTime + t); osc.stop(audio.currentTime + t + 0.25);
-  });
-}
 async function saveLog(minutes) {
   try {
     await f.addDoc(f.collection(db, 'users', user.uid, 'logs'), { title: 'Timer', minutes, pomodoros: 0, at: new Date() });
@@ -122,7 +111,7 @@ function startLoops() {
 function start() {
   const minutes = commitFields();
   if (minutes < 1) { say('1分以上に設定してください。'); H().focus(); return; }
-  try { audio ??= new (window.AudioContext || window.webkitAudioContext)(); audio.resume?.(); } catch (_) { /* 音なしで動く */ }
+  unlockAudio();
   state.total = minutes * 60000;
   state.endAt = Date.now() + state.total;
   state.mode = 'running';

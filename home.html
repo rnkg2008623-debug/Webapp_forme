@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Home</title>
 <script>document.documentElement.classList.add("auth-pending")</script>
-<link rel="stylesheet" href="style.css?v=20">
+<link rel="stylesheet" href="style.css?v=22">
 </head>
 <body data-view="home">
 
@@ -91,9 +91,38 @@
   </div>
 </main>
 
-<!-- Pomodoro / Log manually(準備中) -->
+<!-- Pomodoro: 左に残り時間、右に設定(作業時間・休憩時間・プリセット)とスタート -->
+<main class="pm" id="pomodoro-view" aria-label="Pomodoro">
+  <section class="pm-left" aria-label="残り時間">
+    <div class="pm-time" id="pm-time" role="timer" aria-live="off">25:00</div>
+    <p class="pm-phase" id="pm-phase">作業 25分</p>
+    <p class="pm-count" id="pm-count" hidden></p>
+  </section>
+  <section class="pm-right" aria-label="ポモドーロ設定">
+    <h2 class="pm-heading">ポモドーロ設定</h2>
+    <div class="pm-row">
+      <label class="pm-label" for="pm-work">作業時間:</label>
+      <span class="pm-sel"><select id="pm-work" aria-label="作業時間(分)"></select><span aria-hidden="true">分</span></span>
+    </div>
+    <div class="pm-row">
+      <label class="pm-label" for="pm-break">休憩時間:</label>
+      <span class="pm-sel"><select id="pm-break" aria-label="休憩時間(分)"></select><span aria-hidden="true">分</span></span>
+    </div>
+    <div class="pm-presets" role="group" aria-label="プリセット">
+      <button type="button" class="pm-preset" data-work="25" data-break="5" aria-pressed="false"><span class="pm-pname">デフォルト</span><small>(25分 / 5分)</small></button>
+      <button type="button" class="pm-preset" data-work="55" data-break="5" aria-pressed="false"><span class="pm-pname">ハード</span><small>(55分 / 5分)</small></button>
+    </div>
+    <button type="button" class="pm-start" id="pm-start">スタート</button>
+    <div class="tm-sub" id="pm-sub" hidden>
+      <button type="button" class="pf-link" id="pm-stop">終了する(作業分を記録)</button>
+    </div>
+    <p class="tm-msg" id="pm-msg" role="status" hidden></p>
+  </section>
+</main>
+
+<!-- Log manually(準備中) -->
 <main class="soon" id="soon-view" aria-label="準備中">
-  <h2 class="soon-title" id="soon-title">Pomodoro</h2>
+  <h2 class="soon-title" id="soon-title">Log manually</h2>
   <p>このページは準備中です。上の Log data から戻れます。</p>
 </main>
 
@@ -213,8 +242,8 @@
   </form>
 </div>
 
-<script src="script.js?v=20"></script>
-<script src="logpage.js?v=20"></script>
-<script type="module" src="home-auth.js?v=20"></script>
+<script src="script.js?v=22"></script>
+<script src="logpage.js?v=22"></script>
+<script type="module" src="home-auth.js?v=22"></script>
 </body>
 </html>
