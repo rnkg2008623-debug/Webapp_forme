@@ -51,17 +51,23 @@ document.getElementById('recent-list').innerHTML = recent.map(logItem).join('');
   svg.innerHTML = s;
 })();
 
-// nav: 画面の切り替え(ヘッダーは固定。Profile ではその下だけが入れ替わる)
+// nav: 画面の切り替え(ヘッダーは固定。その下だけが入れ替わる)
+//   home: ホーム / log: Log data / timer, pomodoro, manual: Log data の中のページ / profile: Profile
+const VIEWS = { home: null, log: 'log', timer: 'log', pomodoro: 'log', manual: 'log', profile: 'profile' };
 const navButtons = [...document.querySelectorAll('.nav-item[data-target]')];
-function setView(target) {
-  const profile = target === 'profile';
-  document.body.dataset.view = profile ? 'profile' : 'home';
-  navButtons.forEach(b => b.classList.toggle('is-active', b.dataset.target === target));
-  try { history.replaceState(null, '', profile ? '#profile' : location.pathname + location.search); } catch (_) { /* 無視 */ }
+function setView(name) {
+  if (!(name in VIEWS)) name = 'home';
+  document.body.dataset.view = name;
+  navButtons.forEach(b => b.classList.toggle('is-active', b.dataset.target === VIEWS[name]));
+  try { history.replaceState(null, '', name === 'home' ? location.pathname + location.search : `#${name}`); } catch (_) { /* 無視 */ }
+  window.dispatchEvent(new CustomEvent('viewchange', { detail: name }));
 }
+window.appSetView = setView;
 navButtons.forEach(btn => btn.addEventListener('click', () => {
-  if (btn.dataset.target === 'friend') return; // フレンドはページの上に重ねて表示する(friends-ui.js)
-  setView(btn.dataset.target);
-  if (btn.dataset.target !== 'profile') document.getElementById(btn.dataset.target)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  const t = btn.dataset.target;
+  if (t === 'friend') return;          // フレンドはページの上に重ねて表示する(friends-ui.js)
+  if (t in VIEWS) setView(t);          // Settings はまだ画面がない
 }));
-if (location.hash === '#profile') setView('profile');
+document.querySelector('.logo').addEventListener('click', e => { e.preventDefault(); setView('home'); });
+setView(location.hash.slice(1));
+window.addEventListener('hashchange', () => { const n = location.hash.slice(1) || 'home'; if (document.body.dataset.view !== n) setView(n); });

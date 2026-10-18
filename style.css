@@ -336,7 +336,7 @@ html.auth-pending body { visibility: hidden; }
   backdrop-filter: blur(3px);
 }
 body[data-view="profile"] .profile { display: grid; }
-body[data-view="profile"] .stage, body[data-view="profile"] .side { display: none; }
+body:not([data-view="home"]) .stage, body:not([data-view="home"]) .side { display: none; }
 
 .pf-left { display: flex; flex-direction: column; gap: clamp(14px, 1.6vw, 28px); min-width: 0; }
 .pf-right { display: flex; flex-direction: column; gap: clamp(14px, 1.6vw, 28px); min-width: 0; min-height: 0; }
@@ -445,3 +445,119 @@ body[data-view="profile"] .stage, body[data-view="profile"] .side { display: non
 .cr-foot { display: flex; align-items: center; gap: 14px; padding: 16px 24px 20px; color: #5d6578; }
 .cr-slider { flex: 1; min-width: 0; accent-color: #1d9bf0; height: 24px; cursor: pointer; }
 .cr-back:focus-visible, .cr-apply:focus-visible, .cr-canvas:focus-visible, .cr-slider:focus-visible { outline: 2px solid #1d9bf0; outline-offset: 2px; }
+
+/* ---------- Log data ---------- */
+.logo { cursor: pointer; }
+.lg, .tm, .soon {
+  display: none; position: fixed; inset: var(--header-h) 0 0 0; z-index: 4; overflow: hidden;
+  background: rgba(255, 255, 255, .5); backdrop-filter: blur(3px);  /* 背景(後で動画)をうっすら見せる */
+}
+body[data-view="log"] .lg { display: block; }
+body[data-view="timer"] .tm { display: block; overflow: auto; animation: page-in .5s ease both; }
+body[data-view="pomodoro"] .soon, body[data-view="manual"] .soon { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; animation: page-in .5s ease both; }
+@keyframes page-in { from { opacity: 0; } to { opacity: 1; } }
+.soon-title { font-weight: 500; font-size: clamp(32px, 3.4vw, 56px); color: #000; }
+.soon p { color: var(--ink-sub); font-size: 17px; }
+
+/* 3つの画像: 左 = Timer(Image#3) / 中央 = Pomodoro(Image#1・最初に真ん中に来る) / 右 = Log manually(Image#2) */
+.lg-world {
+  position: absolute; inset: 0; padding: clamp(18px, 3vh, 40px) clamp(20px, 3vw, 56px) clamp(24px, 5vh, 70px);
+  display: grid; gap: clamp(14px, 2.6vh, 34px) clamp(18px, 3vw, 56px);
+  grid-template-columns: 24fr 38fr 22fr; grid-template-rows: auto 1fr;
+  grid-template-areas: "tl tc tr" "pl pc pr";
+  transition: transform .85s cubic-bezier(.7, 0, .3, 1);
+  will-change: transform;
+}
+/* 線の上に文字が置かれている見た目(ボックスには入れない)。色は仮の黒 */
+.lg-title {
+  justify-self: center; width: min(100%, 78%); text-align: center; padding: 0 0 .25em;
+  font: 400 clamp(28px, 3vw, 52px)/1.1 var(--serif); color: #000;
+  border-bottom: 2px solid #000; cursor: pointer; transition: transform .25s ease, letter-spacing .25s ease;
+}
+.lg-title:hover, .lg-title:focus-visible { transform: translateY(-2px); letter-spacing: .02em; }
+.lg-title:focus-visible, .lg-panel:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; }
+.lg-panel {
+  align-self: center; justify-self: stretch; min-width: 0;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid #000; border-radius: 22px; background: rgba(255, 255, 255, .38);
+  box-shadow: 0 10px 34px rgba(30, 50, 100, .12); color: #000; cursor: pointer;
+  font: 400 clamp(24px, 3vw, 52px)/1 var(--serif);
+  transition: transform .3s ease, box-shadow .3s ease, background .3s ease;
+}
+.lg-panel.center { height: clamp(260px, 56vh, 640px); }
+.lg-panel.left { height: clamp(240px, 50vh, 580px); }
+.lg-panel.right { height: clamp(200px, 40vh, 460px); }
+.lg-panel:hover, .lg-panel.hover { transform: translateY(-6px) scale(1.015); box-shadow: 0 18px 46px rgba(30, 50, 100, .2); background: rgba(255, 255, 255, .55); }
+/* 開いたとき: 中央 → 左右の順にふわっと現れる */
+.lg-title, .lg-panel { animation: lg-rise .7s cubic-bezier(.2, .7, .2, 1) backwards; }
+.lg-panel.center, .lg-title[data-go="pomodoro"] { animation-delay: 0s; }
+.lg-panel.left, .lg-title[data-go="timer"] { animation-delay: .12s; }
+.lg-panel.right, .lg-title[data-go="manual"] { animation-delay: .2s; }
+@keyframes lg-rise { from { opacity: 0; transform: translateY(26px) scale(.97); } }
+/* 選んだ画像へズーム中: ほかは消えていく */
+.lg.zooming .lg-title, .lg.zooming .lg-panel:not(.is-target) { opacity: 0; transition: opacity .45s ease; animation: none; }
+.lg.zooming .lg-panel.is-target { transition: none; transform: none; box-shadow: none; animation: none; }
+.lg.zooming { pointer-events: none; }
+.lg-fade { position: fixed; inset: var(--header-h) 0 0 0; z-index: 6; background: #fff; opacity: 0; pointer-events: none; transition: opacity .3s ease; }
+.lg-fade.on { opacity: 1; transition-duration: .24s; pointer-events: auto; }
+
+/* ---------- Timer ---------- */
+.tm-grid { min-height: 100%; display: grid; grid-template-columns: auto auto; justify-content: center; align-items: center; gap: clamp(28px, 5vw, 96px); padding: 28px clamp(16px, 3vw, 48px) 40px; }
+.tm-clock svg { display: block; width: clamp(220px, 28vw, 480px); height: auto; filter: drop-shadow(0 10px 28px rgba(30, 50, 100, .18)); }
+.tm-face { fill: rgba(255, 255, 255, .88); stroke: #1f2740; stroke-width: 2; }
+.tm-tick { stroke: #5d6578; stroke-width: 1.6; stroke-linecap: round; }
+.tm-tick.major { stroke: #1f2740; stroke-width: 2.6; }
+.tm-wedge { fill: rgba(59, 111, 216, .22); }
+.tm-hand { stroke: #1f2740; stroke-linecap: round; }
+.tm-hand.hour { stroke-width: 5; }
+.tm-hand.min { stroke-width: 3; }
+.tm-pin { fill: #1f2740; }
+
+.tm-set { display: flex; flex-direction: column; align-items: stretch; gap: 22px; }
+.tm-digits { display: flex; align-items: center; justify-content: center; gap: clamp(10px, 1.6vw, 28px); }
+.tm-pair { display: flex; gap: clamp(8px, 1vw, 18px); }
+.tm-d { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.tm-oval {
+  width: clamp(64px, 7.4vw, 128px); height: clamp(110px, 12.4vw, 216px); display: flex; align-items: center; justify-content: center;
+  border: 2px solid #1f2740; border-radius: 50% 50% 50% 50% / 56% 56% 44% 44%;   /* 縦長のたまご形 */
+  background: rgba(255, 255, 255, .86); box-shadow: 0 8px 24px rgba(30, 50, 100, .12);
+  font: 400 clamp(46px, 6vw, 104px)/1 var(--serif); color: #141a33; font-variant-numeric: tabular-nums; user-select: none;
+}
+.tm-oval:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.tm-oval.locked { background: rgba(255, 255, 255, .6); border-color: rgba(31, 39, 64, .55); }
+.tm-ar {
+  width: clamp(46px, 4.6vw, 76px); height: clamp(26px, 2.4vw, 40px); display: flex; align-items: center; justify-content: center;
+  border: 1.5px solid #1f2740; border-radius: 7px; background: rgba(255, 255, 255, .85); color: #1f2740; transition: background .15s, transform .1s;
+}
+.tm-ar svg { width: 60%; height: 80%; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.tm-ar:hover:not(:disabled) { background: #fff; }
+.tm-ar:active:not(:disabled) { transform: translateY(1px); }
+.tm-ar:disabled { opacity: .35; cursor: default; }
+.tm-ar:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tm-colon { font: 400 clamp(40px, 5vw, 84px)/1 var(--serif); color: #1f2740; padding-bottom: .1em; }
+.tm-left { min-height: 1.4em; text-align: center; font-size: 17px; color: var(--ink-sub); font-variant-numeric: tabular-nums; }
+.tm-start {
+  height: clamp(54px, 5vw, 80px); border: 2px solid #1f2740; border-radius: 10px; background: #1f2740; color: #fff;
+  font: 400 clamp(22px, 2vw, 32px) var(--serif); letter-spacing: .04em; transition: filter .15s, background .15s, color .15s;
+}
+.tm-start:hover { filter: brightness(1.25); }
+.tm-start.alt { background: rgba(255, 255, 255, .9); color: #1f2740; }
+.tm-start:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.tm-sub { display: flex; justify-content: center; gap: 28px; flex-wrap: wrap; }
+.tm-sub[hidden], .tm-msg[hidden] { display: none; }
+.tm-msg { text-align: center; font-size: 16px; color: #c0392b; }
+.tm-msg.ok { color: #1f7a3d; }
+
+@media (max-width: 820px) {
+  .lg { overflow-y: auto; }
+  .lg-world { position: relative; inset: auto; grid-template-columns: 1fr; grid-template-rows: none; grid-template-areas: "tc" "pc" "tl" "pl" "tr" "pr"; padding-bottom: 40px; }
+  .lg-title { width: 80%; }
+  .lg-panel.center, .lg-panel.left, .lg-panel.right { height: 34vh; }
+  .tm-grid { grid-template-columns: 1fr; justify-items: center; }
+  .tm-clock svg { width: min(62vw, 300px); }
+  .tm-oval { width: 17vw; height: 27vw; font-size: 12vw; }
+  .tm-set { width: 100%; max-width: 420px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lg-title, .lg-panel, .lg-world, body[data-view="timer"] .tm, .lg-fade { animation: none !important; transition-duration: .01s !important; }
+}
