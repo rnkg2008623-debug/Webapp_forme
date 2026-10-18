@@ -1,5 +1,5 @@
 // フレンド機能のデータ層: プロフィール・フレンドコード・申請・フレンド(Firestore)と、オンライン状態(Realtime Database)
-import { firestore, realtime } from './auth.js?v=24';
+import { firestore, realtime } from './auth.js?v=25';
 
 const ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // 0/O, 1/I/L など紛らわしい文字を除く
 const genCode = () => Array.from(crypto.getRandomValues(new Uint8Array(8)), b => ALPHABET[b % ALPHABET.length]).join('');
@@ -60,9 +60,9 @@ export async function startSocial(user, render) {
     if (profileSubs.has(id)) return;
     profileSubs.set(id, f.onSnapshot(f.doc(db, 'users', id), s => {
       const d = s.exists() ? s.data() : null;
-      state.profiles[id] = { name: d?.displayName ?? '(不明なユーザー)', description: d?.description ?? '', photo: d?.photo ?? '' };
+      state.profiles[id] = { name: d?.displayName ?? '(不明なユーザー)', description: d?.description ?? '', photo: d?.photo ?? '', friendCode: d?.friendCode ?? '' };
       notify();
-    }, () => { state.profiles[id] = { name: '(不明なユーザー)', description: '', photo: '' }; notify(); }));
+    }, () => { state.profiles[id] = { name: '(不明なユーザー)', description: '', photo: '', friendCode: '' }; notify(); }));
   }
 
   // ---- オンライン状態(接続が切れると自動でオフラインになる) ----

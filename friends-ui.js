@@ -1,7 +1,7 @@
 // フレンド機能の画面: 右サイドバーの一覧と、ページの上に重ねて表示するフレンドUI
 //   左のレール: 人のマーク = フレンド一覧 / 人+のマーク = フレンド申請
-import { startSocial, formatCode, SOCIAL_MESSAGES, LIMITS } from './social.js?v=24';
-import { errorMessage } from './auth.js?v=24';
+import { startSocial, formatCode, SOCIAL_MESSAGES, LIMITS } from './social.js?v=25';
+import { errorMessage } from './auth.js?v=25';
 
 const $ = id => document.getElementById(id);
 const LABELS = { online: 'Online', busy: 'Busy', offline: 'Offline' };
@@ -20,6 +20,17 @@ function el(tag, className, text) {
   if (text != null) node.textContent = text;
   return node;
 }
+// 友だちの名前: クリックすると、その人のプロフィールを開く(profile.js が受け取る)
+function nameLink(uid, name, className) {
+  const b = el('button', `${className} link`, name);
+  b.type = 'button';
+  b.title = `${name} さんのプロフィールを見る`;
+  b.addEventListener('click', () => {
+    if (!overlay.hidden) close();
+    window.dispatchEvent(new CustomEvent('open-friend-profile', { detail: { uid } }));
+  });
+  return b;
+}
 function iconButton(kind, label, className, onClick) {
   const b = el('button', `fo-ic ${className}`);
   b.type = 'button';
@@ -35,7 +46,7 @@ function textButton(label, className, onClick) {
   b.addEventListener('click', onClick);
   return b;
 }
-import { PHOTO_PATTERN } from './avatar-image.js?v=24';
+import { PHOTO_PATTERN } from './avatar-image.js?v=25';
 function avatar(id, name, status, photo) {
   let h = 0;
   for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) % 360;
@@ -148,7 +159,7 @@ function friendsView(s) {
     const p = profile(s, fr.uid), st = statusOf(s, fr.uid), memo = s.memos[fr.uid];
     const card = el('article', 'fo-card');
     const info = el('div', 'fo-info');
-    info.append(el('div', 'fo-name', p.name), el('div', 'fo-desc', p.description || '自己紹介はまだありません'));
+    info.append(nameLink(fr.uid, p.name, 'fo-name'), el('div', 'fo-desc', p.description || '自己紹介はまだありません'));
     const studying = studyingText(s, fr.uid);
     if (studying) info.append(el('div', 'fo-study', studying));
     if (memo) info.append(el('div', 'fo-memo', `メモ: ${memo}`));
@@ -249,7 +260,7 @@ function render(state) {
     stLine.append(el('span', `dot ${statusOf(state, fr.uid)}`), LABELS[statusOf(state, fr.uid)]);
     const studying = studyingText(state, fr.uid);
     if (studying) stLine.append(el('span', 'sep', '|'), el('span', 'study', studying));   // Online | Studying for 02:30h
-    info.append(el('div', 'name', profile(state, fr.uid).name), stLine);
+    info.append(nameLink(fr.uid, profile(state, fr.uid).name, 'name'), stLine);
     const small = avatar(fr.uid, profile(state, fr.uid).name, undefined, profile(state, fr.uid).photo);
     small.classList.add('sm');
     li.append(small, info);

@@ -1,11 +1,11 @@
 // プロフィール画面: 自分の情報、学習の集計、日ごとの学習時間のグラフ、Log history
-import { firestore } from './auth.js?v=24';
-import { formatCode, SOCIAL_MESSAGES } from './social.js?v=24';
-import { errorMessage } from './auth.js?v=24';
-import { loadImage } from './avatar-image.js?v=24';
-import { openCropper } from './crop.js?v=24';
-import { onState, editMyProfile, makeAvatar } from './friends-ui.js?v=24';
-import { computeStats, dailySeries, niceScale, relativeTime, sampleLogs } from './stats.js?v=24';
+import { firestore } from './auth.js?v=25';
+import { formatCode, SOCIAL_MESSAGES } from './social.js?v=25';
+import { errorMessage } from './auth.js?v=25';
+import { loadImage } from './avatar-image.js?v=25';
+import { openCropper } from './crop.js?v=25';
+import { onState, editMyProfile, makeAvatar } from './friends-ui.js?v=25';
+import { computeStats, dailySeries, niceScale, relativeTime, sampleLogs } from './stats.js?v=25';
 
 const $ = id => document.getElementById(id);
 const el = (tag, className, text) => {
@@ -18,26 +18,56 @@ const WEEK = ['日', '月', '火', '水', '木', '金', '土'];
 const md = d => `${d.getMonth() + 1}/${d.getDate()}`;
 const fmt = (n, digits = 1) => n.toFixed(digits).replace(/\.0+$/, '');
 
-const state = { logs: [], preview: false, loaded: false, error: false, me: null };
+// subject: 'me' = 自分のプロフィール / 友だちの uid = その友だちのプロフィール(同じ画面で、相手のデータを表示する)
+const state = { subject: 'me', logs: [], preview: false, loaded: false, error: false, me: null, snap: null, friendLogs: [], friendLoaded: false, friendError: false };
+const isMe = () => state.subject === 'me';
+const LABELS = { online: 'Online', busy: 'Busy', offline: 'Offline' };
 
-// ---- 自分の情報 ----
+// ---- 表示中の人の情報(自分、または友だち) ----
+function subjectInfo() {
+  if (isMe()) return state.me && { name: state.me.displayName, description: state.me.description, photo: state.me.photo, code: state.me.friendCode, key: 'me' + state.me.friendCode };
+  const fr = state.snap?.profiles[state.subject];
+  return fr && { name: fr.name, description: fr.description, photo: fr.photo, code: fr.friendCode, key: state.subject };
+}
+const studyingText = p => {
+  if (!p?.studying || p.state === 'offline') return '';
+  const min = Math.max(0, Math.floor((Date.now() - p.studying) / 60000));
+  return `Studying for ${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}h`;
+};
 function renderMe() {
-  const me = state.me;
-  if (!me) return;
-  const av = makeAvatar('me' + me.friendCode, me.displayName, undefined, me.photo);
-  $('pf-photo-remove').hidden = !me.photo;
+  const who = subjectInfo();
+  if (!who) return;
+  const root = $('profile-view');
+  root.dataset.subject = isMe() ? 'me' : 'friend';
+  $('pf-back').hidden = isMe();
+  const av = makeAvatar(who.key, who.name, undefined, who.photo);
+  $('pf-photo-remove').hidden = !isMe() || !who.photo;
   av.id = 'pf-avatar';
   av.classList.add('pf-avatar');
   $('pf-avatar').replaceWith(av);
-  $('pf-name').textContent = me.displayName;
-  $('pf-uid').textContent = formatCode(me.friendCode);
+  $('pf-avatar-btn').disabled = !isMe();
+  $('pf-avatar-btn').title = isMe() ? 'クリックしてアイコンを変更' : '';
+  $('pf-name').textContent = who.name;
+  $('pf-uid').textContent = who.code ? formatCode(who.code) : '—';
   const d = $('pf-desc');
-  d.textContent = me.description || '自己紹介はまだありません。右上の鉛筆から追加できます。';
-  d.classList.toggle('empty', !me.description);
+  d.textContent = who.description || (isMe() ? '自己紹介はまだありません。右上の鉛筆から追加できます。' : '自己紹介はまだありません。');
+  d.classList.toggle('empty', !who.description);
+  // 友だちのときは、いまの状態(Online / Studying for ...)も出す
+  const pr = $('pf-presence');
+  const presence = isMe() ? null : state.snap?.presence[state.subject];
+  pr.hidden = isMe();
+  if (!isMe()) {
+    const st = presence?.state || 'offline';
+    const dot = el('span', `dot ${st}`);
+    const studying = studyingText(presence);
+    pr.replaceChildren(dot, LABELS[st], ...(studying ? [el('span', 'sep', '|'), el('span', 'study', studying)] : []));
+  }
 }
 
 // ---- 集計 ----
-const activeLogs = () => (state.preview ? sampleLogs() : state.logs);
+const activeLogs = () => (state.preview ? sampleLogs() : isMe() ? state.logs : state.friendLogs);
+const loaded = () => (isMe() ? state.loaded : state.friendLoaded);
+const failed = () => (isMe() ? state.error : state.friendError);
 function renderStats() {
   const s = computeStats(activeLogs());
   $('st-streak').textContent = String(s.streak);
@@ -100,21 +130,24 @@ $('pf-range').addEventListener('change', renderChart);
 // ---- Log history ----
 function renderHistory() {
   const logs = [...activeLogs()].sort((a, b) => b.at - a.at).slice(0, 30);
-  $('pf-preview').hidden = !state.preview;
+  $('pf-preview').hidden = !state.preview || !isMe();
   const items = logs.map(l => {
     const li = el('li', 'pf-log');
     const left = el('div', 'pf-log-main');
-    left.append(el('div', 'pf-log-title', l.title || '学習'), el('div', 'pf-log-sub', `${l.minutes}分${l.pomodoros ? ` ・ Pomodoro ${l.pomodoros}回` : ''}`));
+    left.append(el('div', 'pf-log-title', l.title || '学習'), el('div', 'pf-log-sub', `${l.minutes}分${l.pomodoros ? ` ・ Pomodoro ${l.pomodoros}回` : ''}${l.description ? ` ・ ${l.description}` : ''}`));
     li.append(left, el('time', 'pf-log-time', relativeTime(l.at)));
     li.querySelector('time').title = l.at.toLocaleString('ja-JP');
     return li;
   });
   if (!items.length) {
     const li = el('li', 'pf-empty');
-    li.append(el('p', null, state.error
+    const name = subjectInfo()?.name ?? '';
+    li.append(el('p', null, failed()
       ? 'ログを読み込めませんでした。Firestore のルールが最新か確認してください。'
-      : state.loaded ? '学習ログはまだありません。学習を記録すると、ここに新しい順で表示されます。' : '読み込み中…'));
-    if (state.loaded || state.error) {
+      : !loaded() ? '読み込み中…'
+      : isMe() ? '学習ログはまだありません。学習を記録すると、ここに新しい順で表示されます。'
+      : `${name} さんの学習ログは、まだありません。`));
+    if (isMe() && (loaded() || failed())) {
       const b = el('button', 'fm-btn', 'サンプルで表示を確認');
       b.type = 'button';
       b.addEventListener('click', () => { state.preview = true; renderAll(); });
@@ -165,15 +198,62 @@ $('pf-copy').addEventListener('click', async () => {
   setTimeout(() => { b.textContent = 'コピー'; }, 1800);
 });
 
+// ---- 自分 ⇄ 友だち の切り替え ----
+let fsApi = null;            // { f, db }
+let friendUnsub = null;
+let pendingFriend = null;
+const since = () => { const d = new Date(); d.setDate(d.getDate() - 365); d.setHours(0, 0, 0, 0); return d; };
+
+function subscribeFriend(uid) {
+  friendUnsub?.();
+  friendUnsub = null;
+  state.friendLogs = []; state.friendLoaded = false; state.friendError = false;
+  if (!fsApi) return;
+  const { f, db } = fsApi;
+  friendUnsub = f.onSnapshot(
+    f.query(f.collection(db, 'users', uid, 'logs'), f.where('at', '>=', since()), f.orderBy('at', 'desc'), f.limit(2000)),
+    snap => {
+      if (state.subject !== uid) return;
+      state.friendLogs = snap.docs.map(d => ({ id: d.id, ...d.data(), at: d.data().at?.toDate?.() })).filter(l => l.at);
+      state.friendLoaded = true; state.friendError = false;
+      renderAll();
+    },
+    err => { console.error(err); if (state.subject === uid) { state.friendError = true; renderAll(); } });
+}
+function setSubject(next) {
+  state.subject = next;
+  state.preview = false;
+  if (isMe()) { friendUnsub?.(); friendUnsub = null; } else subscribeFriend(next);
+  $('pf-range').value = '7';
+  renderMe();
+  renderAll();
+  $('profile-view').scrollTop = 0;
+}
+$('pf-back').addEventListener('click', () => setSubject('me'));
+// 友だちの名前が押されたら、Profile の画面に切り替えて、その人のデータを出す
+window.addEventListener('open-friend-profile', e => { pendingFriend = e.detail.uid; window.appSetView('profile'); });
+window.addEventListener('viewchange', e => {
+  if (e.detail !== 'profile') return;
+  const next = pendingFriend;
+  pendingFriend = null;
+  setSubject(next || 'me');   // ヘッダーの Profile から開いたときは、いつも自分のプロフィール
+});
+
 export async function mountProfile(user, api) {
   socialApi = api;
-  onState(s => { state.me = s.me; renderMe(); });
+  onState(s => {
+    state.me = s.me;
+    state.snap = s;
+    if (!isMe() && !s.friends.some(fr => fr.uid === state.subject)) { setSubject('me'); return; }   // フレンドを解除したら、自分に戻る
+    renderMe();
+  });
   renderAll();
-  setInterval(renderHistory, 60000); // 「5分前」などを更新
+  setInterval(() => { renderHistory(); renderMe(); }, 60000); // 「5分前」「Studying for」などを更新
   const { m: f, db } = await firestore();
-  const since = new Date(); since.setDate(since.getDate() - 365); since.setHours(0, 0, 0, 0);
+  fsApi = { f, db };
+  if (!isMe()) subscribeFriend(state.subject);
   f.onSnapshot(
-    f.query(f.collection(db, 'users', user.uid, 'logs'), f.where('at', '>=', since), f.orderBy('at', 'desc'), f.limit(2000)),
+    f.query(f.collection(db, 'users', user.uid, 'logs'), f.where('at', '>=', since()), f.orderBy('at', 'desc'), f.limit(2000)),
     snap => {
       state.logs = snap.docs.map(d => ({ id: d.id, ...d.data(), at: d.data().at?.toDate?.() })).filter(l => l.at);
       state.loaded = true; state.error = false;
