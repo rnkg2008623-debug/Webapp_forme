@@ -237,7 +237,7 @@ html.auth-pending body { visibility: hidden; }
   border-right: 1px solid #e6e9f1; background: #fbfbfd;
 }
 .fo-tab {
-  position: relative; width: clamp(52px, 5.4vw, 108px); height: clamp(52px, 5.4vw, 108px); border-radius: 16px;
+  position: relative; width: clamp(46px, 4.4vw, 88px); height: clamp(46px, 4.4vw, 88px); border-radius: 14px;
   display: flex; align-items: center; justify-content: center; color: #23283a; transition: background .2s;
 }
 .fo-tab svg { width: 50%; height: 50%; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
@@ -254,12 +254,12 @@ html.auth-pending body { visibility: hidden; }
 .fo-close:hover { color: var(--ink); background: rgba(60,70,100,.08); }
 
 /* 上部バー */
-.fo-me, .fo-add { margin: 28px 0 22px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.fo-me, .fo-add { margin: 22px 0 16px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
 .fo-me { justify-content: space-between; padding-right: 48px; }
 .fo-me-who { display: flex; align-items: center; gap: 16px; min-width: 0; flex: 1; }
-.fo-me .fo-avatar { width: 56px; height: 56px; font-size: 24px; }
+.fo-me .fo-avatar { width: 44px; height: 44px; font-size: 19px; }
 .fo-me-text { min-width: 0; }
-.fo-me-name { font-size: 24px; overflow-wrap: anywhere; }
+.fo-me-name { font-size: 19px; overflow-wrap: anywhere; }
 .fo-add { flex-direction: column; align-items: stretch; gap: 12px; max-width: 640px; }
 .fo-code { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 14px; border-radius: 10px; background: var(--accent-soft); }
 .fo-code code { font: 600 20px/1 ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: .12em; color: var(--accent); user-select: all; margin-right: auto; }
@@ -267,26 +267,26 @@ html.auth-pending body { visibility: hidden; }
 
 /* カード */
 .fo-card {
-  display: flex; align-items: center; gap: clamp(14px, 2vw, 40px);
-  min-height: clamp(96px, 8.5vw, 170px); margin-bottom: clamp(12px, 1.3vw, 26px); padding: 12px clamp(16px, 1.7vw, 34px);
+  display: flex; align-items: center; gap: clamp(12px, 1.5vw, 30px);
+  min-height: clamp(76px, 6.3vw, 126px); margin-bottom: clamp(10px, 1vw, 20px); padding: 10px clamp(14px, 1.4vw, 28px);
   background: #fff; border: 1px solid #e3e7f0; border-radius: 14px; box-shadow: 0 1px 3px rgba(40,60,110,.04);
 }
 .fo-avatar {
-  position: relative; flex: none; width: clamp(52px, 5.35vw, 108px); height: clamp(52px, 5.35vw, 108px); border-radius: 50%;
-  display: flex; align-items: center; justify-content: center; color: #fff; font-family: var(--serif); font-size: clamp(22px, 2.4vw, 46px);
+  position: relative; flex: none; width: clamp(44px, 3.9vw, 78px); height: clamp(44px, 3.9vw, 78px); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; color: #fff; font-family: var(--serif); font-size: clamp(19px, 1.8vw, 34px);
 }
 .fo-avatar .dot { position: absolute; right: 2%; bottom: 2%; width: 16%; height: 16%; border: 3px solid #fff; box-sizing: content-box; }
 .fo-avatar.sm { width: 38px; height: 38px; font-size: 17px; box-shadow: 0 0 0 2px #fff, 0 1px 4px rgba(0,0,0,.2); }
 .fo-info { flex: 1; min-width: 0; }
-.fo-name { font-size: clamp(21px, 2vw, 40px); line-height: 1.15; color: #141a33; overflow-wrap: anywhere; }
-.fo-desc { font-size: clamp(14px, 1.3vw, 26px); color: #8b90a3; margin-top: 6px; overflow-wrap: anywhere; }
-.fo-memo { font-size: clamp(12px, 1.1vw, 18px); color: var(--accent); margin-top: 6px; overflow-wrap: anywhere; }
+.fo-name { font-size: clamp(18px, 1.5vw, 30px); line-height: 1.15; color: #141a33; overflow-wrap: anywhere; }
+.fo-desc { font-size: clamp(12px, 1vw, 20px); color: #8b90a3; margin-top: 4px; overflow-wrap: anywhere; }
+.fo-memo { font-size: clamp(11px, .9vw, 16px); color: var(--accent); margin-top: 6px; overflow-wrap: anywhere; }
 .fo-div { align-self: stretch; width: 1px; margin: 6px 0; background: #e3e7f0; flex: none; }
-.fo-side { align-self: stretch; flex: none; display: flex; flex-direction: column; justify-content: center; align-items: flex-end; gap: 14px; padding-left: clamp(14px, 2vw, 40px); border-left: 1px solid #e3e7f0; min-width: clamp(150px, 17vw, 340px); }
-.fo-btns { display: flex; gap: 14px; }
-.fo-seen { font-size: clamp(11px, 1.05vw, 17px); color: #8b90a3; font-family: Georgia, "Hiragino Sans", sans-serif; }
+.fo-side { align-self: stretch; flex: none; display: flex; flex-direction: column; justify-content: center; align-items: flex-end; gap: 10px; padding-left: clamp(12px, 1.5vw, 30px); border-left: 1px solid #e3e7f0; min-width: clamp(130px, 13vw, 260px); }
+.fo-btns { display: flex; gap: 10px; }
+.fo-seen { font-size: clamp(10px, .8vw, 14px); color: #8b90a3; font-family: Georgia, "Hiragino Sans", sans-serif; }
 .fo-ic {
-  width: clamp(40px, 2.9vw, 62px); height: clamp(40px, 2.9vw, 62px); border-radius: 50%; flex: none;
+  width: clamp(34px, 2.3vw, 46px); height: clamp(34px, 2.3vw, 46px); border-radius: 50%; flex: none;
   display: flex; align-items: center; justify-content: center; transition: filter .15s, background .15s;
 }
 .fo-ic svg { width: 46%; height: 46%; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
@@ -295,12 +295,12 @@ html.auth-pending body { visibility: hidden; }
 .fo-ic.danger.confirm { background: #e5483f; color: #fff; }
 .fo-ic.ok { background: #e8f4ec; color: #3a9b63; }
 .fo-ic:hover { filter: brightness(.96); }
-.request .fo-ic { width: clamp(44px, 3.8vw, 76px); height: clamp(44px, 3.8vw, 76px); }
-.request .fo-avatar { width: clamp(50px, 5.2vw, 105px); height: clamp(50px, 5.2vw, 105px); }
-.request .fo-btns { gap: clamp(10px, 1.2vw, 20px); }
+.request .fo-ic { width: clamp(38px, 2.9vw, 58px); height: clamp(38px, 2.9vw, 58px); }
+.request .fo-avatar { width: clamp(42px, 3.7vw, 74px); height: clamp(42px, 3.7vw, 74px); }
+.request .fo-btns { gap: clamp(8px, .9vw, 16px); }
 .request.pending { background: #fafbfd; }
-.fo-sub { font-weight: 500; font-size: 17px; color: var(--ink-sub); margin: 26px 0 12px; }
-.fo-empty { color: var(--ink-sub); font-size: 17px; padding: 28px 4px; }
+.fo-sub { font-weight: 500; font-size: 15px; color: var(--ink-sub); margin: 20px 0 10px; }
+.fo-empty { color: var(--ink-sub); font-size: 15px; padding: 28px 4px; }
 
 /* 編集ダイアログ */
 .ed { position: fixed; inset: 0; z-index: 70; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(30,45,80,.35); backdrop-filter: blur(4px); }
@@ -321,3 +321,7 @@ html.auth-pending body { visibility: hidden; }
   .fo-div { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .fo-panel { animation: none; } }
+
+.fo-me .fo-desc { font-size: 13px; margin-top: 2px; }
+.fo-me .seg button { padding: 5px 12px; font-size: 14px; }
+.fo-me .fo-ic { width: 38px; height: 38px; }
