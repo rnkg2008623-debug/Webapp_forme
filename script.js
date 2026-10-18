@@ -1,21 +1,8 @@
-const logs = [
-  ['Log data 001', '2025/10/08 12:34'],
-  ['Log data 002', '2025/10/07 18:21'],
-  ['Log data 003', '2025/10/06 09:15'],
-  ['Log data 004', '2025/10/05 14:03'],
-  ['Log data 005', '2025/10/04 20:11'],
-  ['Log data 006', '2025/10/03 11:48'],
-  ['Log data 007', '2025/10/02 16:20'],
-];
 const stats = [
   ['Mon', 47], ['Tue', 50], ['Wed', 68], ['Thu', 57], ['Fri', 70], ['Sat', 96], ['Sun', 88],
 ];
 
-const docIcon = '<svg viewBox="0 0 24 24"><path d="M6 2.5h8l5 5V20a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 5 20V4A1.5 1.5 0 0 1 6 2.5z"/><path d="M14 2.5V8h5M8.5 13h7M8.5 16.5h7"/></svg>';
-const logItem = ([n, d]) =>
-  `<li>${docIcon}<div><div class="name">${n}</div><div class="date">${d}</div></div></li>`;
 
-document.getElementById('log-list').innerHTML = logs.map(logItem).join('');
 
 // chart: smooth line + area
 (function drawChart() {

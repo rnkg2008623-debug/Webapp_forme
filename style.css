@@ -135,7 +135,6 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 }
 .panel { padding: 18px 24px 8px 28px; }
 .panel + .panel { border-top: 1px solid var(--line); }
-#log { flex: none; }
 .scroll { max-height: 250px; overflow-y: auto; margin-top: 8px; scrollbar-width: thin; scrollbar-color: #cfd3dc transparent; }
 .scroll li:first-child { border-top-color: var(--line); }
 
@@ -164,7 +163,10 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 html.auth-pending body { visibility: hidden; }
 
 /* ---------- フレンド ---------- */
-.friends { max-height: 232px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #cfd3dc transparent; }
+/* Log data の枠をなくした分は Friend が受け継ぐ。Statistic は、これまでと同じ位置(サイドバーの上から約431px)のまま。 */
+#friend { flex: 0 1 431px; min-height: 180px; display: flex; flex-direction: column; }
+.friends { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #cfd3dc transparent; }
+#statistic { flex: none; }
 .friends .fm-row { padding: 7px 0; }
 .avatar { display: flex; align-items: center; justify-content: center; color: #fff; font-size: 17px; font-family: var(--serif); }
 .fm-empty { list-style: none; color: var(--ink-sub); font-size: 14px; padding: 10px 0; }

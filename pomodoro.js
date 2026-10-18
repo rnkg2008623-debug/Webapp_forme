@@ -1,6 +1,6 @@
 // Pomodoro: 作業 → 休憩 を繰り返す。作業が終わるたびに学習ログ(Pomodoro 1回)を記録する。
-import { firestore } from './auth.js?v=26';
-import { unlockAudio, beep, pon } from './sound.js?v=26';
+import { firestore } from './auth.js?v=27';
+import { unlockAudio, beep, pon } from './sound.js?v=27';
 
 const $ = id => document.getElementById(id);
 const pad2 = n => String(n).padStart(2, '0');
