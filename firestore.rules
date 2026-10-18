@@ -7,17 +7,30 @@ service cloud.firestore {
     // ドキュメントID「A_B」に自分のIDが含まれているか
     function inId(id) { return id.split('_')[0] == uid() || id.split('_')[1] == uid(); }
     function validName(n) { return n is string && n.size() >= 1 && n.size() <= 20; }
+    function validDesc(d) { return !('description' in d) || (d.description is string && d.description.size() <= 60); }
 
     // プロフィール: 1件ずつ取得のみ(一覧は不可)。メールアドレスは保存しない。
     match /users/{userId} {
       allow get: if signedIn();
       allow create: if signedIn() && userId == uid()
-        && request.resource.data.keys().hasOnly(['displayName', 'friendCode', 'createdAt'])
+        && request.resource.data.keys().hasOnly(['displayName', 'friendCode', 'createdAt', 'description'])
         && validName(request.resource.data.displayName)
+        && validDesc(request.resource.data)
         && getAfter(/databases/$(database)/documents/friendCodes/$(request.resource.data.friendCode)).data.uid == uid();
       allow update: if signedIn() && userId == uid()
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName'])
-        && validName(request.resource.data.displayName);
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName', 'description'])
+        && validName(request.resource.data.displayName)
+        && validDesc(request.resource.data);
+
+      // 自分だけに見えるフレンドのメモ
+      match /memos/{friendId} {
+        allow read: if signedIn() && userId == uid();
+        allow create, update: if signedIn() && userId == uid()
+          && request.resource.data.keys().hasOnly(['text'])
+          && request.resource.data.text is string
+          && request.resource.data.text.size() <= 60;
+        allow delete: if signedIn() && userId == uid();
+      }
     }
 
     // フレンドコード → ユーザーID。コードを知っている人だけが引ける(一覧は不可)。

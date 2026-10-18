@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Home</title>
 <script>document.documentElement.classList.add("auth-pending")</script>
-<link rel="stylesheet" href="style.css?v=8">
+<link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
 
@@ -71,53 +71,37 @@
   </section>
 </aside>
 
-<div class="modal" id="friend-modal" hidden>
-  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="fm-title">
-    <button type="button" class="modal-close" id="fm-close" aria-label="閉じる">×</button>
-    <h2 class="title" id="fm-title">Friend</h2>
-
-    <section class="fm-sec">
-      <div class="fm-me">
-        <div>
-          <div class="fm-label">あなた</div>
-          <div class="fm-myname" id="fm-name"></div>
-        </div>
-        <div class="seg" id="status-seg" role="group" aria-label="ステータス">
-          <button type="button" data-s="online"><span class="dot online"></span>Online</button>
-          <button type="button" data-s="busy"><span class="dot busy"></span>Busy</button>
-        </div>
-      </div>
-      <div class="fm-codebox">
-        <span class="fm-label">あなたのフレンドコード</span>
-        <code id="fm-code"></code>
-        <button type="button" class="fm-btn" id="fm-copy">コピー</button>
-      </div>
-    </section>
-
-    <section class="fm-sec">
-      <h3>フレンドを追加</h3>
-      <form class="fm-add" id="fm-add" novalidate>
-        <input id="fm-code-input" type="text" placeholder="相手のフレンドコード (XXXX-XXXX)" maxlength="12" autocomplete="off" spellcheck="false" aria-label="相手のフレンドコード">
-        <button type="submit" class="fm-btn primary">申請する</button>
-      </form>
-      <p class="fm-msg" id="fm-msg" role="status" hidden></p>
-    </section>
-
-    <section class="fm-sec">
-      <h3>届いた申請</h3>
-      <ul class="fm-list" id="fm-incoming"></ul>
-      <h3>送信した申請</h3>
-      <ul class="fm-list" id="fm-outgoing"></ul>
-    </section>
-
-    <section class="fm-sec">
-      <h3>フレンド</h3>
-      <ul class="fm-list" id="fm-friends"></ul>
-    </section>
-  </div>
+<div class="fo" id="friend-overlay" hidden>
+  <nav class="fo-rail" aria-label="フレンド">
+    <button type="button" class="fo-tab is-on" data-view="friends" aria-label="フレンド一覧" aria-pressed="true">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+    </button>
+    <button type="button" class="fo-tab" data-view="requests" aria-label="フレンド申請" aria-pressed="false">
+      <svg viewBox="0 0 24 24"><circle cx="10" cy="8" r="4"/><path d="M2.5 21c0-4.2 3.3-7 7.5-7 1.4 0 2.6.3 3.7.8"/><path d="M18 14v6M15 17h6"/></svg>
+      <span class="badge" id="rail-badge" hidden>0</span>
+    </button>
+  </nav>
+  <section class="fo-main" role="dialog" aria-modal="true" aria-label="フレンド">
+    <button type="button" class="fo-close" id="fo-close" aria-label="閉じる">×</button>
+    <div class="fo-bar" id="fo-bar"></div>
+    <div class="fo-list" id="fo-list"></div>
+  </section>
 </div>
 
-<script src="script.js?v=8"></script>
-<script type="module" src="home-auth.js?v=8"></script>
+<div class="ed" id="ed" hidden>
+  <form class="ed-card" id="ed-form" novalidate>
+    <h3 id="ed-title"></h3>
+    <p class="ed-note" id="ed-note"></p>
+    <div id="ed-fields"></div>
+    <p class="fm-msg" id="ed-msg" role="alert" hidden></p>
+    <div class="ed-actions">
+      <button type="button" class="fm-btn" id="ed-cancel">キャンセル</button>
+      <button type="submit" class="fm-btn primary">保存</button>
+    </div>
+  </form>
+</div>
+
+<script src="script.js?v=9"></script>
+<script type="module" src="home-auth.js?v=9"></script>
 </body>
 </html>

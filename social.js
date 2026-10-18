@@ -1,5 +1,5 @@
 // フレンド機能のデータ層: プロフィール・フレンドコード・申請・フレンド(Firestore)と、オンライン状態(Realtime Database)
-import { firestore, realtime } from './auth.js?v=8';
+import { firestore, realtime } from './auth.js?v=9';
 
 const ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // 0/O, 1/I/L など紛らわしい文字を除く
 const genCode = () => Array.from(crypto.getRandomValues(new Uint8Array(8)), b => ALPHABET[b % ALPHABET.length]).join('');
@@ -8,6 +8,7 @@ export const normalizeCode = s => s.toUpperCase().replace(/[^A-Z0-9]/g, '');
 const pairId = (a, b) => [a, b].sort().join('_');
 const STATUS_KEY = 'myStatus';
 const fail = code => Object.assign(new Error(code), { code });
+export const LIMITS = { name: 20, description: 60, memo: 60 };
 
 export const SOCIAL_MESSAGES = {
   'bad-code': 'フレンドコードは8文字で入力してください。',
@@ -15,34 +16,29 @@ export const SOCIAL_MESSAGES = {
   self: '自分自身にはフレンド申請できません。',
   'already-friends': 'すでにフレンドです。',
   'already-sent': 'すでに申請を送っています。',
-  'incoming-exists': '相手から申請が届いています。「届いた申請」から承認してください。',
+  'incoming-exists': '相手から申請が届いています。申請の一覧から承認してください。',
+  'empty-name': 'ユーザー名を入力してください。',
 };
 
 export async function startSocial(user, render) {
   const [{ m: f, db }, { m: r, db: rtdb }] = await Promise.all([firestore(), realtime()]);
   const uid = user.uid;
-  const state = { me: null, friends: [], incoming: [], outgoing: [], presence: {}, myStatus: 'online' };
+  const state = {
+    me: null, friends: [], incoming: [], outgoing: [],
+    profiles: {},   // uid -> { name, description }(フレンド・申請相手の公開プロフィール)
+    memos: {},      // friendUid -> 自分だけに見えるメモ
+    presence: {},   // uid -> { state, changed }
+    myStatus: 'online',
+  };
   try { if (localStorage.getItem(STATUS_KEY) === 'busy') state.myStatus = 'busy'; } catch (_) { /* 保存できなくても動く */ }
   const notify = () => render(state);
 
-  // ---- ユーザー名の取得(キャッシュ) ----
-  const names = new Map();
-  async function nameOf(id) {
-    if (!names.has(id)) {
-      try {
-        const s = await f.getDoc(f.doc(db, 'users', id));
-        names.set(id, s.exists() ? s.data().displayName : '(不明なユーザー)');
-      } catch (_) { names.set(id, '(不明なユーザー)'); }
-    }
-    return names.get(id);
-  }
-
-  // ---- プロフィールとフレンドコード(初回ログイン時に作成。Googleなら Google の名前が初期値) ----
+  // ---- プロフィール ----
   async function ensureProfile() {
     const ref = f.doc(db, 'users', uid);
     const snap = await f.getDoc(ref);
     if (snap.exists()) return snap.data();
-    const displayName = (user.displayName || (user.email || '').split('@')[0] || 'User').trim().slice(0, 20) || 'User';
+    const displayName = (user.displayName || (user.email || '').split('@')[0] || 'User').trim().slice(0, LIMITS.name) || 'User';
     for (let i = 0; i < 5; i++) {
       const code = genCode();
       const batch = f.writeBatch(db);
@@ -52,8 +48,19 @@ export async function startSocial(user, render) {
       catch (e) { if (e.code !== 'permission-denied' || i === 4) throw e; /* コードが重複したら作り直す */ }
     }
   }
-  state.me = await ensureProfile();
-  names.set(uid, state.me.displayName);
+  const mine = await ensureProfile();
+  state.me = { displayName: mine.displayName, description: mine.description || '', friendCode: mine.friendCode };
+
+  // 相手のプロフィールは、変更がすぐ反映されるよう購読しておく
+  const profileSubs = new Map();
+  function watchProfile(id) {
+    if (profileSubs.has(id)) return;
+    profileSubs.set(id, f.onSnapshot(f.doc(db, 'users', id), s => {
+      const d = s.exists() ? s.data() : null;
+      state.profiles[id] = { name: d?.displayName ?? '(不明なユーザー)', description: d?.description ?? '' };
+      notify();
+    }, () => { state.profiles[id] = { name: '(不明なユーザー)', description: '' }; notify(); }));
+  }
 
   // ---- オンライン状態(接続が切れると自動でオフラインになる) ----
   const myRef = r.ref(rtdb, `status/${uid}`);
@@ -63,8 +70,6 @@ export async function startSocial(user, render) {
     r.onDisconnect(myRef).set({ state: 'offline', changed: stamp() })
       .then(() => r.set(myRef, { state: state.myStatus, changed: stamp() }));
   });
-
-  // ---- フレンドのオンライン状態を購読 ----
   const watchers = new Map();
   function syncWatchers() {
     const ids = new Set(state.friends.map(x => x.uid));
@@ -72,7 +77,8 @@ export async function startSocial(user, render) {
     for (const id of ids) {
       if (watchers.has(id)) continue;
       watchers.set(id, r.onValue(r.ref(rtdb, `status/${id}`), s => {
-        state.presence[id] = s.val()?.state || 'offline';
+        const v = s.val();
+        state.presence[id] = { state: v?.state || 'offline', changed: v?.changed || null };
         notify();
       }));
     }
@@ -80,21 +86,24 @@ export async function startSocial(user, render) {
 
   // ---- Firestore のリアルタイム購読 ----
   const unsubs = [];
-  unsubs.push(f.onSnapshot(f.query(f.collection(db, 'friendships'), f.where('members', 'array-contains', uid)), async snap => {
-    const list = await Promise.all(snap.docs.map(async d => {
-      const other = d.data().members.find(x => x !== uid);
-      return { uid: other, name: await nameOf(other), pair: d.id };
-    }));
-    state.friends = list.sort((a, b) => a.name.localeCompare(b.name));
+  unsubs.push(f.onSnapshot(f.query(f.collection(db, 'friendships'), f.where('members', 'array-contains', uid)), snap => {
+    state.friends = snap.docs.map(d => ({ uid: d.data().members.find(x => x !== uid), pair: d.id }));
+    state.friends.forEach(x => watchProfile(x.uid));
     syncWatchers();
     notify();
   }));
-  unsubs.push(f.onSnapshot(f.query(f.collection(db, 'friendRequests'), f.where('to', '==', uid)), async snap => {
-    state.incoming = await Promise.all(snap.docs.map(async d => ({ id: d.id, uid: d.data().from, name: await nameOf(d.data().from) })));
+  unsubs.push(f.onSnapshot(f.query(f.collection(db, 'friendRequests'), f.where('to', '==', uid)), snap => {
+    state.incoming = snap.docs.map(d => ({ id: d.id, uid: d.data().from }));
+    state.incoming.forEach(x => watchProfile(x.uid));
     notify();
   }));
-  unsubs.push(f.onSnapshot(f.query(f.collection(db, 'friendRequests'), f.where('from', '==', uid)), async snap => {
-    state.outgoing = await Promise.all(snap.docs.map(async d => ({ id: d.id, uid: d.data().to, name: await nameOf(d.data().to) })));
+  unsubs.push(f.onSnapshot(f.query(f.collection(db, 'friendRequests'), f.where('from', '==', uid)), snap => {
+    state.outgoing = snap.docs.map(d => ({ id: d.id, uid: d.data().to }));
+    state.outgoing.forEach(x => watchProfile(x.uid));
+    notify();
+  }));
+  unsubs.push(f.onSnapshot(f.collection(db, 'users', uid, 'memos'), snap => {
+    state.memos = Object.fromEntries(snap.docs.map(d => [d.id, d.data().text]));
     notify();
   }));
 
@@ -110,7 +119,8 @@ export async function startSocial(user, render) {
       if (state.outgoing.some(x => x.uid === other)) throw fail('already-sent');
       if (state.incoming.some(x => x.uid === other)) throw fail('incoming-exists');
       await f.setDoc(f.doc(db, 'friendRequests', `${uid}_${other}`), { from: uid, to: other, status: 'pending', createdAt: f.serverTimestamp() });
-      return nameOf(other);
+      const p = await f.getDoc(f.doc(db, 'users', other));
+      return p.exists() ? p.data().displayName : 'ユーザー';
     },
     async accept(req) {
       const batch = f.writeBatch(db);
@@ -122,6 +132,20 @@ export async function startSocial(user, render) {
     decline: req => f.deleteDoc(f.doc(db, 'friendRequests', req.id)),
     cancel: req => f.deleteDoc(f.doc(db, 'friendRequests', req.id)),
     remove: friend => f.deleteDoc(f.doc(db, 'friendships', friend.pair)),
+    async saveProfile({ displayName, description }) {
+      displayName = displayName.trim();
+      description = description.trim();
+      if (!displayName) throw fail('empty-name');
+      await f.updateDoc(f.doc(db, 'users', uid), { displayName, description });
+      state.me = { ...state.me, displayName, description };
+      notify();
+    },
+    async saveMemo(friendUid, text) {
+      const ref = f.doc(db, 'users', uid, 'memos', friendUid);
+      text = text.trim();
+      if (text) await f.setDoc(ref, { text });
+      else await f.deleteDoc(ref);
+    },
     async setStatus(next) {
       state.myStatus = next;
       try { localStorage.setItem(STATUS_KEY, next); } catch (_) { /* 無視 */ }
@@ -131,6 +155,7 @@ export async function startSocial(user, render) {
     // ログアウト時: すぐにオフラインにして、購読をすべて止める
     async stop() {
       unsubs.forEach(u => u());
+      profileSubs.forEach(u => u());
       watchers.forEach(off => off());
       unsubConn();
       try { await r.onDisconnect(myRef).cancel(); await r.set(myRef, { state: 'offline', changed: stamp() }); } catch (_) { /* 切断時の自動処理に任せる */ }
