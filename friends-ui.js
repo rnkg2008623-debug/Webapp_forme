@@ -1,6 +1,6 @@
 // フレンド機能の画面: 右サイドバーの一覧、Friend ダイアログ、申請バッジ
-import { startSocial, formatCode, SOCIAL_MESSAGES } from './social.js?v=7';
-import { errorMessage } from './auth.js?v=7';
+import { startSocial, formatCode, SOCIAL_MESSAGES } from './social.js?v=8';
+import { errorMessage } from './auth.js?v=8';
 
 const $ = id => document.getElementById(id);
 const LABELS = { online: 'Online', busy: 'Busy', offline: 'Offline' };
