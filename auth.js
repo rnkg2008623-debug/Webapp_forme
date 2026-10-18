@@ -1,5 +1,5 @@
 // Firebase Authentication のラッパー。設定が空のときは SDK を読み込まず、isConfigured=false になる。
-import { firebaseConfig } from './firebase-config.js?v=14';
+import { firebaseConfig } from './firebase-config.js?v=15';
 
 const SDK = 'https://www.gstatic.com/firebasejs/10.14.1';
 export const isConfigured = Boolean(firebaseConfig.apiKey && firebaseConfig.authDomain && firebaseConfig.projectId);

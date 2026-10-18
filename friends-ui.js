@@ -1,7 +1,7 @@
 // フレンド機能の画面: 右サイドバーの一覧と、ページの上に重ねて表示するフレンドUI
 //   左のレール: 人のマーク = フレンド一覧 / 人+のマーク = フレンド申請
-import { startSocial, formatCode, SOCIAL_MESSAGES, LIMITS } from './social.js?v=14';
-import { errorMessage } from './auth.js?v=14';
+import { startSocial, formatCode, SOCIAL_MESSAGES, LIMITS } from './social.js?v=15';
+import { errorMessage } from './auth.js?v=15';
 
 const $ = id => document.getElementById(id);
 const LABELS = { online: 'Online', busy: 'Busy', offline: 'Offline' };
@@ -35,7 +35,7 @@ function textButton(label, className, onClick) {
   b.addEventListener('click', onClick);
   return b;
 }
-import { PHOTO_PATTERN } from './avatar-image.js?v=14';
+import { PHOTO_PATTERN } from './avatar-image.js?v=15';
 function avatar(id, name, status, photo) {
   let h = 0;
   for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) % 360;
@@ -43,7 +43,8 @@ function avatar(id, name, status, photo) {
   a.style.background = `linear-gradient(160deg, hsl(${h} 55% 84%), hsl(${(h + 30) % 360} 40% 55%))`;
   if (photo && PHOTO_PATTERN.test(photo)) { // 画像があれば頭文字の代わりに表示(形式を確認してから CSS に渡す)
     a.textContent = '';
-    a.style.backgroundImage = `url("${photo}")`;
+    // 頭文字用のグラデーション(background の一括指定)を、画像で置き換える。size/position も明示しないと等倍で表示されてしまう
+    a.style.background = `url("${photo}") center / cover no-repeat`;
     a.classList.add('has-photo');
   }
   if (status) a.append(el('span', `dot ${status}`));
