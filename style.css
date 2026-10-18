@@ -162,3 +162,62 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 
 /* 認証の確認が終わるまでホーム画面を隠す */
 html.auth-pending body { visibility: hidden; }
+
+/* ---------- フレンド ---------- */
+.friends { max-height: 232px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #cfd3dc transparent; }
+.friends .fm-row { padding: 7px 0; }
+.avatar { display: flex; align-items: center; justify-content: center; color: #fff; font-size: 17px; font-family: var(--serif); }
+.fm-empty { list-style: none; color: var(--ink-sub); font-size: 14px; padding: 10px 0; }
+.nav-item .badge {
+  position: absolute; top: 6px; right: calc(50% - 30px); min-width: 18px; height: 18px; padding: 0 5px;
+  border-radius: 9px; background: #e5483f; color: #fff; font: 600 11px/18px Georgia, serif; text-align: center;
+}
+
+.modal {
+  position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 16px;
+  background: rgba(30, 45, 80, .35); backdrop-filter: blur(4px);
+}
+.modal[hidden] { display: none; }
+.modal-card {
+  position: relative; width: min(560px, 100%); max-height: min(86vh, 760px); overflow-y: auto;
+  padding: 26px 30px 24px; border-radius: 18px; background: rgba(250, 252, 255, .94);
+  box-shadow: 0 24px 70px rgba(30, 50, 100, .35);
+}
+.modal-close { position: absolute; top: 12px; right: 16px; font-size: 28px; line-height: 1; color: var(--ink-sub); padding: 4px 8px; border-radius: 6px; }
+.modal-close:hover { color: var(--ink); background: rgba(60,70,100,.08); }
+.fm-sec { display: flex; flex-direction: column; gap: 10px; padding-top: 16px; margin-top: 16px; border-top: 1px solid var(--line); }
+.fm-sec:first-of-type { border-top: 0; margin-top: 4px; padding-top: 6px; }
+.fm-sec h3 { font-weight: 500; font-size: 17px; }
+.fm-label { font-size: 12px; color: var(--ink-sub); letter-spacing: .04em; }
+.fm-me { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.fm-myname { font-size: 22px; overflow-wrap: anywhere; }
+.seg { display: flex; padding: 3px; border-radius: 10px; background: rgba(60,70,100,.08); }
+.seg button { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 8px; font-size: 15px; color: var(--ink-sub); }
+.seg button.is-on { background: #fff; color: var(--ink); box-shadow: 0 1px 4px rgba(60,90,140,.2); }
+.fm-codebox { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 14px; border-radius: 10px; background: var(--accent-soft); }
+.fm-codebox code { font: 600 20px/1 ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: .12em; color: var(--accent); user-select: all; margin-right: auto; }
+.fm-add { display: flex; gap: 10px; }
+.fm-add input {
+  flex: 1; min-width: 0; height: 42px; padding: 0 14px; border-radius: 9px; border: 1px solid var(--line);
+  background: #fff; font: 16px ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: .06em; color: var(--ink); text-transform: uppercase;
+}
+.fm-add input::placeholder { text-transform: none; letter-spacing: 0; font-family: var(--serif); color: var(--ink-sub); }
+.fm-add input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.fm-btn { height: 34px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--line); background: #fff; font-size: 14px; white-space: nowrap; }
+.fm-add .fm-btn { height: 42px; }
+.fm-btn:hover { background: #f1f4fa; }
+.fm-btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.fm-btn.primary:hover { filter: brightness(1.08); }
+.fm-btn.danger { background: #e5483f; border-color: #e5483f; color: #fff; }
+.fm-btn:focus-visible, .seg button:focus-visible, .modal-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.fm-msg { font-size: 14px; color: #c0392b; }
+.fm-msg.ok { color: #1f7a3d; }
+.fm-list { display: flex; flex-direction: column; }
+.fm-row { list-style: none; display: flex; align-items: center; gap: 12px; padding: 8px 0; border-top: 1px solid var(--line); }
+.fm-list .fm-row:first-child { border-top: 0; }
+.fm-info { flex: 1; min-width: 0; }
+.fm-info .name { font-size: 16px; overflow-wrap: anywhere; }
+.fm-tag { font-size: 13px; color: var(--ink-sub); }
+.fm-row .fm-btn + .fm-btn { margin-left: -4px; }
+.fm-info .state { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--ink-sub); font-family: Georgia, serif; }
+.fm-info .name { line-height: 1.15; }

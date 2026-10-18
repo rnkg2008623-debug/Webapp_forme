@@ -1,5 +1,5 @@
 // Firebase Authentication のラッパー。設定が空のときは SDK を読み込まず、isConfigured=false になる。
-import { firebaseConfig } from './firebase-config.js';
+import { firebaseConfig } from './firebase-config.js?v=7';
 
 const SDK = 'https://www.gstatic.com/firebasejs/10.14.1';
 export const isConfigured = Boolean(firebaseConfig.apiKey && firebaseConfig.authDomain && firebaseConfig.projectId);
@@ -8,15 +8,28 @@ let ready;
 function load() {
   if (!isConfigured) return Promise.reject(Object.assign(new Error('not-configured'), { code: 'app/not-configured' }));
   ready ??= Promise.all([import(`${SDK}/firebase-app.js`), import(`${SDK}/firebase-auth.js`)]).then(([app, auth]) => {
-    const instance = auth.getAuth(app.initializeApp(firebaseConfig));
-    return { auth, instance };
+    const fbApp = app.initializeApp(Object.fromEntries(Object.entries(firebaseConfig).filter(([, v]) => v)));
+    return { auth, instance: auth.getAuth(fbApp), app: fbApp };
   });
   return ready;
 }
 
-export async function signUp(email, password) {
+// Firestore / Realtime Database は必要になったときだけ読み込む
+const services = {};
+function service(name, file, getter) {
+  services[name] ??= load().then(async ({ app }) => {
+    const m = await import(`${SDK}/${file}`);
+    return { m, db: m[getter](app) };
+  });
+  return services[name];
+}
+export const firestore = () => service('fs', 'firebase-firestore.js', 'getFirestore');
+export const realtime = () => service('rt', 'firebase-database.js', 'getDatabase');
+
+export async function signUp(email, password, displayName) {
   const { auth, instance } = await load();
   const cred = await auth.createUserWithEmailAndPassword(instance, email, password);
+  try { await auth.updateProfile(cred.user, { displayName }); } catch (_) { /* 表示名はホームで補われる */ }
   try { await auth.sendEmailVerification(cred.user); } catch (_) { /* 確認メールの送信失敗は登録自体を止めない */ }
   return cred.user;
 }
@@ -54,6 +67,7 @@ const MESSAGES = {
   'auth/network-request-failed': 'ネットワークに接続できません。通信環境を確認してください。',
   'auth/popup-blocked': 'ポップアップがブロックされました。許可してからもう一度お試しください。',
   'auth/unauthorized-domain': 'このドメインが Firebase の承認済みドメインに登録されていません。',
+  'permission-denied': 'この操作は許可されていません。ルールの設定を確認してください。',
   'auth/operation-not-allowed': 'この認証方法が Firebase で有効になっていません。',
 };
 export const isCancelled = e => ['auth/popup-closed-by-user', 'auth/cancelled-popup-request'].includes(e?.code);

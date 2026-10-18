@@ -12,12 +12,6 @@ const recent = [
   ['Log data 004', '2025/10/05 14:03'],
   ['Log data 003', '2025/10/06 09:15'],
 ];
-const friends = [
-  { name: 'User001', state: 'online',  label: 'Online',  grad: 'linear-gradient(160deg,#cfe3f5,#7fa4c8 55%,#46607f)' },
-  { name: 'User002', state: 'online',  label: 'Online',  grad: 'linear-gradient(160deg,#d8e3ea,#8a9aa6 55%,#4d5a60)' },
-  { name: 'User003', state: 'offline', label: 'Offline', grad: 'linear-gradient(160deg,#b9d3ee,#5f86b3 55%,#33506f)' },
-  { name: 'User004', state: 'busy',    label: 'Busy',    grad: 'linear-gradient(160deg,#c8dcea,#6d8fa6 55%,#3d5568)' },
-];
 const stats = [
   ['Mon', 47], ['Tue', 50], ['Wed', 68], ['Thu', 57], ['Fri', 70], ['Sat', 96], ['Sun', 88],
 ];
@@ -28,10 +22,6 @@ const logItem = ([n, d]) =>
 
 document.getElementById('log-list').innerHTML = logs.map(logItem).join('');
 document.getElementById('recent-list').innerHTML = recent.map(logItem).join('');
-document.getElementById('friend-list').innerHTML = friends.map(f =>
-  `<li><span class="avatar" style="background:${f.grad}"></span>
-   <div><div class="name">${f.name}</div>
-   <div class="state"><span class="dot ${f.state}"></span>${f.label}</div></div></li>`).join('');
 
 // chart: smooth line + area
 (function drawChart() {

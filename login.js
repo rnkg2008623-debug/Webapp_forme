@@ -1,4 +1,4 @@
-import { signUp, logIn, withGoogle, onUser, errorMessage, isCancelled } from './auth.js';
+import { signUp, logIn, withGoogle, onUser, errorMessage, isCancelled } from './auth.js?v=7';
 
 const body = document.body;
 const loginPanel = document.querySelector('.panel-left');
@@ -31,7 +31,7 @@ async function run(el, button, task) {
     await task();
     enter();
   } catch (e) {
-    if (!isCancelled(e)) show(el, errorMessage(e));
+    if (!isCancelled(e)) { console.error(e); show(el, errorMessage(e)); }
     button.disabled = false;
   }
 }
@@ -54,7 +54,7 @@ function setMode(signup) {
   signupView.inert = !signup;
   signupView.setAttribute('aria-hidden', String(!signup));
   loginPanel.inert = signup;
-  setTimeout(() => (signup ? document.getElementById('su-email') : document.getElementById('email')).focus({ preventScroll: true }), 700);
+  setTimeout(() => (signup ? document.getElementById('su-name') : document.getElementById('email')).focus({ preventScroll: true }), 700);
 }
 document.getElementById('signup').addEventListener('click', e => { e.preventDefault(); setMode(true); });
 document.getElementById('to-login').addEventListener('click', e => { e.preventDefault(); setMode(false); });
@@ -65,12 +65,14 @@ const sForm = document.getElementById('signup-form');
 const sMsg = document.getElementById('su-msg');
 sForm.addEventListener('submit', e => {
   e.preventDefault();
+  const name = sForm.name.value.trim();
   const email = sForm.email.value.trim();
-  if (!email || !sForm.pass.value || !sForm.confirm.value) return show(sMsg, 'すべての項目を入力してください。');
+  if (!name || !email || !sForm.pass.value || !sForm.confirm.value) return show(sMsg, 'すべての項目を入力してください。');
+  if (name.length > 20) return show(sMsg, 'ユーザー名は20文字以内にしてください。');
   if (!/^\S+@\S+\.\S+$/.test(email)) return show(sMsg, 'メールアドレスの形式が正しくありません。');
   if (sForm.pass.value.length < 8) return show(sMsg, 'パスワードは8文字以上にしてください。');
   if (sForm.pass.value !== sForm.confirm.value) return show(sMsg, 'パスワードが一致しません。');
-  run(sMsg, sForm.querySelector('.submit-btn'), () => signUp(email, sForm.pass.value));
+  run(sMsg, sForm.querySelector('.submit-btn'), () => signUp(email, sForm.pass.value, name));
 });
 const suGoogle = document.getElementById('su-google');
 suGoogle.addEventListener('click', () => run(sMsg, suGoogle, withGoogle));

@@ -5,4 +5,6 @@ export const firebaseConfig = {
   authDomain: "studyguide-6c24a.firebaseapp.com",
   projectId: "studyguide-6c24a",
   appId: "1:421286632793:web:7c3e87bf9c77bd47ccc048",
+  // Realtime Database のURL(フレンドのオンライン表示に使用)。コンソールの Realtime Database に表示されます。
+  databaseURL: "",
 };
