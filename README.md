@@ -25,3 +25,8 @@
 1. **Firestore Database** を作成し、`firestore.rules` の内容を「ルール」タブに貼り付けて公開します。
 2. **Realtime Database** を作成し、`database.rules.json` の内容を「ルール」タブに貼り付けて公開します。
 3. Realtime Database のURLを `firebase-config.js` の `databaseURL` に入れます。
+
+### ルールを更新したとき
+
+`firestore.rules` / `database.rules.json` を変更したときは、Firebase コンソールのそれぞれの「ルール」タブに、ファイルの全文を貼り付けて「公開」してください(サイトを更新しても、ルールは自動では変わりません)。
+友だちのログが Recent log やプロフィールに出ないときは、Firestore のルールが古いままになっています。

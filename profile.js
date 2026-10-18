@@ -1,11 +1,11 @@
 // プロフィール画面: 自分の情報、学習の集計、日ごとの学習時間のグラフ、Log history
-import { firestore } from './auth.js?v=25';
-import { formatCode, SOCIAL_MESSAGES } from './social.js?v=25';
-import { errorMessage } from './auth.js?v=25';
-import { loadImage } from './avatar-image.js?v=25';
-import { openCropper } from './crop.js?v=25';
-import { onState, editMyProfile, makeAvatar } from './friends-ui.js?v=25';
-import { computeStats, dailySeries, niceScale, relativeTime, sampleLogs } from './stats.js?v=25';
+import { firestore } from './auth.js?v=26';
+import { formatCode, SOCIAL_MESSAGES } from './social.js?v=26';
+import { errorMessage } from './auth.js?v=26';
+import { loadImage } from './avatar-image.js?v=26';
+import { openCropper } from './crop.js?v=26';
+import { onState, editMyProfile, makeAvatar } from './friends-ui.js?v=26';
+import { computeStats, dailySeries, niceScale, relativeTime, sampleLogs } from './stats.js?v=26';
 
 const $ = id => document.getElementById(id);
 const el = (tag, className, text) => {
@@ -143,7 +143,8 @@ function renderHistory() {
     const li = el('li', 'pf-empty');
     const name = subjectInfo()?.name ?? '';
     li.append(el('p', null, failed()
-      ? 'ログを読み込めませんでした。Firestore のルールが最新か確認してください。'
+      ? (isMe() ? 'ログを読み込めませんでした。Firestore のルールが最新か確認してください。'
+        : `${name} さんのログを読み込めませんでした。Firestore のルール(友だちがログを読める設定)が、公開されているか確認してください。`)
       : !loaded() ? '読み込み中…'
       : isMe() ? '学習ログはまだありません。学習を記録すると、ここに新しい順で表示されます。'
       : `${name} さんの学習ログは、まだありません。`));

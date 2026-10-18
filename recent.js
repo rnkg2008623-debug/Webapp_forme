@@ -1,7 +1,7 @@
 // ホームの Recent log: 自分と友だちの最近の学習ログを、新しい順に並べる(ボックスの中をスクロールして、好きなだけ見られる)
-import { onState } from './friends-ui.js?v=25';
-import { onLogs, feedLogs, setFriends, ownerId } from './logs-store.js?v=25';
-import { relativeTime } from './stats.js?v=25';
+import { onState } from './friends-ui.js?v=26';
+import { onLogs, feedLogs, setFriends, ownerId, deniedCount } from './logs-store.js?v=26';
+import { relativeTime } from './stats.js?v=26';
 
 const list = document.getElementById('recent-list');
 let state = null;
@@ -33,6 +33,9 @@ function render() {
     li.append(docIcon(), body);
     return li;
   });
+  if (deniedCount()) {   // 友だちのログが読めない = Firestore のルールが古い
+    items.unshift(el('li', 'warn', '友だちのログを読み込めません。Firestore のルールを最新にしてください(README の手順)。'));
+  }
   list.replaceChildren(...(items.length ? items : [el('li', 'empty', 'まだログがありません。Timer や Pomodoro を終えると、ここに表示されます。')]));
 }
 

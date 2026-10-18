@@ -1,8 +1,8 @@
 // Timer: 数字(時間:分)をクリックしてキーボードで設定 → Start でカウントダウン。
 // 時計の針は1本。経過に合わせて進み、通った部分を薄い水色で塗る。針が12に戻ったら、終了。
 // 終わると(または途中で終了すると)学習ログに記録する。
-import { firestore } from './auth.js?v=25';
-import { unlockAudio, beep } from './sound.js?v=25';
+import { firestore } from './auth.js?v=26';
+import { unlockAudio, beep } from './sound.js?v=26';
 
 const $ = id => document.getElementById(id);
 const MAX_MIN = 720;                 // 12時間(Firestore のルールの上限に合わせる)
