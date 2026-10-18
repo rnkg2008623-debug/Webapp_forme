@@ -1,7 +1,7 @@
 // フレンド機能の画面: 右サイドバーの一覧と、ページの上に重ねて表示するフレンドUI
 //   左のレール: 人のマーク = フレンド一覧 / 人+のマーク = フレンド申請
-import { startSocial, formatCode, SOCIAL_MESSAGES, LIMITS } from './social.js?v=22';
-import { errorMessage } from './auth.js?v=22';
+import { startSocial, formatCode, SOCIAL_MESSAGES, LIMITS } from './social.js?v=24';
+import { errorMessage } from './auth.js?v=24';
 
 const $ = id => document.getElementById(id);
 const LABELS = { online: 'Online', busy: 'Busy', offline: 'Offline' };
@@ -35,7 +35,7 @@ function textButton(label, className, onClick) {
   b.addEventListener('click', onClick);
   return b;
 }
-import { PHOTO_PATTERN } from './avatar-image.js?v=22';
+import { PHOTO_PATTERN } from './avatar-image.js?v=24';
 function avatar(id, name, status, photo) {
   let h = 0;
   for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) % 360;
@@ -56,6 +56,14 @@ function lastSeen(p) {
   const d = new Date(p.changed);
   return `最終ログイン: ${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
+
+// 「Studying for 02:30h」: 友だちが Timer / Pomodoro で勉強を始めてからの時間
+const studyingText = (s, id) => {
+  const p = s.presence[id];
+  if (!p?.studying || p.state === 'offline') return '';
+  const min = Math.max(0, Math.floor((Date.now() - p.studying) / 60000));
+  return `Studying for ${pad(Math.floor(min / 60))}:${pad(min % 60)}h`;
+};
 
 let api, last, view = 'friends';
 const listeners = [];
@@ -141,6 +149,8 @@ function friendsView(s) {
     const card = el('article', 'fo-card');
     const info = el('div', 'fo-info');
     info.append(el('div', 'fo-name', p.name), el('div', 'fo-desc', p.description || '自己紹介はまだありません'));
+    const studying = studyingText(s, fr.uid);
+    if (studying) info.append(el('div', 'fo-study', studying));
     if (memo) info.append(el('div', 'fo-memo', `メモ: ${memo}`));
     const side = el('div', 'fo-side');
     const btns = el('div', 'fo-btns');
@@ -237,6 +247,8 @@ function render(state) {
     const info = el('div', 'fm-info');
     const stLine = el('div', 'state');
     stLine.append(el('span', `dot ${statusOf(state, fr.uid)}`), LABELS[statusOf(state, fr.uid)]);
+    const studying = studyingText(state, fr.uid);
+    if (studying) stLine.append(el('span', 'sep', '|'), el('span', 'study', studying));   // Online | Studying for 02:30h
     info.append(el('div', 'name', profile(state, fr.uid).name), stLine);
     const small = avatar(fr.uid, profile(state, fr.uid).name, undefined, profile(state, fr.uid).photo);
     small.classList.add('sm');
@@ -290,6 +302,17 @@ document.addEventListener('keydown', e => {
   if (!$('ed').hidden) closeEdit(); else if (!overlay.hidden) close();
 });
 document.querySelectorAll('.fo-tab').forEach(t => t.addEventListener('click', () => { view = t.dataset.view; render(last); }));
+
+// Timer / Pomodoro が「勉強中」の開始・終了を知らせてくる(window の 'study-session' イベント)
+const sessions = new Map();
+window.addEventListener('study-session', e => {
+  const { source, start } = e.detail;
+  if (start) sessions.set(source, start); else sessions.delete(source);
+  const earliest = sessions.size ? Math.min(...sessions.values()) : null;
+  api?.actions.setSession(earliest).catch(err => console.warn('勉強中の表示を送れませんでした', err));
+});
+// 「Studying for」の時間を、1分ごとに更新する
+setInterval(() => { if (last?.friends.some(fr => last.presence[fr.uid]?.studying)) render(last); }, 30000);
 
 export async function mountFriends(user) {
   api = await startSocial(user, render);

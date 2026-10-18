@@ -1,6 +1,6 @@
 // Pomodoro: 作業 → 休憩 を繰り返す。作業が終わるたびに学習ログ(Pomodoro 1回)を記録する。
-import { firestore } from './auth.js?v=22';
-import { unlockAudio, beep } from './sound.js?v=22';
+import { firestore } from './auth.js?v=24';
+import { unlockAudio, beep, pon } from './sound.js?v=24';
 
 const $ = id => document.getElementById(id);
 const pad2 = n => String(n).padStart(2, '0');
@@ -12,6 +12,7 @@ export const formatClock = ms => { const s = Math.ceil(ms / 1000); return `${pad
 
 const state = { work: 25, rest: 5, mode: 'idle', phase: 'work', total: 0, endAt: 0, remaining: 0, completed: 0 };
 let user, db, f, ticker;
+const announce = start => window.dispatchEvent(new CustomEvent('study-session', { detail: { source: 'pomodoro', start } }));
 
 function remainingMs() {
   if (state.mode === 'running') return Math.max(0, state.endAt - Date.now());
@@ -65,8 +66,8 @@ function begin(phase) {
 }
 async function phaseDone() {
   // 次のフェーズを先に始める(記録の保存を待つ間に、タイマーがもう一度終了と判定しないように)
-  beep();
   if (state.phase === 'work') {
+    pon();   // 休憩に入る合図: 「ポーン」
     const minutes = state.work;
     state.completed += 1;
     begin('rest');
@@ -75,6 +76,7 @@ async function phaseDone() {
     if (!ok) say(`作業が終わりました。(記録を保存できませんでした)${state.rest}分、休憩しましょう。`, true);
     else if (state.phase === 'rest') say(`作業が終わりました。記録しました。${state.rest}分、休憩しましょう。`, true);
   } else {
+    beep(2);
     begin('work');
     say('休憩が終わりました。次の作業を始めます。', true);
   }
@@ -83,13 +85,14 @@ function tick() {
   if (state.mode === 'running' && remainingMs() <= 0) phaseDone(); else render();
 }
 function startOrToggle() {
-  if (state.mode === 'idle') { unlockAudio(); say(''); begin('work'); ticker = setInterval(tick, 250); }
+  if (state.mode === 'idle') { unlockAudio(); say(''); begin('work'); announce(Date.now()); clearInterval(ticker); ticker = setInterval(tick, 250); }
   else if (state.mode === 'running') { state.remaining = remainingMs(); state.mode = 'paused'; render(); }
   else { state.endAt = Date.now() + state.remaining; state.mode = 'running'; render(); }
 }
 async function stop() {
   const worked = state.phase === 'work' && state.mode !== 'idle' ? Math.floor((state.total - remainingMs()) / 60000) : 0;
   clearInterval(ticker);
+  announce(null);
   state.mode = 'idle'; state.phase = 'work';
   const had = state.completed;
   state.completed = 0;

@@ -15,3 +15,18 @@ export function beep(times = 3) {
     osc.start(ctx.currentTime + t); osc.stop(ctx.currentTime + t + 0.25);
   }
 }
+
+// 休憩に入る合図: 「ポーン」と1回、やわらかく響く音
+export function pon() {
+  if (!ctx) return;
+  const t = ctx.currentTime;
+  for (const [freq, vol] of [[660, 0.3], [1320, 0.08]]) {   // 基音 + 倍音
+    const osc = ctx.createOscillator(), gain = ctx.createGain();
+    osc.type = 'sine'; osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.exponentialRampToValueAtTime(vol, t + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 1.4);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(t); osc.stop(t + 1.5);
+  }
+}

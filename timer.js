@@ -1,8 +1,8 @@
 // Timer: 数字(時間:分)をクリックしてキーボードで設定 → Start でカウントダウン。
 // 時計の針は1本。経過に合わせて進み、通った部分を薄い水色で塗る。針が12に戻ったら、終了。
 // 終わると(または途中で終了すると)学習ログに記録する。
-import { firestore } from './auth.js?v=22';
-import { unlockAudio, beep } from './sound.js?v=22';
+import { firestore } from './auth.js?v=24';
+import { unlockAudio, beep } from './sound.js?v=24';
 
 const $ = id => document.getElementById(id);
 const MAX_MIN = 720;                 // 12時間(Firestore のルールの上限に合わせる)
@@ -101,6 +101,8 @@ async function saveLog(minutes) {
     return true;
   } catch (e) { console.error(e); return false; }
 }
+// 友だちのホームに「Studying for ...」と出すための合図
+const announce = start => window.dispatchEvent(new CustomEvent('study-session', { detail: { source: 'timer', start } }));
 function stopLoops() { clearInterval(ticker); cancelAnimationFrame(raf); }
 function startLoops() {
   stopLoops();
@@ -116,14 +118,16 @@ function start() {
   state.endAt = Date.now() + state.total;
   state.mode = 'running';
   say('');
+  announce(Date.now());
   startLoops();
   render();
 }
 function pause() { state.remaining = remainingMs(); state.mode = 'paused'; stopLoops(); render(); }
 function resume() { state.endAt = Date.now() + state.remaining; state.mode = 'running'; startLoops(); render(); }
-function back() { stopLoops(); state.mode = 'idle'; writeFields(state.minutes); render(); }
+function back() { stopLoops(); announce(null); state.mode = 'idle'; writeFields(state.minutes); render(); }
 async function complete() {
   stopLoops();
+  announce(null);
   state.mode = 'done';
   beep();
   render();

@@ -1,5 +1,5 @@
 // フレンド機能のデータ層: プロフィール・フレンドコード・申請・フレンド(Firestore)と、オンライン状態(Realtime Database)
-import { firestore, realtime } from './auth.js?v=22';
+import { firestore, realtime } from './auth.js?v=24';
 
 const ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // 0/O, 1/I/L など紛らわしい文字を除く
 const genCode = () => Array.from(crypto.getRandomValues(new Uint8Array(8)), b => ALPHABET[b % ALPHABET.length]).join('');
@@ -68,10 +68,12 @@ export async function startSocial(user, render) {
   // ---- オンライン状態(接続が切れると自動でオフラインになる) ----
   const myRef = r.ref(rtdb, `status/${uid}`);
   const stamp = () => r.serverTimestamp();
+  let studying = null;   // いま勉強を始めた時刻(ms)。Timer / Pomodoro が動いている間だけ入る
+  const statusObj = st => ({ state: st, changed: stamp(), ...(studying ? { studying } : {}) });
   const unsubConn = r.onValue(r.ref(rtdb, '.info/connected'), snap => {
     if (!snap.val()) return;
     r.onDisconnect(myRef).set({ state: 'offline', changed: stamp() })
-      .then(() => r.set(myRef, { state: state.myStatus, changed: stamp() }));
+      .then(() => r.set(myRef, statusObj(state.myStatus)));
   });
   const watchers = new Map();
   function syncWatchers() {
@@ -81,7 +83,7 @@ export async function startSocial(user, render) {
       if (watchers.has(id)) continue;
       watchers.set(id, r.onValue(r.ref(rtdb, `status/${id}`), s => {
         const v = s.val();
-        state.presence[id] = { state: v?.state || 'offline', changed: v?.changed || null };
+        state.presence[id] = { state: v?.state || 'offline', changed: v?.changed || null, studying: v?.studying || null };
         notify();
       }));
     }
@@ -162,8 +164,13 @@ export async function startSocial(user, render) {
     async setStatus(next) {
       state.myStatus = next;
       try { localStorage.setItem(STATUS_KEY, next); } catch (_) { /* 無視 */ }
-      await r.set(myRef, { state: next, changed: stamp() });
+      await r.set(myRef, statusObj(next));
       notify();
+    },
+    // 勉強中の表示(友だちのホームに「Studying for 02:30h」と出る)。null で終了
+    async setSession(startMs) {
+      studying = startMs || null;
+      await r.set(myRef, statusObj(state.myStatus));
     },
     // ログアウト時: すぐにオフラインにして、購読をすべて止める
     async stop() {

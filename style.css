@@ -448,7 +448,7 @@ body:not([data-view="home"]) .stage, body:not([data-view="home"]) .side { displa
 
 /* ---------- Log data ---------- */
 .logo { cursor: pointer; }
-.lg, .tm, .pm, .soon {
+.lg, .tm, .pm, .mn, .soon {
   display: none; position: fixed; inset: var(--header-h) 0 0 0; z-index: 4; overflow: hidden;
   background: rgba(255, 255, 255, .5); backdrop-filter: blur(3px);  /* 背景(後で動画)をうっすら見せる */
 }
@@ -557,7 +557,7 @@ body[data-view="pomodoro"] .pm { display: grid; animation: page-in .5s ease both
 .pm { overflow: auto; grid-template-columns: 1fr 1fr; align-items: stretch; }
 .pm-left { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 24px clamp(16px, 3vw, 56px); }
 .pm-time { font: 400 clamp(84px, 12vw, 210px)/1 var(--serif); color: #141a33; font-variant-numeric: tabular-nums; letter-spacing: .01em; transition: color .4s; }
-.pm-time.rest { color: var(--accent); }
+.pm-time.rest { color: #2e9e5b; }   /* 休憩中は緑 */
 .pm-phase { font-size: clamp(16px, 1.5vw, 24px); color: var(--ink-sub); }
 .pm-count { font-size: clamp(14px, 1.2vw, 19px); color: var(--accent); }
 .pm-count[hidden] { display: none; }
@@ -598,4 +598,64 @@ body[data-view="pomodoro"] .pm { display: grid; animation: page-in .5s ease both
   .pm-right { border-left: 0; border-top: 1.5px solid rgba(31, 39, 64, .55); align-items: stretch; }
   .pm-time { font-size: 24vw; }
   .pm-start { max-width: none; }
+}
+
+/* ---------- ホームの Recent log(自分+友だち。中をスクロール) ---------- */
+.recent .list { max-height: clamp(150px, 24vh, 280px); overflow-y: auto; scrollbar-width: thin; scrollbar-color: #c3c9d6 transparent; padding-right: 4px; }
+.recent .list li.empty { color: var(--ink-sub); font-size: 14px; cursor: default; }
+.recent .list li.friend svg { stroke: var(--accent); }
+.recent .list .name { overflow-wrap: anywhere; }
+.recent { width: min(24vw, 400px); }
+
+/* 友だちの勉強中表示: Online | Studying for 02:30h */
+.friends .state .sep, .fm-row .state .sep { color: #b3b6bd; margin: 0 5px; }
+.friends .state .study, .fm-row .state .study { color: var(--accent); font-weight: 600; }
+.fo-study { font-size: clamp(12px, 1vw, 17px); color: var(--accent); font-weight: 600; margin-top: 4px; }
+
+/* ---------- Log manually ---------- */
+body[data-view="manual"] .mn { display: flex; align-items: center; justify-content: center; animation: page-in .5s ease both; padding: 20px; overflow: auto; }
+.mn-card {
+  display: grid; grid-template-columns: 1.15fr .85fr; width: min(1180px, 92%); height: min(68vh, 640px); min-height: 440px;
+  border: 2px solid rgba(31, 39, 64, .85); border-radius: 14px; background: rgba(255, 255, 255, .72); box-shadow: 0 14px 44px rgba(30, 50, 100, .14); overflow: hidden;
+}
+.mn-form { display: flex; flex-direction: column; gap: clamp(16px, 2.6vh, 28px); padding: clamp(24px, 3.4vw, 56px); min-width: 0; }
+.mn-title, .mn-desc {
+  width: 100%; border: 0; border-bottom: 2px solid #1f2740; border-radius: 0; background: transparent; padding: 6px 2px 8px;
+  font: 400 clamp(24px, 2.4vw, 40px)/1.25 var(--serif); color: #141a33; outline: none; resize: none; transition: background .15s;
+}
+.mn-desc { font-size: clamp(17px, 1.5vw, 24px); border: 2px solid #1f2740; border-radius: 10px; padding: 10px 14px; flex: 1; min-height: 90px; background: rgba(255, 255, 255, .5); }
+.mn-title::placeholder, .mn-desc::placeholder { color: #9aa0b2; }
+.mn-title:focus, .mn-desc:focus { background: rgba(59, 111, 216, .06); }
+.mn-title:focus-visible { border-bottom-color: var(--accent); }
+.mn-time { display: flex; align-items: baseline; gap: clamp(12px, 1.6vw, 26px); border-bottom: 2px solid #1f2740; padding-bottom: 8px; }
+.mn-label { font: 400 clamp(20px, 2vw, 34px)/1 var(--serif); color: #141a33; }
+.mn-clock { display: inline-flex; align-items: baseline; font: 400 clamp(30px, 3.4vw, 56px)/1 var(--serif); color: #141a33; font-variant-numeric: tabular-nums; }
+.mn-num {
+  width: 1.2em; border: 0; border-bottom: 3px solid transparent; background: transparent; text-align: center; font: inherit; color: inherit; padding: 0; cursor: text;
+  caret-color: var(--accent); transition: border-color .15s, background .15s;
+}
+.mn-num:hover { border-bottom-color: rgba(31, 39, 64, .25); }
+.mn-num:focus { outline: none; border-bottom-color: var(--accent); background: rgba(59, 111, 216, .08); }
+.mn-done {
+  align-self: flex-start; min-width: clamp(140px, 14vw, 220px); height: clamp(48px, 4.4vw, 68px); padding: 0 28px; border-radius: 10px; background: #1f2740; color: #fff;
+  font: 400 clamp(20px, 1.8vw, 28px) var(--serif); letter-spacing: .12em; transition: filter .15s;
+}
+.mn-done:hover:not(:disabled) { filter: brightness(1.25); }
+.mn-done:disabled { opacity: .6; cursor: progress; }
+.mn-done:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.mn-form .tm-msg { text-align: left; }
+
+.mn-recent { display: flex; flex-direction: column; min-width: 0; min-height: 0; border-left: 2px solid rgba(31, 39, 64, .85); padding: clamp(18px, 2.4vw, 36px) clamp(16px, 2vw, 32px) 0; background: rgba(255, 255, 255, .45); }
+.mn-recent .title { align-self: flex-start; margin-bottom: 8px; }
+.mn-logs { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #c3c9d6 transparent; margin: 0 -6px; padding: 0 6px 16px; }
+.mn-log { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 13px 4px; border-top: 1.5px solid rgba(31, 39, 64, .3); }
+.mn-log:first-child { border-top: 0; }
+.mn-log-main { min-width: 0; }
+.mn-log-title { font-size: clamp(17px, 1.45vw, 24px); overflow-wrap: anywhere; color: #141a33; }
+.mn-log-sub { font-size: clamp(12px, 1vw, 15px); color: var(--ink-sub); margin-top: 2px; overflow-wrap: anywhere; }
+.mn-log-time { flex: none; font-size: clamp(12px, 1vw, 15px); color: var(--ink-sub); }
+.mn-empty { list-style: none; color: var(--ink-sub); font-size: 15px; padding: 14px 4px; }
+@media (max-width: 820px) {
+  .mn-card { grid-template-columns: 1fr; height: auto; }
+  .mn-recent { border-left: 0; border-top: 2px solid rgba(31, 39, 64, .85); max-height: 360px; }
 }

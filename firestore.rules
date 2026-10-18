@@ -8,6 +8,11 @@ service cloud.firestore {
     function inId(id) { return id.split('_')[0] == uid() || id.split('_')[1] == uid(); }
     function validName(n) { return n is string && n.size() >= 1 && n.size() <= 20; }
     function validPhoto(d) { return !('photo' in d) || (d.photo is string && d.photo.size() <= 40000 && d.photo.matches('^data:image/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$')); }
+    // 友だち(friendships/A_B が存在する相手)か
+    function isFriend(other) {
+      return exists(/databases/$(database)/documents/friendships/$(uid() + '_' + other))
+          || exists(/databases/$(database)/documents/friendships/$(other + '_' + uid()));
+    }
     function validDesc(d) { return !('description' in d) || (d.description is string && d.description.size() <= 60); }
 
     // プロフィール: 1件ずつ取得のみ(一覧は不可)。メールアドレスは保存しない。
@@ -25,15 +30,16 @@ service cloud.firestore {
         && validDesc(request.resource.data)
         && validPhoto(request.resource.data);
 
-      // 学習ログ(自分だけが読み書きできる)。プロフィール画面の集計に使う。
+      // 学習ログ。書き込みは本人だけ。読めるのは本人と友だち(ホームの Recent log に友だちのログを出すため)。
       match /logs/{logId} {
-        allow read: if signedIn() && userId == uid();
+        allow read: if signedIn() && (userId == uid() || isFriend(userId));
         allow create, update: if signedIn() && userId == uid()
-          && request.resource.data.keys().hasOnly(['title', 'minutes', 'pomodoros', 'at'])
-          && request.resource.data.title is string && request.resource.data.title.size() <= 40
+          && request.resource.data.keys().hasOnly(['title', 'minutes', 'pomodoros', 'at', 'description'])
+          && request.resource.data.title is string && request.resource.data.title.size() >= 1 && request.resource.data.title.size() <= 40
           && request.resource.data.minutes is number && request.resource.data.minutes > 0 && request.resource.data.minutes <= 720
           && request.resource.data.pomodoros is int && request.resource.data.pomodoros >= 0
-          && request.resource.data.at is timestamp;
+          && request.resource.data.at is timestamp
+          && (!('description' in request.resource.data) || (request.resource.data.description is string && request.resource.data.description.size() <= 200));
         allow delete: if signedIn() && userId == uid();
       }
 

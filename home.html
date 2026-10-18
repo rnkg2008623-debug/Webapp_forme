@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Home</title>
 <script>document.documentElement.classList.add("auth-pending")</script>
-<link rel="stylesheet" href="style.css?v=22">
+<link rel="stylesheet" href="style.css?v=24">
 </head>
 <body data-view="home">
 
@@ -120,10 +120,28 @@
   </section>
 </main>
 
-<!-- Log manually(準備中) -->
-<main class="soon" id="soon-view" aria-label="準備中">
-  <h2 class="soon-title" id="soon-title">Log manually</h2>
-  <p>このページは準備中です。上の Log data から戻れます。</p>
+<!-- Log manually: 左で記録を入力して「完了」、右に自分の最近のログ -->
+<main class="mn" id="manual-view" aria-label="Log manually">
+  <div class="mn-card">
+    <form class="mn-form" id="mn-form" novalidate>
+      <input class="mn-title" id="mn-title" type="text" maxlength="40" placeholder="Title" autocomplete="off" aria-label="タイトル">
+      <div class="mn-time">
+        <label class="mn-label" for="mn-h">作業時間:</label>
+        <span class="mn-clock">
+          <input class="mn-num" id="mn-h" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" maxlength="3" value="00" aria-label="作業時間(時間)">
+          <span aria-hidden="true">:</span>
+          <input class="mn-num" id="mn-m" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" maxlength="3" value="00" aria-label="作業時間(分)">
+        </span>
+      </div>
+      <textarea class="mn-desc" id="mn-desc" rows="4" maxlength="200" placeholder="description" aria-label="説明"></textarea>
+      <p class="tm-msg" id="mn-msg" role="status" hidden></p>
+      <button type="submit" class="mn-done" id="mn-done">完了</button>
+    </form>
+    <aside class="mn-recent" aria-label="my recent log">
+      <h2 class="title">my recent log</h2>
+      <ul class="mn-logs" id="mn-logs"></ul>
+    </aside>
+  </div>
 </main>
 
 <!-- プロフィール(ナビの Profile)。ヘッダーはそのままで、その下だけが入れ替わる -->
@@ -242,8 +260,8 @@
   </form>
 </div>
 
-<script src="script.js?v=22"></script>
-<script src="logpage.js?v=22"></script>
-<script type="module" src="home-auth.js?v=22"></script>
+<script src="script.js?v=24"></script>
+<script src="logpage.js?v=24"></script>
+<script type="module" src="home-auth.js?v=24"></script>
 </body>
 </html>

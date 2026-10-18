@@ -3,8 +3,6 @@
   const view = document.getElementById('log-view');
   const world = document.getElementById('lg-world');
   const fade = document.getElementById('lg-fade');
-  const soonTitle = document.getElementById('soon-title');
-  const NAMES = { manual: 'Log manually' };
   const ZOOM_MS = 850, FADE_MS = 240;
   const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
   let busy = false;
@@ -53,5 +51,4 @@
     t.addEventListener('focus', () => panel().classList.add('hover'));
     t.addEventListener('blur', () => panel().classList.remove('hover'));
   });
-  window.addEventListener('viewchange', e => { if (NAMES[e.detail]) soonTitle.textContent = NAMES[e.detail]; });
 })();

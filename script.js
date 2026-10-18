@@ -7,11 +7,6 @@ const logs = [
   ['Log data 006', '2025/10/03 11:48'],
   ['Log data 007', '2025/10/02 16:20'],
 ];
-const recent = [
-  ['Log data 005', '2025/10/04 20:11'],
-  ['Log data 004', '2025/10/05 14:03'],
-  ['Log data 003', '2025/10/06 09:15'],
-];
 const stats = [
   ['Mon', 47], ['Tue', 50], ['Wed', 68], ['Thu', 57], ['Fri', 70], ['Sat', 96], ['Sun', 88],
 ];
@@ -21,7 +16,6 @@ const logItem = ([n, d]) =>
   `<li>${docIcon}<div><div class="name">${n}</div><div class="date">${d}</div></div></li>`;
 
 document.getElementById('log-list').innerHTML = logs.map(logItem).join('');
-document.getElementById('recent-list').innerHTML = recent.map(logItem).join('');
 
 // chart: smooth line + area
 (function drawChart() {
