@@ -51,8 +51,17 @@ document.getElementById('recent-list').innerHTML = recent.map(logItem).join('');
   svg.innerHTML = s;
 })();
 
-// nav: アクティブ切り替え
-document.querySelectorAll('.nav-item[data-target]').forEach(btn => btn.addEventListener('click', () => {
-  document.querySelectorAll('.nav-item[data-target]').forEach(b => b.classList.toggle('is-active', b === btn));
-  document.getElementById(btn.dataset.target)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+// nav: 画面の切り替え(ヘッダーは固定。Profile ではその下だけが入れ替わる)
+const navButtons = [...document.querySelectorAll('.nav-item[data-target]')];
+function setView(target) {
+  const profile = target === 'profile';
+  document.body.dataset.view = profile ? 'profile' : 'home';
+  navButtons.forEach(b => b.classList.toggle('is-active', b.dataset.target === target));
+  try { history.replaceState(null, '', profile ? '#profile' : location.pathname + location.search); } catch (_) { /* 無視 */ }
+}
+navButtons.forEach(btn => btn.addEventListener('click', () => {
+  if (btn.dataset.target === 'friend') return; // フレンドはページの上に重ねて表示する(friends-ui.js)
+  setView(btn.dataset.target);
+  if (btn.dataset.target !== 'profile') document.getElementById(btn.dataset.target)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }));
+if (location.hash === '#profile') setView('profile');

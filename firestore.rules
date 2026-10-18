@@ -22,6 +22,18 @@ service cloud.firestore {
         && validName(request.resource.data.displayName)
         && validDesc(request.resource.data);
 
+      // 学習ログ(自分だけが読み書きできる)。プロフィール画面の集計に使う。
+      match /logs/{logId} {
+        allow read: if signedIn() && userId == uid();
+        allow create, update: if signedIn() && userId == uid()
+          && request.resource.data.keys().hasOnly(['title', 'minutes', 'pomodoros', 'at'])
+          && request.resource.data.title is string && request.resource.data.title.size() <= 40
+          && request.resource.data.minutes is number && request.resource.data.minutes > 0 && request.resource.data.minutes <= 720
+          && request.resource.data.pomodoros is int && request.resource.data.pomodoros >= 0
+          && request.resource.data.at is timestamp;
+        allow delete: if signedIn() && userId == uid();
+      }
+
       // 自分だけに見えるフレンドのメモ
       match /memos/{friendId} {
         allow read: if signedIn() && userId == uid();

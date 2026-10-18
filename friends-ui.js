@@ -1,7 +1,7 @@
 // フレンド機能の画面: 右サイドバーの一覧と、ページの上に重ねて表示するフレンドUI
 //   左のレール: 人のマーク = フレンド一覧 / 人+のマーク = フレンド申請
-import { startSocial, formatCode, SOCIAL_MESSAGES, LIMITS } from './social.js?v=11';
-import { errorMessage } from './auth.js?v=11';
+import { startSocial, formatCode, SOCIAL_MESSAGES, LIMITS } from './social.js?v=12';
+import { errorMessage } from './auth.js?v=12';
 
 const $ = id => document.getElementById(id);
 const LABELS = { online: 'Online', busy: 'Busy', offline: 'Offline' };
@@ -51,6 +51,8 @@ function lastSeen(p) {
 }
 
 let api, last, view = 'friends';
+const listeners = [];
+export const onState = fn => { listeners.push(fn); if (last) fn(last); };
 const overlay = $('friend-overlay');
 const statusOf = (s, id) => s.presence[id]?.state || 'offline';
 const profile = (s, id) => s.profiles[id] || { name: '…', description: '' };
@@ -91,6 +93,19 @@ ed.form.addEventListener('submit', async e => {
 $('ed-cancel').addEventListener('click', closeEdit);
 $('ed').addEventListener('click', e => { if (e.target === $('ed')) closeEdit(); });
 
+// 自分のプロフィール編集(フレンドUIとプロフィール画面で共通)
+export function editMyProfile() {
+  const me = last.me;
+  openEdit({
+    title: 'プロフィールを編集',
+    fields: [
+      { name: 'displayName', label: 'ユーザー名', value: me.displayName, max: LIMITS.name },
+      { name: 'description', label: '自己紹介(フレンドに表示されます)', value: me.description, max: LIMITS.description, placeholder: 'ひとこと' },
+    ],
+    onSave: v => api.actions.saveProfile(v),
+  });
+}
+
 // ---- フレンド一覧(人のマーク) ----
 function friendsView(s) {
   // 上部: 自分のプロフィールとステータス
@@ -110,14 +125,7 @@ function friendsView(s) {
     b.addEventListener('click', () => attempt(() => api.actions.setStatus(key), () => {}));
     seg.append(b);
   }
-  bar.append(who, seg, iconButton('pencil', 'プロフィールを編集', 'neutral', () => openEdit({
-    title: 'プロフィールを編集',
-    fields: [
-      { name: 'displayName', label: 'ユーザー名', value: s.me.displayName, max: LIMITS.name },
-      { name: 'description', label: '自己紹介(フレンドに表示されます)', value: s.me.description, max: LIMITS.description, placeholder: 'ひとこと' },
-    ],
-    onSave: v => api.actions.saveProfile(v),
-  })));
+  bar.append(who, seg, iconButton('pencil', 'プロフィールを編集', 'neutral', editMyProfile));
 
   const friends = [...s.friends].sort((a, b) =>
     ORDER[statusOf(s, a.uid)] - ORDER[statusOf(s, b.uid)] || profile(s, a.uid).name.localeCompare(profile(s, b.uid).name));
@@ -213,6 +221,7 @@ function setMsg(text, ok) {
 // ---- 描画 ----
 function render(state) {
   last = state;
+  listeners.forEach(fn => fn(state));
   // サイドバー: 実際のオンライン状態
   const friends = [...state.friends].sort((a, b) =>
     ORDER[statusOf(state, a.uid)] - ORDER[statusOf(state, b.uid)] || profile(state, a.uid).name.localeCompare(profile(state, b.uid).name));
@@ -250,20 +259,23 @@ function render(state) {
 
 // ---- 開閉 ----
 let opener;
+const friendNav = document.querySelector('[data-target="friend"]');
 function open(next) {
   opener = document.activeElement;
   view = next || view;
   overlay.hidden = false;
   document.body.classList.add('fo-open');
+  friendNav.classList.add('is-open');
   render(last);
   $('fo-main').focus({ preventScroll: true });
 }
 function close() {
   overlay.hidden = true;
   document.body.classList.remove('fo-open');
+  friendNav.classList.remove('is-open');
   opener?.focus?.();
 }
-document.querySelector('[data-target="friend"]').addEventListener('click', () => (overlay.hidden ? open() : close()));
+friendNav.addEventListener('click', () => (overlay.hidden ? open() : close()));
 overlay.addEventListener('click', e => { if (e.target === overlay) close(); }); // パネルの外側をクリックで閉じる
 $('fo-close').addEventListener('click', close);
 document.addEventListener('keydown', e => {
@@ -276,3 +288,5 @@ export async function mountFriends(user) {
   api = await startSocial(user, render);
   return api;
 }
+
+export { avatar as makeAvatar };

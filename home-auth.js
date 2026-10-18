@@ -1,13 +1,14 @@
 // ホーム画面はログイン済みのユーザーだけが見られる。未ログインならログイン画面へ戻す。
-import { onUser, logOut } from './auth.js?v=11';
-import { mountFriends } from './friends-ui.js?v=11';
+import { onUser, logOut } from './auth.js?v=12';
+import { mountFriends } from './friends-ui.js?v=12';
+import { mountProfile } from './profile.js?v=12';
 
 let social;
 onUser(async user => {
   if (!user) return location.replace('index.html');
   document.documentElement.classList.remove('auth-pending');
   if (social) return;
-  try { social = await mountFriends(user); }
+  try { social = await mountFriends(user); mountProfile(user).catch(e => console.error('プロフィールを開始できませんでした', e)); }
   catch (e) { console.error('フレンド機能を開始できませんでした', e); document.getElementById('friend-list').replaceChildren(Object.assign(document.createElement('li'), { className: 'fm-empty', textContent: 'フレンド機能を読み込めませんでした。' })); }
 });
 
