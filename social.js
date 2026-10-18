@@ -1,5 +1,5 @@
 // フレンド機能のデータ層: プロフィール・フレンドコード・申請・フレンド(Firestore)と、オンライン状態(Realtime Database)
-import { firestore, realtime } from './auth.js?v=12';
+import { firestore, realtime } from './auth.js?v=13';
 
 const ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // 0/O, 1/I/L など紛らわしい文字を除く
 const genCode = () => Array.from(crypto.getRandomValues(new Uint8Array(8)), b => ALPHABET[b % ALPHABET.length]).join('');
@@ -18,6 +18,9 @@ export const SOCIAL_MESSAGES = {
   'already-sent': 'すでに申請を送っています。',
   'incoming-exists': '相手から申請が届いています。申請の一覧から承認してください。',
   'empty-name': 'ユーザー名を入力してください。',
+  'bad-type': 'PNG・JPEG・WebP・GIF の画像を選んでください。',
+  'too-big': '画像が大きすぎます(10MBまでの画像を選んでください)。',
+  decode: '画像を読み込めませんでした。別の画像でお試しください。',
 };
 
 export async function startSocial(user, render) {
@@ -25,7 +28,7 @@ export async function startSocial(user, render) {
   const uid = user.uid;
   const state = {
     me: null, friends: [], incoming: [], outgoing: [],
-    profiles: {},   // uid -> { name, description }(フレンド・申請相手の公開プロフィール)
+    profiles: {},   // uid -> { name, description, photo }(フレンド・申請相手の公開プロフィール)
     memos: {},      // friendUid -> 自分だけに見えるメモ
     presence: {},   // uid -> { state, changed }
     myStatus: 'online',
@@ -49,7 +52,7 @@ export async function startSocial(user, render) {
     }
   }
   const mine = await ensureProfile();
-  state.me = { displayName: mine.displayName, description: mine.description || '', friendCode: mine.friendCode };
+  state.me = { displayName: mine.displayName, description: mine.description || '', friendCode: mine.friendCode, photo: mine.photo || '' };
 
   // 相手のプロフィールは、変更がすぐ反映されるよう購読しておく
   const profileSubs = new Map();
@@ -57,9 +60,9 @@ export async function startSocial(user, render) {
     if (profileSubs.has(id)) return;
     profileSubs.set(id, f.onSnapshot(f.doc(db, 'users', id), s => {
       const d = s.exists() ? s.data() : null;
-      state.profiles[id] = { name: d?.displayName ?? '(不明なユーザー)', description: d?.description ?? '' };
+      state.profiles[id] = { name: d?.displayName ?? '(不明なユーザー)', description: d?.description ?? '', photo: d?.photo ?? '' };
       notify();
-    }, () => { state.profiles[id] = { name: '(不明なユーザー)', description: '' }; notify(); }));
+    }, () => { state.profiles[id] = { name: '(不明なユーザー)', description: '', photo: '' }; notify(); }));
   }
 
   // ---- オンライン状態(接続が切れると自動でオフラインになる) ----
@@ -138,6 +141,16 @@ export async function startSocial(user, render) {
       if (!displayName) throw fail('empty-name');
       await f.updateDoc(f.doc(db, 'users', uid), { displayName, description });
       state.me = { ...state.me, displayName, description };
+      notify();
+    },
+    async savePhoto(dataUrl) {
+      await f.updateDoc(f.doc(db, 'users', uid), { photo: dataUrl });
+      state.me = { ...state.me, photo: dataUrl };
+      notify();
+    },
+    async removePhoto() {
+      await f.updateDoc(f.doc(db, 'users', uid), { photo: f.deleteField() });
+      state.me = { ...state.me, photo: '' };
       notify();
     },
     async saveMemo(friendUid, text) {

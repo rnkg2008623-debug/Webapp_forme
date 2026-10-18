@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Home</title>
 <script>document.documentElement.classList.add("auth-pending")</script>
-<link rel="stylesheet" href="style.css?v=12">
+<link rel="stylesheet" href="style.css?v=13">
 </head>
 <body>
 
@@ -53,15 +53,21 @@
   <div class="pf-left">
     <section class="pf-card pf-id">
       <div class="pf-top">
-        <span class="fo-avatar pf-avatar" id="pf-avatar" aria-hidden="true"></span>
+        <button type="button" class="pf-avatar-btn" id="pf-avatar-btn" aria-label="アイコンを変更" title="クリックしてアイコンを変更">
+          <span class="fo-avatar pf-avatar" id="pf-avatar" aria-hidden="true"></span>
+          <span class="pf-cam" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.4"/></svg></span>
+        </button>
+        <input type="file" id="pf-file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
         <div class="pf-who">
           <div class="pf-name-row">
             <h2 class="pf-name" id="pf-name">…</h2>
             <button type="button" class="fo-ic neutral pf-edit" id="pf-edit" aria-label="プロフィールを編集" title="プロフィールを編集"><svg viewBox="0 0 24 24"><path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19z"/><path d="M14.5 6.5l3 3"/></svg></button>
           </div>
           <div class="pf-uid"><span class="fm-label">USER ID</span><code id="pf-uid">—</code><button type="button" class="fm-btn" id="pf-copy">コピー</button></div>
+          <button type="button" class="pf-link" id="pf-photo-remove" hidden>アイコンを元に戻す</button>
         </div>
       </div>
+      <p class="pf-photo-msg" id="pf-photo-msg" role="status" hidden></p>
       <p class="pf-desc" id="pf-desc"></p>
     </section>
 
@@ -158,7 +164,7 @@
   </form>
 </div>
 
-<script src="script.js?v=12"></script>
-<script type="module" src="home-auth.js?v=12"></script>
+<script src="script.js?v=13"></script>
+<script type="module" src="home-auth.js?v=13"></script>
 </body>
 </html>

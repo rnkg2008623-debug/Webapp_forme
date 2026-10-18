@@ -409,3 +409,21 @@ body[data-view="profile"] .stage, body[data-view="profile"] .side { display: non
   .pf-tick { font-size: 20px; }
   .pf-axis { font-size: 20px; }
 }
+
+/* ---------- アイコン(写真) ---------- */
+.fo-avatar.has-photo { background-size: cover; background-position: center; }
+.pf-avatar-btn { position: relative; flex: none; border-radius: 50%; padding: 0; cursor: pointer; }
+.pf-avatar-btn:disabled { cursor: progress; opacity: .7; }
+.pf-avatar-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.pf-cam {
+  position: absolute; inset: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  background: rgba(20, 30, 60, .45); color: #fff; opacity: 0; transition: opacity .18s;
+}
+.pf-cam svg { width: 34%; height: 34%; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linejoin: round; stroke-linecap: round; }
+.pf-avatar-btn:hover .pf-cam, .pf-avatar-btn:focus-visible .pf-cam { opacity: 1; }
+.pf-photo-msg { margin-top: 10px; font-size: 14px; color: #c0392b; }
+.pf-photo-msg.ok { color: #1f7a3d; }
+.pf-photo-msg[hidden], .pf-link[hidden] { display: none; }
+.pf-link { align-self: flex-start; font-size: 13px; color: var(--ink-sub); text-decoration: underline; padding: 2px 0; }
+.pf-link:hover { color: var(--accent); }
+@media (hover: none) { .pf-cam { opacity: .85; inset: auto 0 0 auto; width: 30%; height: 30%; background: var(--accent); border: 2px solid #fff; } }

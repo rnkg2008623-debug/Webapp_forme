@@ -1,4 +1,4 @@
-import { signUp, logIn, withGoogle, onUser, errorMessage, isCancelled } from './auth.js?v=12';
+import { signUp, logIn, withGoogle, onUser, errorMessage, isCancelled } from './auth.js?v=13';
 
 const body = document.body;
 const loginPanel = document.querySelector('.panel-left');

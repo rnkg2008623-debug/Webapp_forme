@@ -1,7 +1,7 @@
 // フレンド機能の画面: 右サイドバーの一覧と、ページの上に重ねて表示するフレンドUI
 //   左のレール: 人のマーク = フレンド一覧 / 人+のマーク = フレンド申請
-import { startSocial, formatCode, SOCIAL_MESSAGES, LIMITS } from './social.js?v=12';
-import { errorMessage } from './auth.js?v=12';
+import { startSocial, formatCode, SOCIAL_MESSAGES, LIMITS } from './social.js?v=13';
+import { errorMessage } from './auth.js?v=13';
 
 const $ = id => document.getElementById(id);
 const LABELS = { online: 'Online', busy: 'Busy', offline: 'Offline' };
@@ -35,11 +35,17 @@ function textButton(label, className, onClick) {
   b.addEventListener('click', onClick);
   return b;
 }
-function avatar(id, name, status) {
+import { PHOTO_PATTERN } from './avatar-image.js?v=13';
+function avatar(id, name, status, photo) {
   let h = 0;
   for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) % 360;
   const a = el('span', 'fo-avatar', [...name][0]?.toUpperCase() || '?');
   a.style.background = `linear-gradient(160deg, hsl(${h} 55% 84%), hsl(${(h + 30) % 360} 40% 55%))`;
+  if (photo && PHOTO_PATTERN.test(photo)) { // 画像があれば頭文字の代わりに表示(形式を確認してから CSS に渡す)
+    a.textContent = '';
+    a.style.backgroundImage = `url("${photo}")`;
+    a.classList.add('has-photo');
+  }
   if (status) a.append(el('span', `dot ${status}`));
   return a;
 }
@@ -111,7 +117,7 @@ function friendsView(s) {
   // 上部: 自分のプロフィールとステータス
   const bar = el('div', 'fo-me');
   const who = el('div', 'fo-me-who');
-  who.append(avatar('me' + s.me.friendCode, s.me.displayName, s.myStatus), (() => {
+  who.append(avatar('me' + s.me.friendCode, s.me.displayName, s.myStatus, s.me.photo), (() => {
     const t = el('div', 'fo-me-text');
     t.append(el('div', 'fo-me-name', s.me.displayName), el('div', 'fo-desc', s.me.description || '自己紹介はまだありません'));
     return t;
@@ -150,7 +156,7 @@ function friendsView(s) {
       onSave: v => api.actions.saveMemo(fr.uid, v.memo),
     })), del);
     side.append(btns, el('div', 'fo-seen', lastSeen(s.presence[fr.uid])));
-    card.append(avatar(fr.uid, p.name, st), info, side);
+    card.append(avatar(fr.uid, p.name, st, p.photo), info, side);
     return card;
   });
   return { bar, cards: cards.length ? cards : [el('p', 'fo-empty', 'まだフレンドがいません。左の「人+」のマークから、フレンドコードで申請できます。')] };
@@ -194,7 +200,7 @@ function requestsView(s) {
     btns.append(
       iconButton('check', '承認', 'ok', () => attempt(() => api.actions.accept(q), setMsg)),
       iconButton('cross', '拒否', 'danger', () => attempt(() => api.actions.decline(q), setMsg)));
-    card.append(avatar(q.uid, p.name), el('span', 'fo-div'), info, el('span', 'fo-div'), btns);
+    card.append(avatar(q.uid, p.name, undefined, p.photo), el('span', 'fo-div'), info, el('span', 'fo-div'), btns);
     return card;
   });
   if (!cards.length) cards.push(el('p', 'fo-empty', '届いているフレンド申請はありません。'));
@@ -205,7 +211,7 @@ function requestsView(s) {
       const card = el('article', 'fo-card request pending');
       const info = el('div', 'fo-info');
       info.append(el('div', 'fo-name', p.name), el('div', 'fo-desc', p.description || '自己紹介はまだありません'));
-      card.append(avatar(q.uid, p.name), el('span', 'fo-div'), info, el('span', 'fo-div'),
+      card.append(avatar(q.uid, p.name, undefined, p.photo), el('span', 'fo-div'), info, el('span', 'fo-div'),
         iconButton('cross', '申請を取り消す', 'danger', () => attempt(() => api.actions.cancel(q), setMsg)));
       cards.push(card);
     }
@@ -231,7 +237,7 @@ function render(state) {
     const stLine = el('div', 'state');
     stLine.append(el('span', `dot ${statusOf(state, fr.uid)}`), LABELS[statusOf(state, fr.uid)]);
     info.append(el('div', 'name', profile(state, fr.uid).name), stLine);
-    const small = avatar(fr.uid, profile(state, fr.uid).name);
+    const small = avatar(fr.uid, profile(state, fr.uid).name, undefined, profile(state, fr.uid).photo);
     small.classList.add('sm');
     li.append(small, info);
     return li;

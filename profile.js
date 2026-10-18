@@ -1,8 +1,10 @@
 // プロフィール画面: 自分の情報、学習の集計、日ごとの学習時間のグラフ、Log history
-import { firestore } from './auth.js?v=12';
-import { formatCode } from './social.js?v=12';
-import { onState, editMyProfile, makeAvatar } from './friends-ui.js?v=12';
-import { computeStats, dailySeries, niceScale, relativeTime, sampleLogs } from './stats.js?v=12';
+import { firestore } from './auth.js?v=13';
+import { formatCode, SOCIAL_MESSAGES } from './social.js?v=13';
+import { errorMessage } from './auth.js?v=13';
+import { toAvatarDataUrl } from './avatar-image.js?v=13';
+import { onState, editMyProfile, makeAvatar } from './friends-ui.js?v=13';
+import { computeStats, dailySeries, niceScale, relativeTime, sampleLogs } from './stats.js?v=13';
 
 const $ = id => document.getElementById(id);
 const el = (tag, className, text) => {
@@ -21,8 +23,11 @@ const state = { logs: [], preview: false, loaded: false, error: false, me: null 
 function renderMe() {
   const me = state.me;
   if (!me) return;
-  const av = makeAvatar('me' + me.friendCode, me.displayName);
-  $('pf-avatar').replaceWith(Object.assign(av, { id: 'pf-avatar', className: 'fo-avatar pf-avatar' }));
+  const av = makeAvatar('me' + me.friendCode, me.displayName, undefined, me.photo);
+  $('pf-photo-remove').hidden = !me.photo;
+  av.id = 'pf-avatar';
+  av.classList.add('pf-avatar');
+  $('pf-avatar').replaceWith(av);
   $('pf-name').textContent = me.displayName;
   $('pf-uid').textContent = formatCode(me.friendCode);
   const d = $('pf-desc');
@@ -63,7 +68,7 @@ function renderChart() {
   s += `<polygon fill="url(#pf-fill)" points="${x(0)},${y(0)} ${pts} ${x(series.length - 1)},${y(0)}"/>`;
   s += `<polyline class="pf-line" points="${pts}"/>`;
   if (series.length <= 31) series.forEach((p, i) => { s += `<circle class="pf-dot" cx="${x(i)}" cy="${y(p.hours)}" r="3.2"/>`; });
-  s += `<g id="pf-mark" hidden><line class="pf-cross" y1="${PAD.t}" y2="${H - PAD.b}"/><circle class="pf-dot on" r="5"/></g>`;
+  s += `<g id="pf-mark" style="display:none"><line class="pf-cross" y1="${PAD.t}" y2="${H - PAD.b}"/><circle class="pf-dot on" r="5"/></g>`;
   if (!activeLogs().length) s += `<text class="pf-none" x="${W / 2}" y="${H / 2 - 8}" text-anchor="middle">記録はまだありません</text>`;
   $('pf-svg').innerHTML = s;
 }
@@ -78,7 +83,7 @@ function hover(e) {
   const i = Math.max(0, Math.min(n - 1, Math.round((sx - PAD.l) / ((W - PAD.l - PAD.r) / Math.max(n - 1, 1)))));
   const p = plot.series[i], cx = plot.x(i), cy = plot.y(p.hours);
   const mark = $('pf-mark');
-  mark.hidden = false;
+  mark.style.display = '';
   mark.querySelector('line').setAttribute('x1', cx); mark.querySelector('line').setAttribute('x2', cx);
   mark.querySelector('circle').setAttribute('cx', cx); mark.querySelector('circle').setAttribute('cy', cy);
   tip.textContent = `${md(p.date)}(${WEEK[p.date.getDay()]})  ${fmt(p.hours, 2)} hrs`;
@@ -88,7 +93,7 @@ function hover(e) {
 }
 $('pf-svg').addEventListener('pointermove', hover);
 $('pf-svg').addEventListener('pointerdown', hover);
-$('pf-svg').addEventListener('pointerleave', () => { tip.hidden = true; $('pf-mark')?.setAttribute('hidden', ''); });
+$('pf-svg').addEventListener('pointerleave', () => { tip.hidden = true; const m = $('pf-mark'); if (m) m.style.display = 'none'; });
 $('pf-range').addEventListener('change', renderChart);
 
 // ---- Log history ----
@@ -123,6 +128,30 @@ $('pf-preview-off').addEventListener('click', () => { state.preview = false; ren
 function renderAll() { renderStats(); renderChart(); renderHistory(); }
 
 $('pf-edit').addEventListener('click', editMyProfile);
+
+// ---- アイコンの変更(クリック → 画像を選ぶ → 切り抜いて保存) ----
+let socialApi;
+const photoMsg = $('pf-photo-msg');
+const say = (text, ok) => { photoMsg.textContent = text; photoMsg.classList.toggle('ok', !!ok); photoMsg.hidden = !text; };
+$('pf-avatar-btn').addEventListener('click', () => $('pf-file').click());
+$('pf-file').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  e.target.value = ''; // 同じ画像をもう一度選べるように
+  if (!file) return;
+  const btn = $('pf-avatar-btn');
+  btn.disabled = true; say('アイコンを保存しています…', true);
+  try {
+    await socialApi.actions.savePhoto(await toAvatarDataUrl(file));
+    say('アイコンを変更しました。', true);
+  } catch (err) {
+    console.error(err);
+    say(SOCIAL_MESSAGES[err.code] || errorMessage(err));
+  } finally { btn.disabled = false; }
+});
+$('pf-photo-remove').addEventListener('click', async () => {
+  try { await socialApi.actions.removePhoto(); say('アイコンを元に戻しました。', true); }
+  catch (err) { say(SOCIAL_MESSAGES[err.code] || errorMessage(err)); }
+});
 $('pf-copy').addEventListener('click', async () => {
   const b = $('pf-copy');
   try { await navigator.clipboard.writeText($('pf-uid').textContent); b.textContent = 'コピーしました'; }
@@ -130,7 +159,8 @@ $('pf-copy').addEventListener('click', async () => {
   setTimeout(() => { b.textContent = 'コピー'; }, 1800);
 });
 
-export async function mountProfile(user) {
+export async function mountProfile(user, api) {
+  socialApi = api;
   onState(s => { state.me = s.me; renderMe(); });
   renderAll();
   setInterval(renderHistory, 60000); // 「5分前」などを更新
