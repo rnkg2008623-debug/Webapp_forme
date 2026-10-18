@@ -1,10 +1,11 @@
 // プロフィール画面: 自分の情報、学習の集計、日ごとの学習時間のグラフ、Log history
-import { firestore } from './auth.js?v=13';
-import { formatCode, SOCIAL_MESSAGES } from './social.js?v=13';
-import { errorMessage } from './auth.js?v=13';
-import { toAvatarDataUrl } from './avatar-image.js?v=13';
-import { onState, editMyProfile, makeAvatar } from './friends-ui.js?v=13';
-import { computeStats, dailySeries, niceScale, relativeTime, sampleLogs } from './stats.js?v=13';
+import { firestore } from './auth.js?v=14';
+import { formatCode, SOCIAL_MESSAGES } from './social.js?v=14';
+import { errorMessage } from './auth.js?v=14';
+import { loadImage } from './avatar-image.js?v=14';
+import { openCropper } from './crop.js?v=14';
+import { onState, editMyProfile, makeAvatar } from './friends-ui.js?v=14';
+import { computeStats, dailySeries, niceScale, relativeTime, sampleLogs } from './stats.js?v=14';
 
 const $ = id => document.getElementById(id);
 const el = (tag, className, text) => {
@@ -139,14 +140,19 @@ $('pf-file').addEventListener('change', async e => {
   e.target.value = ''; // 同じ画像をもう一度選べるように
   if (!file) return;
   const btn = $('pf-avatar-btn');
-  btn.disabled = true; say('アイコンを保存しています…', true);
+  say('');
+  let bitmap;
   try {
-    await socialApi.actions.savePhoto(await toAvatarDataUrl(file));
+    bitmap = await loadImage(file);
+    const url = await openCropper(bitmap); // 範囲と大きさを選ぶ。キャンセルなら null
+    if (!url) return;
+    btn.disabled = true; say('アイコンを保存しています…', true);
+    await socialApi.actions.savePhoto(url);
     say('アイコンを変更しました。', true);
   } catch (err) {
     console.error(err);
     say(SOCIAL_MESSAGES[err.code] || errorMessage(err));
-  } finally { btn.disabled = false; }
+  } finally { bitmap?.close?.(); btn.disabled = false; }
 });
 $('pf-photo-remove').addEventListener('click', async () => {
   try { await socialApi.actions.removePhoto(); say('アイコンを元に戻しました。', true); }

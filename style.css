@@ -427,3 +427,21 @@ body[data-view="profile"] .stage, body[data-view="profile"] .side { display: non
 .pf-link { align-self: flex-start; font-size: 13px; color: var(--ink-sub); text-decoration: underline; padding: 2px 0; }
 .pf-link:hover { color: var(--accent); }
 @media (hover: none) { .pf-cam { opacity: .85; inset: auto 0 0 auto; width: 30%; height: 30%; background: var(--accent); border: 2px solid #fff; } }
+
+/* ---------- アイコンの切り抜き ---------- */
+.cr { position: fixed; inset: 0; z-index: 80; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(20, 30, 55, .5); backdrop-filter: blur(4px); }
+.cr-card { width: min(592px, 100%); max-height: 100%; overflow: auto; background: #fff; border-radius: 16px; box-shadow: 0 24px 70px rgba(20, 30, 60, .4); }
+.cr-head { display: flex; align-items: center; gap: 14px; padding: 12px 16px; }
+.cr-title { flex: 1; font-weight: 600; font-size: 20px; }
+.cr-back { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--ink); }
+.cr-back:hover { background: rgba(60, 70, 100, .08); }
+.cr-back svg, .cr-zi svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.cr-apply { height: 38px; padding: 0 22px; border-radius: 19px; background: #1f2740; color: #fff; font-size: 16px; font-weight: 600; }
+.cr-apply:hover { filter: brightness(1.25); }
+.cr-stage { display: flex; justify-content: center; padding: 12px 16px 0; background: #eef2f5; }
+.cr-canvas { display: block; cursor: grab; touch-action: none; max-width: 100%; border-radius: 2px; }
+.cr-canvas.drag { cursor: grabbing; }
+.cr-hint { text-align: center; font-size: 13px; color: var(--ink-sub); padding: 10px 16px 0; background: #eef2f5; margin-top: -1px; padding-bottom: 12px; }
+.cr-foot { display: flex; align-items: center; gap: 14px; padding: 16px 24px 20px; color: #5d6578; }
+.cr-slider { flex: 1; min-width: 0; accent-color: #1d9bf0; height: 24px; cursor: pointer; }
+.cr-back:focus-visible, .cr-apply:focus-visible, .cr-canvas:focus-visible, .cr-slider:focus-visible { outline: 2px solid #1d9bf0; outline-offset: 2px; }
