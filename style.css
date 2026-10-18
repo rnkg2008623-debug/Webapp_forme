@@ -507,34 +507,24 @@ body[data-view="pomodoro"] .soon, body[data-view="manual"] .soon { display: flex
 .tm-face { fill: rgba(255, 255, 255, .88); stroke: #1f2740; stroke-width: 2; }
 .tm-tick { stroke: #5d6578; stroke-width: 1.6; stroke-linecap: round; }
 .tm-tick.major { stroke: #1f2740; stroke-width: 2.6; }
-.tm-wedge { fill: rgba(59, 111, 216, .22); }
-.tm-hand { stroke: #1f2740; stroke-linecap: round; }
-.tm-hand.hour { stroke-width: 5; }
-.tm-hand.min { stroke-width: 3; }
+.tm-wedge { fill: rgba(125, 178, 240, .38); }   /* 経過した部分を薄い水色で塗る */
+.tm-hand { stroke: #1f2740; stroke-width: 3.4; stroke-linecap: round; }
 .tm-pin { fill: #1f2740; }
 
-.tm-set { display: flex; flex-direction: column; align-items: stretch; gap: 22px; }
-.tm-digits { display: flex; align-items: center; justify-content: center; gap: clamp(10px, 1.6vw, 28px); }
-.tm-pair { display: flex; gap: clamp(8px, 1vw, 18px); }
-.tm-d { display: flex; flex-direction: column; align-items: center; gap: 12px; }
-.tm-oval {
-  width: clamp(64px, 7.4vw, 128px); height: clamp(110px, 12.4vw, 216px); display: flex; align-items: center; justify-content: center;
-  border: 2px solid #1f2740; border-radius: 50% 50% 50% 50% / 56% 56% 44% 44%;   /* 縦長のたまご形 */
-  background: rgba(255, 255, 255, .86); box-shadow: 0 8px 24px rgba(30, 50, 100, .12);
-  font: 400 clamp(46px, 6vw, 104px)/1 var(--serif); color: #141a33; font-variant-numeric: tabular-nums; user-select: none;
+.tm-set { display: flex; flex-direction: column; align-items: stretch; gap: 22px; width: clamp(300px, 36vw, 620px); }
+.tm-time { display: flex; align-items: center; justify-content: center; gap: .06em; font: 400 clamp(76px, 10vw, 170px)/1 var(--serif); color: #141a33; font-variant-numeric: tabular-nums; }
+/* 枠なし・数字だけ。クリックすると入力できる(カーソルを乗せると下線が出る) */
+.tm-num {
+  width: 1.18em; padding: 0 0 .04em; border: 0; border-bottom: 3px solid transparent; border-radius: 0; background: transparent;
+  font: inherit; color: inherit; text-align: center; letter-spacing: 0; caret-color: var(--accent); cursor: text; transition: border-color .15s, background .15s;
 }
-.tm-oval:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
-.tm-oval.locked { background: rgba(255, 255, 255, .6); border-color: rgba(31, 39, 64, .55); }
-.tm-ar {
-  width: clamp(46px, 4.6vw, 76px); height: clamp(26px, 2.4vw, 40px); display: flex; align-items: center; justify-content: center;
-  border: 1.5px solid #1f2740; border-radius: 7px; background: rgba(255, 255, 255, .85); color: #1f2740; transition: background .15s, transform .1s;
-}
-.tm-ar svg { width: 60%; height: 80%; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
-.tm-ar:hover:not(:disabled) { background: #fff; }
-.tm-ar:active:not(:disabled) { transform: translateY(1px); }
-.tm-ar:disabled { opacity: .35; cursor: default; }
-.tm-ar:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.tm-colon { font: 400 clamp(40px, 5vw, 84px)/1 var(--serif); color: #1f2740; padding-bottom: .1em; }
+.tm-num:hover:not(.locked) { border-bottom-color: rgba(31, 39, 64, .25); }
+.tm-num:focus { outline: none; border-bottom-color: var(--accent); background: rgba(59, 111, 216, .08); }
+.tm-num::selection { background: rgba(59, 111, 216, .25); }
+.tm-num.locked { cursor: default; }
+.tm-colon { padding-bottom: .08em; }
+.tm-hint { text-align: center; font-size: 14px; color: var(--ink-sub); margin-top: -8px; }
+.tm-hint[hidden] { display: none; }
 .tm-left { min-height: 1.4em; text-align: center; font-size: 17px; color: var(--ink-sub); font-variant-numeric: tabular-nums; }
 .tm-start {
   height: clamp(54px, 5vw, 80px); border: 2px solid #1f2740; border-radius: 10px; background: #1f2740; color: #fff;
@@ -555,7 +545,7 @@ body[data-view="pomodoro"] .soon, body[data-view="manual"] .soon { display: flex
   .lg-panel.center, .lg-panel.left, .lg-panel.right { height: 34vh; }
   .tm-grid { grid-template-columns: 1fr; justify-items: center; }
   .tm-clock svg { width: min(62vw, 300px); }
-  .tm-oval { width: 17vw; height: 27vw; font-size: 12vw; }
+  .tm-time { font-size: 26vw; }
   .tm-set { width: 100%; max-width: 420px; }
 }
 @media (prefers-reduced-motion: reduce) {
