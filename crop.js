@@ -1,5 +1,6 @@
 // アイコンの切り抜き画面: ドラッグで位置、スライダー(またはホイール・ピンチ)で拡大縮小を決める
-import { cropToDataUrl } from './avatar-image.js?v=27';
+import { cropToDataUrl } from './avatar-image.js?v=30';
+import { t } from './i18n.js?v=30';
 
 const ZOOM_MAX = 4;
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
@@ -20,23 +21,23 @@ export function openCropper(bitmap) {
   return new Promise(resolve => {
     const opener = document.activeElement;
     const overlay = el('div', 'cr');
-    const card = el('div', 'cr-card', { role: 'dialog', 'aria-modal': 'true', 'aria-label': 'アイコンを編集' });
+    const card = el('div', 'cr-card', { role: 'dialog', 'aria-modal': 'true', 'aria-label': t('crop.title') });
     const head = el('div', 'cr-head');
-    const back = el('button', 'cr-back', { type: 'button', 'aria-label': 'キャンセル' });
+    const back = el('button', 'cr-back', { type: 'button', 'aria-label': t('common.cancel') });
     back.innerHTML = SVG.back; // 固定のSVG文字列のみ
-    const title = el('h2', 'cr-title'); title.textContent = 'アイコンを編集';
-    const apply = el('button', 'cr-apply', { type: 'button' }); apply.textContent = '適用';
+    const title = el('h2', 'cr-title'); title.textContent = t('crop.title');
+    const apply = el('button', 'cr-apply', { type: 'button' }); apply.textContent = t('crop.apply');
     head.append(back, title, apply);
 
     const stageBox = el('div', 'cr-stage');
-    const canvas = el('canvas', 'cr-canvas', { tabindex: '0', role: 'img', 'aria-label': '切り抜く範囲。ドラッグまたは矢印キーで動かし、+/- で拡大縮小できます' });
+    const canvas = el('canvas', 'cr-canvas', { tabindex: '0', role: 'img', 'aria-label': t('crop.canvasAria') });
     stageBox.append(canvas);
-    const hint = el('p', 'cr-hint'); hint.textContent = 'ドラッグで位置を動かし、スライダーで大きさを変えられます。';
+    const hint = el('p', 'cr-hint'); hint.textContent = t('crop.hint');
 
     const foot = el('div', 'cr-foot');
     const zOut = el('span', 'cr-zi'); zOut.innerHTML = SVG.out;
     const zIn = el('span', 'cr-zi'); zIn.innerHTML = SVG.in;
-    const slider = el('input', 'cr-slider', { type: 'range', min: '1', max: String(ZOOM_MAX), step: '0.01', value: '1', 'aria-label': '拡大縮小' });
+    const slider = el('input', 'cr-slider', { type: 'range', min: '1', max: String(ZOOM_MAX), step: '0.01', value: '1', 'aria-label': t('crop.zoomAria') });
     foot.append(zOut, slider, zIn);
     card.append(head, stageBox, hint, foot);
     overlay.append(card);

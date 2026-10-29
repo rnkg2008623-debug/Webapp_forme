@@ -1,7 +1,8 @@
 // フレンド機能の画面: 右サイドバーの一覧と、ページの上に重ねて表示するフレンドUI
 //   左のレール: 人のマーク = フレンド一覧 / 人+のマーク = フレンド申請
-import { startSocial, formatCode, SOCIAL_MESSAGES, LIMITS } from './social.js?v=27';
-import { errorMessage } from './auth.js?v=27';
+import { startSocial, formatCode, socialMessage, LIMITS } from './social.js?v=30';
+import { t } from './i18n.js?v=30';
+import { errorMessage } from './auth.js?v=30';
 
 const $ = id => document.getElementById(id);
 const LABELS = { online: 'Online', busy: 'Busy', offline: 'Offline' };
@@ -24,7 +25,7 @@ function el(tag, className, text) {
 function nameLink(uid, name, className) {
   const b = el('button', `${className} link`, name);
   b.type = 'button';
-  b.title = `${name} さんのプロフィールを見る`;
+  b.title = t('fr.viewProfile', { name });
   b.addEventListener('click', () => {
     if (!overlay.hidden) close();
     window.dispatchEvent(new CustomEvent('open-friend-profile', { detail: { uid } }));
@@ -46,7 +47,7 @@ function textButton(label, className, onClick) {
   b.addEventListener('click', onClick);
   return b;
 }
-import { PHOTO_PATTERN } from './avatar-image.js?v=27';
+import { PHOTO_PATTERN } from './avatar-image.js?v=30';
 function avatar(id, name, status, photo) {
   let h = 0;
   for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) % 360;
@@ -63,9 +64,9 @@ function avatar(id, name, status, photo) {
 }
 const pad = n => String(n).padStart(2, '0');
 function lastSeen(p) {
-  if (!p?.changed) return '最終ログイン: -';
+  if (!p?.changed) return t('fr.lastSeen', { d: '-' });
   const d = new Date(p.changed);
-  return `最終ログイン: ${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return t('fr.lastSeen', { d: `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}` });
 }
 
 // 「Studying for 02:30h」: 友だちが Timer / Pomodoro で勉強を始めてからの時間
@@ -86,7 +87,7 @@ const profile = (s, id) => s.profiles[id] || { name: '…', description: '' };
 // ---- 共通: 操作の実行とエラー表示 ----
 const attempt = async (task, show) => {
   try { await task(); return true; }
-  catch (e) { show(SOCIAL_MESSAGES[e.code] || errorMessage(e)); return false; }
+  catch (e) { show(socialMessage(e.code) || errorMessage(e)); return false; }
 };
 
 // ---- 編集ダイアログ(プロフィール / フレンドのメモ) ----
@@ -113,7 +114,7 @@ const closeEdit = () => { $('ed').hidden = true; };
 ed.form.addEventListener('submit', async e => {
   e.preventDefault();
   const values = Object.fromEntries(new FormData(ed.form));
-  const ok = await attempt(() => editSubmit(values), t => { ed.msg.textContent = t; ed.msg.hidden = false; });
+  const ok = await attempt(() => editSubmit(values), text => { ed.msg.textContent = text; ed.msg.hidden = false; });
   if (ok) closeEdit();
 });
 $('ed-cancel').addEventListener('click', closeEdit);
@@ -123,10 +124,10 @@ $('ed').addEventListener('click', e => { if (e.target === $('ed')) closeEdit(); 
 export function editMyProfile() {
   const me = last.me;
   openEdit({
-    title: 'プロフィールを編集',
+    title: t('fr.editProfile'),
     fields: [
-      { name: 'displayName', label: 'ユーザー名', value: me.displayName, max: LIMITS.name },
-      { name: 'description', label: '自己紹介(フレンドに表示されます)', value: me.description, max: LIMITS.description, placeholder: 'ひとこと' },
+      { name: 'displayName', label: t('fr.fieldName'), value: me.displayName, max: LIMITS.name },
+      { name: 'description', label: t('fr.fieldBio'), value: me.description, max: LIMITS.description, placeholder: t('fr.bioPh') },
     ],
     onSave: v => api.actions.saveProfile(v),
   });
@@ -138,12 +139,12 @@ function friendsView(s) {
   const bar = el('div', 'fo-me');
   const who = el('div', 'fo-me-who');
   who.append(avatar('me' + s.me.friendCode, s.me.displayName, s.myStatus, s.me.photo), (() => {
-    const t = el('div', 'fo-me-text');
-    t.append(el('div', 'fo-me-name', s.me.displayName), el('div', 'fo-desc', s.me.description || '自己紹介はまだありません'));
-    return t;
+    const text = el('div', 'fo-me-text');
+    text.append(el('div', 'fo-me-name', s.me.displayName), el('div', 'fo-desc', s.me.description || t('fr.noBio')));
+    return text;
   })());
   const seg = el('div', 'seg');
-  seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', 'ステータス');
+  seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', t('fr.statusAria'));
   for (const key of ['online', 'busy']) {
     const b = el('button', key === s.myStatus ? 'is-on' : '');
     b.type = 'button'; b.setAttribute('aria-pressed', String(key === s.myStatus));
@@ -151,7 +152,7 @@ function friendsView(s) {
     b.addEventListener('click', () => attempt(() => api.actions.setStatus(key), () => {}));
     seg.append(b);
   }
-  bar.append(who, seg, iconButton('pencil', 'プロフィールを編集', 'neutral', editMyProfile));
+  bar.append(who, seg, iconButton('pencil', t('fr.editProfile'), 'neutral', editMyProfile));
 
   const friends = [...s.friends].sort((a, b) =>
     ORDER[statusOf(s, a.uid)] - ORDER[statusOf(s, b.uid)] || profile(s, a.uid).name.localeCompare(profile(s, b.uid).name));
@@ -159,29 +160,29 @@ function friendsView(s) {
     const p = profile(s, fr.uid), st = statusOf(s, fr.uid), memo = s.memos[fr.uid];
     const card = el('article', 'fo-card');
     const info = el('div', 'fo-info');
-    info.append(nameLink(fr.uid, p.name, 'fo-name'), el('div', 'fo-desc', p.description || '自己紹介はまだありません'));
+    info.append(nameLink(fr.uid, p.name, 'fo-name'), el('div', 'fo-desc', p.description || t('fr.noBio')));
     const studying = studyingText(s, fr.uid);
     if (studying) info.append(el('div', 'fo-study', studying));
-    if (memo) info.append(el('div', 'fo-memo', `メモ: ${memo}`));
+    if (memo) info.append(el('div', 'fo-memo', t('fr.memoPrefix', { m: memo })));
     const side = el('div', 'fo-side');
     const btns = el('div', 'fo-btns');
-    const del = iconButton('trash', 'フレンドを削除', 'danger', () => {
+    const del = iconButton('trash', t('fr.delFriend'), 'danger', () => {
       if (fr.confirming) return attempt(() => api.actions.remove(fr), () => {});
       fr.confirming = true;
-      del.classList.add('confirm'); del.title = 'もう一度押すと削除します';
-      setTimeout(() => { fr.confirming = false; del.classList.remove('confirm'); del.title = 'フレンドを削除'; }, 3000);
+      del.classList.add('confirm'); del.title = t('fr.delConfirm');
+      setTimeout(() => { fr.confirming = false; del.classList.remove('confirm'); del.title = t('fr.delFriend'); }, 3000);
     });
-    btns.append(iconButton('pencil', 'メモを編集', 'neutral', () => openEdit({
-      title: `${p.name} さんのメモ`,
-      note: 'このメモは自分だけに表示されます。',
-      fields: [{ name: 'memo', label: 'メモ', value: memo || '', max: LIMITS.memo, placeholder: 'この人についてのメモ' }],
+    btns.append(iconButton('pencil', t('fr.editMemo'), 'neutral', () => openEdit({
+      title: t('fr.memoTitle', { name: p.name }),
+      note: t('fr.memoNote'),
+      fields: [{ name: 'memo', label: t('fr.memoField'), value: memo || '', max: LIMITS.memo, placeholder: t('fr.memoPh') }],
       onSave: v => api.actions.saveMemo(fr.uid, v.memo),
     })), del);
     side.append(btns, el('div', 'fo-seen', lastSeen(s.presence[fr.uid])));
     card.append(avatar(fr.uid, p.name, st, p.photo), info, side);
     return card;
   });
-  return { bar, cards: cards.length ? cards : [el('p', 'fo-empty', 'まだフレンドがいません。左の「人+」のマークから、フレンドコードで申請できます。')] };
+  return { bar, cards: cards.length ? cards : [el('p', 'fo-empty', t('fr.emptyOverlay'))] };
 }
 
 // ---- フレンド申請(人+のマーク) ----
@@ -189,25 +190,25 @@ const addState = { msg: '', ok: false };
 function requestsView(s) {
   const bar = el('div', 'fo-add');
   const code = el('div', 'fo-code');
-  code.append(el('span', 'fm-label', 'あなたのフレンドコード'), el('code', null, formatCode(s.me.friendCode)),
-    textButton('コピー', 'fm-btn', async () => {
-      try { await navigator.clipboard.writeText(formatCode(s.me.friendCode)); setMsg('フレンドコードをコピーしました。', true); }
-      catch (_) { setMsg('コピーできませんでした。コードを選択してコピーしてください。'); }
+  code.append(el('span', 'fm-label', t('fr.yourCode')), el('code', null, formatCode(s.me.friendCode)),
+    textButton(t('common.copy'), 'fm-btn', async () => {
+      try { await navigator.clipboard.writeText(formatCode(s.me.friendCode)); setMsg(t('fr.codeCopied'), true); }
+      catch (_) { setMsg(t('fr.copyFail')); }
     }));
   const form = el('form', 'fm-add');
   form.noValidate = true;
   const input = el('input');
   input.type = 'text'; input.id = 'fm-code-input'; input.maxLength = 12; input.autocomplete = 'off'; input.spellcheck = false;
-  input.placeholder = '相手のフレンドコード (XXXX-XXXX)'; input.setAttribute('aria-label', '相手のフレンドコード');
-  const submit = textButton('申請する', 'fm-btn primary', () => {}); submit.type = 'submit';
+  input.placeholder = t('fr.codePh'); input.setAttribute('aria-label', t('fr.codeAria'));
+  const submit = textButton(t('fr.send'), 'fm-btn primary', () => {}); submit.type = 'submit';
   form.append(input, submit);
   form.addEventListener('submit', async e => {
     e.preventDefault();
     await attempt(async () => {
       const name = await api.actions.sendRequest(input.value);
       input.value = '';
-      setMsg(`${name} さんにフレンド申請を送りました。`, true);
-    }, t => setMsg(t));
+      setMsg(t('fr.sent', { name }), true);
+    }, text => setMsg(text));
   });
   const msg = el('p', 'fm-msg'); msg.id = 'fm-msg'; msg.setAttribute('role', 'status');
   msg.hidden = !addState.msg; msg.textContent = addState.msg; msg.classList.toggle('ok', addState.ok);
@@ -217,24 +218,24 @@ function requestsView(s) {
     const p = profile(s, q.uid);
     const card = el('article', 'fo-card request');
     const info = el('div', 'fo-info');
-    info.append(el('div', 'fo-name', p.name), el('div', 'fo-desc', p.description || '自己紹介はまだありません'));
+    info.append(el('div', 'fo-name', p.name), el('div', 'fo-desc', p.description || t('fr.noBio')));
     const btns = el('div', 'fo-btns');
     btns.append(
-      iconButton('check', '承認', 'ok', () => attempt(() => api.actions.accept(q), setMsg)),
-      iconButton('cross', '拒否', 'danger', () => attempt(() => api.actions.decline(q), setMsg)));
+      iconButton('check', t('fr.accept'), 'ok', () => attempt(() => api.actions.accept(q), setMsg)),
+      iconButton('cross', t('fr.decline'), 'danger', () => attempt(() => api.actions.decline(q), setMsg)));
     card.append(avatar(q.uid, p.name, undefined, p.photo), el('span', 'fo-div'), info, el('span', 'fo-div'), btns);
     return card;
   });
-  if (!cards.length) cards.push(el('p', 'fo-empty', '届いているフレンド申請はありません。'));
+  if (!cards.length) cards.push(el('p', 'fo-empty', t('fr.noIncoming')));
   if (s.outgoing.length) {
-    cards.push(el('h3', 'fo-sub', '送信した申請(承認待ち)'));
+    cards.push(el('h3', 'fo-sub', t('fr.outgoing')));
     for (const q of s.outgoing) {
       const p = profile(s, q.uid);
       const card = el('article', 'fo-card request pending');
       const info = el('div', 'fo-info');
-      info.append(el('div', 'fo-name', p.name), el('div', 'fo-desc', p.description || '自己紹介はまだありません'));
+      info.append(el('div', 'fo-name', p.name), el('div', 'fo-desc', p.description || t('fr.noBio')));
       card.append(avatar(q.uid, p.name, undefined, p.photo), el('span', 'fo-div'), info, el('span', 'fo-div'),
-        iconButton('cross', '申請を取り消す', 'danger', () => attempt(() => api.actions.cancel(q), setMsg)));
+        iconButton('cross', t('fr.cancelReq'), 'danger', () => attempt(() => api.actions.cancel(q), setMsg)));
       cards.push(card);
     }
   }
@@ -265,7 +266,7 @@ function render(state) {
     small.classList.add('sm');
     li.append(small, info);
     return li;
-  }) : [el('li', 'fm-empty', 'まだフレンドがいません。上の Friend から追加できます。')]));
+  }) : [el('li', 'fm-empty', t('fr.sideEmpty'))]));
 
   // 申請バッジ(ヘッダーと左レール)
   for (const id of ['friend-badge', 'rail-badge']) {
@@ -280,10 +281,10 @@ function render(state) {
   $('fo-bar').replaceChildren(bar);
   $('fo-list').replaceChildren(...cards);
   if (typed) { const i = $('fm-code-input'); i.value = typed.v; i.focus(); i.setSelectionRange(typed.pos, typed.pos); }
-  document.querySelectorAll('.fo-tab').forEach(t => {
-    const on = t.dataset.view === view;
-    t.classList.toggle('is-on', on);
-    t.setAttribute('aria-pressed', String(on));
+  document.querySelectorAll('.fo-tab').forEach(tab => {
+    const on = tab.dataset.view === view;
+    tab.classList.toggle('is-on', on);
+    tab.setAttribute('aria-pressed', String(on));
   });
 }
 
@@ -312,7 +313,7 @@ document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
   if (!$('ed').hidden) closeEdit(); else if (!overlay.hidden) close();
 });
-document.querySelectorAll('.fo-tab').forEach(t => t.addEventListener('click', () => { view = t.dataset.view; render(last); }));
+document.querySelectorAll('.fo-tab').forEach(tab => tab.addEventListener('click', () => { view = tab.dataset.view; render(last); }));
 
 // Timer / Pomodoro が「勉強中」の開始・終了を知らせてくる(window の 'study-session' イベント)
 const sessions = new Map();
@@ -331,3 +332,6 @@ export async function mountFriends(user) {
 }
 
 export { avatar as makeAvatar };
+
+// 言語を切り替えたら、画面を描き直す
+window.addEventListener('langchange', () => { if (last) render(last); });

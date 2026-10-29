@@ -34,7 +34,7 @@ const stats = [
 
 // nav: 画面の切り替え(ヘッダーは固定。その下だけが入れ替わる)
 //   home: ホーム / log: Log data / timer, pomodoro, manual: Log data の中のページ / profile: Profile
-const VIEWS = { home: null, log: 'log', timer: 'log', pomodoro: 'log', manual: 'log', profile: 'profile' };
+const VIEWS = { home: null, log: 'log', timer: 'log', pomodoro: 'log', manual: 'log', profile: 'profile', settings: 'settings' };
 const navButtons = [...document.querySelectorAll('.nav-item[data-target]')];
 function setView(name) {
   if (!(name in VIEWS)) name = 'home';
@@ -47,7 +47,7 @@ window.appSetView = setView;
 navButtons.forEach(btn => btn.addEventListener('click', () => {
   const t = btn.dataset.target;
   if (t === 'friend') return;          // フレンドはページの上に重ねて表示する(friends-ui.js)
-  if (t in VIEWS) setView(t);          // Settings はまだ画面がない
+  if (t in VIEWS) setView(t);
 }));
 document.querySelector('.logo').addEventListener('click', e => { e.preventDefault(); setView('home'); });
 setView(location.hash.slice(1));

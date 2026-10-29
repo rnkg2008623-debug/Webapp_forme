@@ -1,4 +1,5 @@
-import { signUp, logIn, withGoogle, onUser, errorMessage, isCancelled } from './auth.js?v=27';
+import { signUp, logIn, withGoogle, onUser, errorMessage, isCancelled } from './auth.js?v=30';
+import { t, getLang, setLang } from './i18n.js?v=30';
 
 const body = document.body;
 const loginPanel = document.querySelector('.panel-left');
@@ -20,7 +21,7 @@ document.querySelectorAll('.eye').forEach(btn => btn.addEventListener('click', (
   const visible = input.type === 'password';
   input.type = visible ? 'text' : 'password';
   btn.classList.toggle('is-on', visible);
-  btn.setAttribute('aria-label', visible ? 'パスワードを隠す' : 'パスワードを表示');
+  btn.setAttribute('aria-label', visible ? t('pw.hide') : t('pw.show'));
 }));
 
 // 送信中はボタンを無効にして二重送信を防ぐ
@@ -42,7 +43,7 @@ const msg = document.getElementById('msg');
 form.addEventListener('submit', e => {
   e.preventDefault();
   const email = form.email.value.trim();
-  if (!email || !form.pass.value) return show(msg, 'メールアドレスとパスワードを入力してください。');
+  if (!email || !form.pass.value) return show(msg, t('login.enter'));
   run(msg, form.querySelector('.submit-btn'), () => logIn(email, form.pass.value));
 });
 const googleBtn = document.getElementById('google');
@@ -67,12 +68,22 @@ sForm.addEventListener('submit', e => {
   e.preventDefault();
   const name = sForm.name.value.trim();
   const email = sForm.email.value.trim();
-  if (!name || !email || !sForm.pass.value || !sForm.confirm.value) return show(sMsg, 'すべての項目を入力してください。');
-  if (name.length > 20) return show(sMsg, 'ユーザー名は20文字以内にしてください。');
-  if (!/^\S+@\S+\.\S+$/.test(email)) return show(sMsg, 'メールアドレスの形式が正しくありません。');
-  if (sForm.pass.value.length < 8) return show(sMsg, 'パスワードは8文字以上にしてください。');
-  if (sForm.pass.value !== sForm.confirm.value) return show(sMsg, 'パスワードが一致しません。');
+  if (!name || !email || !sForm.pass.value || !sForm.confirm.value) return show(sMsg, t('su.all'));
+  if (name.length > 20) return show(sMsg, t('su.name20'));
+  if (!/^\S+@\S+\.\S+$/.test(email)) return show(sMsg, t('su.email'));
+  if (sForm.pass.value.length < 8) return show(sMsg, t('su.pw8'));
+  if (sForm.pass.value !== sForm.confirm.value) return show(sMsg, t('su.match'));
   run(sMsg, sForm.querySelector('.submit-btn'), () => signUp(email, sForm.pass.value, name));
 });
 const suGoogle = document.getElementById('su-google');
 suGoogle.addEventListener('click', () => run(sMsg, suGoogle, withGoogle));
+
+// ---- 言語の切り替え(ログイン前でも選べる) ----
+const langButtons = [...document.querySelectorAll('[data-lang]')];
+const markLang = () => langButtons.forEach(b => { const on = b.dataset.lang === getLang(); b.classList.toggle('is-on', on); b.setAttribute('aria-pressed', String(on)); });
+langButtons.forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
+window.addEventListener('langchange', () => {
+  markLang();
+  for (const btn of document.querySelectorAll('.eye')) btn.setAttribute('aria-label', btn.classList.contains('is-on') ? t('pw.hide') : t('pw.show'));
+});
+markLang();

@@ -1,8 +1,9 @@
 // Timer: 数字(時間:分)をクリックしてキーボードで設定 → Start でカウントダウン。
 // 時計の針は1本。経過に合わせて進み、通った部分を薄い水色で塗る。針が12に戻ったら、終了。
 // 終わると(または途中で終了すると)学習ログに記録する。
-import { firestore } from './auth.js?v=27';
-import { unlockAudio, beep } from './sound.js?v=27';
+import { firestore } from './auth.js?v=30';
+import { unlockAudio, beep } from './sound.js?v=30';
+import { t } from './i18n.js?v=30';
 
 const $ = id => document.getElementById(id);
 const MAX_MIN = 720;                 // 12時間(Firestore のルールの上限に合わせる)
@@ -13,7 +14,7 @@ const pad2 = n => String(n).padStart(2, '0');
 export const progressAngle = (elapsedMs, totalMs) => totalMs > 0 ? Math.min(Math.max(elapsedMs / totalMs, 0), 1) * 360 : 0;
 // 欄の文字から分に直す(「0:90」は1時間30分になる)。最大12時間
 export function fieldsToMinutes(hText, mText) {
-  const n = t => parseInt(String(t).replace(/\D/g, ''), 10) || 0;
+  const n = v => parseInt(String(v).replace(/\D/g, ''), 10) || 0;
   return Math.min(n(hText) * 60 + n(mText), MAX_MIN);
 }
 
@@ -49,13 +50,13 @@ function render() {
   if (live) writeFields(Math.ceil(rem / 60000));   // 動いている間は、設定した時間が減っていく
   for (const input of [H(), M()]) { input.readOnly = live; input.tabIndex = live ? -1 : 0; input.classList.toggle('locked', live); }
   renderClock();
-  const labels = { idle: 'Start', running: 'Pause', paused: 'Resume', done: 'もう一度' };
+  const labels = { idle: 'Start', running: 'Pause', paused: 'Resume', done: t('tm.again') };
   $('tm-start').textContent = labels[state.mode];
   $('tm-start').classList.toggle('alt', state.mode === 'running');
   $('tm-sub').hidden = !(state.mode === 'running' || state.mode === 'paused');
   $('tm-hint').hidden = state.mode !== 'idle';
   const s = Math.ceil(rem / 1000);
-  $('tm-left').textContent = (state.mode === 'running' || state.mode === 'paused') ? `残り ${pad2(Math.floor(s / 3600))}:${pad2(Math.floor(s % 3600 / 60))}:${pad2(s % 60)}` : '';
+  $('tm-left').textContent = (state.mode === 'running' || state.mode === 'paused') ? t('tm.left', { t: `${pad2(Math.floor(s / 3600))}:${pad2(Math.floor(s % 3600 / 60))}:${pad2(s % 60)}` }) : '';
   document.title = state.mode === 'running' ? `${pad2(Math.floor(s / 60))}:${pad2(s % 60)} · Home` : 'Home';
 }
 function say(text, ok) {
@@ -112,7 +113,7 @@ function startLoops() {
 }
 function start() {
   const minutes = commitFields();
-  if (minutes < 1) { say('1分以上に設定してください。'); H().focus(); return; }
+  if (minutes < 1) { say(t('tm.min1')); H().focus(); return; }
   unlockAudio();
   state.total = minutes * 60000;
   state.endAt = Date.now() + state.total;
@@ -132,13 +133,13 @@ async function complete() {
   beep();
   render();
   const minutes = Math.round(state.total / 60000);
-  say(await saveLog(minutes) ? `完了です。${minutes}分を記録しました。` : `完了です。(${minutes}分の記録を保存できませんでした)`, true);
+  say(await saveLog(minutes) ? t('tm.done', { n: minutes }) : t('tm.doneFail', { n: minutes }), true);
 }
 async function finishEarly() {
   const minutes = Math.floor((state.total - remainingMs()) / 60000);
   back();
-  if (minutes < 1) { say('1分未満のため、記録されませんでした。'); return; }
-  say(await saveLog(minutes) ? `${minutes}分を記録しました。` : `(${minutes}分の記録を保存できませんでした)`, true);
+  if (minutes < 1) { say(t('tm.under1')); return; }
+  say(await saveLog(minutes) ? t('tm.rec', { n: minutes }) : t('tm.recFail', { n: minutes }), true);
 }
 function startOrToggle() {
   if (state.mode === 'idle') start();
@@ -158,3 +159,6 @@ $('tm-finish').addEventListener('click', finishEarly);
 window.addEventListener('beforeunload', e => { if (state.mode === 'running' || state.mode === 'paused') { e.preventDefault(); e.returnValue = ''; } });
 writeFields(state.minutes);
 render();
+
+// 言語を切り替えたら、画面を描き直す(動いている間のメッセージは、次の更新で切り替わる)
+window.addEventListener('langchange', () => { render(); say(''); });

@@ -1,5 +1,6 @@
 // Firebase Authentication のラッパー。設定が空のときは SDK を読み込まず、isConfigured=false になる。
-import { firebaseConfig } from './firebase-config.js?v=27';
+import { firebaseConfig } from './firebase-config.js?v=30';
+import { t, hasKey } from './i18n.js?v=30';
 
 const SDK = 'https://www.gstatic.com/firebasejs/10.14.1';
 export const isConfigured = Boolean(firebaseConfig.apiKey && firebaseConfig.authDomain && firebaseConfig.projectId);
@@ -55,20 +56,10 @@ export function onUser(callback) {
   load().then(({ auth, instance }) => auth.onAuthStateChanged(instance, callback)).catch(() => callback(null));
 }
 
-const MESSAGES = {
-  'app/not-configured': 'Firebase の設定が未完了です。firebase-config.js に設定を入力してください。',
-  'auth/email-already-in-use': 'このメールアドレスはすでに登録されています。ログインしてください。',
-  'auth/invalid-email': 'メールアドレスの形式が正しくありません。',
-  'auth/weak-password': 'パスワードが弱すぎます。8文字以上で設定してください。',
-  'auth/invalid-credential': 'メールアドレスまたはパスワードが違います。',
-  'auth/user-not-found': 'メールアドレスまたはパスワードが違います。',
-  'auth/wrong-password': 'メールアドレスまたはパスワードが違います。',
-  'auth/too-many-requests': '試行回数が多すぎます。しばらくしてからやり直してください。',
-  'auth/network-request-failed': 'ネットワークに接続できません。通信環境を確認してください。',
-  'auth/popup-blocked': 'ポップアップがブロックされました。許可してからもう一度お試しください。',
-  'auth/unauthorized-domain': 'このドメインが Firebase の承認済みドメインに登録されていません。',
-  'permission-denied': 'この操作は許可されていません。ルールの設定を確認してください。',
-  'auth/operation-not-allowed': 'この認証方法が Firebase で有効になっていません。',
-};
+// エラーコード → 画面に出す文言(言語は i18n.js が決める)
+const ALIASES = { 'auth/user-not-found': 'auth/invalid-credential', 'auth/wrong-password': 'auth/invalid-credential' };
 export const isCancelled = e => ['auth/popup-closed-by-user', 'auth/cancelled-popup-request'].includes(e?.code);
-export const errorMessage = e => MESSAGES[e?.code] || '処理に失敗しました。時間をおいてやり直してください。';
+export const errorMessage = e => {
+  const code = ALIASES[e?.code] || e?.code;
+  return hasKey(`err.${code}`) ? t(`err.${code}`) : t('err.default');
+};

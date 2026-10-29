@@ -1,6 +1,7 @@
 // Pomodoro: 作業 → 休憩 を繰り返す。作業が終わるたびに学習ログ(Pomodoro 1回)を記録する。
-import { firestore } from './auth.js?v=27';
-import { unlockAudio, beep, pon } from './sound.js?v=27';
+import { firestore } from './auth.js?v=30';
+import { unlockAudio, beep, pon } from './sound.js?v=30';
+import { t } from './i18n.js?v=30';
 
 const $ = id => document.getElementById(id);
 const pad2 = n => String(n).padStart(2, '0');
@@ -31,10 +32,10 @@ function render() {
   const rem = remainingMs();
   $('pm-time').textContent = formatClock(rem);
   $('pm-time').classList.toggle('rest', live && state.phase === 'rest');
-  $('pm-phase').textContent = !live ? `作業 ${state.work}分 → 休憩 ${state.rest}分`
-    : `${state.phase === 'work' ? '作業中' : '休憩中'}${state.mode === 'paused' ? '(一時停止)' : ''}`;
+  $('pm-phase').textContent = !live ? t('pm.idlePhase', { w: state.work, b: state.rest })
+    : `${state.phase === 'work' ? t('pm.working') : t('pm.resting')}${state.mode === 'paused' ? t('pm.pausedSuffix') : ''}`;
   $('pm-count').hidden = state.completed === 0;
-  $('pm-count').textContent = `完了した Pomodoro: ${state.completed}回`;
+  $('pm-count').textContent = t('pm.count', { n: state.completed });
   $('pm-work').disabled = $('pm-break').disabled = live;
   $('pm-work').value = String(state.work);
   $('pm-break').value = String(state.rest);
@@ -44,10 +45,10 @@ function render() {
     b.setAttribute('aria-pressed', String(on));
     b.disabled = live;
   });
-  $('pm-start').textContent = { idle: 'スタート', running: '一時停止', paused: '再開' }[state.mode];
+  $('pm-start').textContent = { idle: t('pm.start'), running: t('pm.pause'), paused: t('pm.resume') }[state.mode];
   $('pm-start').classList.toggle('alt', state.mode === 'running');
   $('pm-sub').hidden = !live;
-  document.title = state.mode === 'running' ? `${formatClock(rem)} · ${state.phase === 'work' ? '作業' : '休憩'}` : 'Home';
+  document.title = state.mode === 'running' ? `${formatClock(rem)} · ${state.phase === 'work' ? t('pm.titleWork') : t('pm.titleBreak')}` : 'Home';
 }
 function saveSettings() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ work: state.work, rest: state.rest })); } catch (_) { /* 保存できなくても動く */ } }
 
@@ -71,14 +72,14 @@ async function phaseDone() {
     const minutes = state.work;
     state.completed += 1;
     begin('rest');
-    say(`作業が終わりました。${state.rest}分、休憩しましょう。`, true);
+    say(t('pm.workDone', { b: state.rest }), true);
     const ok = await saveLog(minutes, 1);
-    if (!ok) say(`作業が終わりました。(記録を保存できませんでした)${state.rest}分、休憩しましょう。`, true);
-    else if (state.phase === 'rest') say(`作業が終わりました。記録しました。${state.rest}分、休憩しましょう。`, true);
+    if (!ok) say(t('pm.workDoneFail', { b: state.rest }), true);
+    else if (state.phase === 'rest') say(t('pm.workDoneSaved', { b: state.rest }), true);
   } else {
     beep(2);
     begin('work');
-    say('休憩が終わりました。次の作業を始めます。', true);
+    say(t('pm.breakDone'), true);
   }
 }
 function tick() {
@@ -97,8 +98,8 @@ async function stop() {
   const had = state.completed;
   state.completed = 0;
   render();
-  if (worked >= 1) say(await saveLog(worked, 0) ? `作業した${worked}分を記録しました。(完了 ${had}回)` : '(記録を保存できませんでした)', true);
-  else say(had ? `お疲れさまでした。完了した Pomodoro は ${had}回です。` : '');
+  if (worked >= 1) say(await saveLog(worked, 0) ? t('pm.stopSaved', { n: worked, c: had }) : t('pm.stopFail'), true);
+  else say(had ? t('pm.stopThanks', { c: had }) : '');
 }
 
 export async function mountPomodoro(currentUser) {
@@ -121,3 +122,6 @@ $('pm-start').addEventListener('click', startOrToggle);
 $('pm-stop').addEventListener('click', stop);
 window.addEventListener('beforeunload', e => { if (state.mode !== 'idle') { e.preventDefault(); e.returnValue = ''; } });
 render();
+
+// 言語を切り替えたら、画面を描き直す
+window.addEventListener('langchange', () => { render(); say(''); });

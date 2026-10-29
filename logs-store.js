@@ -1,5 +1,5 @@
 // 学習ログの共有ストア: 自分のログと、友だちのログ(ホームの Recent log 用)を購読して、新しい順にまとめる
-import { firestore } from './auth.js?v=27';
+import { firestore } from './auth.js?v=30';
 
 let f, db, uid;
 let mine = [];
@@ -12,7 +12,7 @@ const emit = () => listeners.forEach(fn => fn());
 
 const toLog = (owner, d) => {
   const x = d.data();
-  return { id: `${owner}/${d.id}`, owner, title: x.title || '学習', minutes: x.minutes || 0, pomodoros: x.pomodoros || 0, description: x.description || '', at: x.at?.toDate?.() };
+  return { id: `${owner}/${d.id}`, owner, title: x.title || '', minutes: x.minutes || 0, pomodoros: x.pomodoros || 0, description: x.description || '', at: x.at?.toDate?.() };
 };
 
 export const mineLogs = () => mine;

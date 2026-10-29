@@ -1,7 +1,8 @@
 // ホームの Recent log: 自分と友だちの最近の学習ログを、新しい順に並べる(ボックスの中をスクロールして、好きなだけ見られる)
-import { onState } from './friends-ui.js?v=27';
-import { onLogs, feedLogs, setFriends, ownerId, deniedCount } from './logs-store.js?v=27';
-import { relativeTime } from './stats.js?v=27';
+import { onState } from './friends-ui.js?v=30';
+import { onLogs, feedLogs, setFriends, ownerId, deniedCount } from './logs-store.js?v=30';
+import { relativeTime } from './stats.js?v=30';
+import { t } from './i18n.js?v=30';
 
 const list = document.getElementById('recent-list');
 let state = null;
@@ -25,18 +26,18 @@ function render() {
   const logs = feedLogs(60);
   const items = logs.map(l => {
     const mine = l.owner === ownerId();
-    const who = mine ? 'あなた' : (state?.profiles[l.owner]?.name ?? '…');
+    const who = mine ? t('rc.you') : (state?.profiles[l.owner]?.name ?? '…');
     const li = el('li', mine ? '' : 'friend');
     const body = el('div');
-    body.append(el('div', 'name', l.title), el('div', 'date', `${who} ・ ${l.minutes}分 ・ ${relativeTime(l.at)}`));
+    body.append(el('div', 'name', l.title || t('log.default')), el('div', 'date', `${who} ・ ${t('unit.min', { n: l.minutes })} ・ ${relativeTime(l.at)}`));
     li.title = l.description || '';
     li.append(docIcon(), body);
     return li;
   });
   if (deniedCount()) {   // 友だちのログが読めない = Firestore のルールが古い
-    items.unshift(el('li', 'warn', '友だちのログを読み込めません。Firestore のルールを最新にしてください(README の手順)。'));
+    items.unshift(el('li', 'warn', t('rc.denied')));
   }
-  list.replaceChildren(...(items.length ? items : [el('li', 'empty', 'まだログがありません。Timer や Pomodoro を終えると、ここに表示されます。')]));
+  list.replaceChildren(...(items.length ? items : [el('li', 'empty', t('rc.empty'))]));
 }
 
 export function mountRecent() {
@@ -44,3 +45,6 @@ export function mountRecent() {
   onLogs(render);
   setInterval(render, 60000);   // 「5分前」などを更新
 }
+
+// 言語を切り替えたら、画面を描き直す
+window.addEventListener('langchange', render);

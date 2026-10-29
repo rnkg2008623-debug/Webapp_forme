@@ -1,11 +1,12 @@
 // プロフィール画面: 自分の情報、学習の集計、日ごとの学習時間のグラフ、Log history
-import { firestore } from './auth.js?v=27';
-import { formatCode, SOCIAL_MESSAGES } from './social.js?v=27';
-import { errorMessage } from './auth.js?v=27';
-import { loadImage } from './avatar-image.js?v=27';
-import { openCropper } from './crop.js?v=27';
-import { onState, editMyProfile, makeAvatar } from './friends-ui.js?v=27';
-import { computeStats, dailySeries, niceScale, relativeTime, sampleLogs } from './stats.js?v=27';
+import { firestore } from './auth.js?v=30';
+import { formatCode, socialMessage } from './social.js?v=30';
+import { t, logMeta } from './i18n.js?v=30';
+import { errorMessage } from './auth.js?v=30';
+import { loadImage } from './avatar-image.js?v=30';
+import { openCropper } from './crop.js?v=30';
+import { onState, editMyProfile, makeAvatar } from './friends-ui.js?v=30';
+import { computeStats, dailySeries, niceScale, relativeTime, sampleLogs } from './stats.js?v=30';
 
 const $ = id => document.getElementById(id);
 const el = (tag, className, text) => {
@@ -14,7 +15,6 @@ const el = (tag, className, text) => {
   if (text != null) n.textContent = text;
   return n;
 };
-const WEEK = ['日', '月', '火', '水', '木', '金', '土'];
 const md = d => `${d.getMonth() + 1}/${d.getDate()}`;
 const fmt = (n, digits = 1) => n.toFixed(digits).replace(/\.0+$/, '');
 
@@ -46,11 +46,11 @@ function renderMe() {
   av.classList.add('pf-avatar');
   $('pf-avatar').replaceWith(av);
   $('pf-avatar-btn').disabled = !isMe();
-  $('pf-avatar-btn').title = isMe() ? 'クリックしてアイコンを変更' : '';
+  $('pf-avatar-btn').title = isMe() ? t('pf.avatarClick') : '';
   $('pf-name').textContent = who.name;
   $('pf-uid').textContent = who.code ? formatCode(who.code) : '—';
   const d = $('pf-desc');
-  d.textContent = who.description || (isMe() ? '自己紹介はまだありません。右上の鉛筆から追加できます。' : '自己紹介はまだありません。');
+  d.textContent = who.description || (isMe() ? t('pf.descEmptyMe') : t('pf.descEmpty'));
   d.classList.toggle('empty', !who.description);
   // 友だちのときは、いまの状態(Online / Studying for ...)も出す
   const pr = $('pf-presence');
@@ -91,8 +91,8 @@ function renderChart() {
   for (let v = 0; v <= max + 1e-9; v += step) {
     s += `<line class="pf-grid" x1="${PAD.l}" x2="${W - PAD.r}" y1="${y(v)}" y2="${y(v)}"/><text class="pf-tick" x="${PAD.l - 10}" y="${y(v) + 4}" text-anchor="end">${fmt(v, step < 1 ? 2 : 1)}</text>`;
   }
-  s += `<text class="pf-axis" x="${PAD.l - 10}" y="${PAD.t - 12}" text-anchor="end">時間 (hrs)</text>`;
-  s += `<text class="pf-axis" x="${W - PAD.r}" y="${H - 6}" text-anchor="end">日にち</text>`;
+  s += `<text class="pf-axis" x="${PAD.l - 10}" y="${PAD.t - 12}" text-anchor="end">${t('pf.axisY')}</text>`;
+  s += `<text class="pf-axis" x="${W - PAD.r}" y="${H - 6}" text-anchor="end">${t('pf.axisX')}</text>`;
   const every = Math.ceil(series.length / 7);
   series.forEach((p, i) => { if ((series.length - 1 - i) % every === 0) s += `<text class="pf-tick" x="${x(i)}" y="${H - PAD.b + 20}" text-anchor="middle">${md(p.date)}</text>`; });
   const pts = series.map((p, i) => `${x(i)},${y(p.hours)}`).join(' ');
@@ -100,7 +100,7 @@ function renderChart() {
   s += `<polyline class="pf-line" points="${pts}"/>`;
   if (series.length <= 31) series.forEach((p, i) => { s += `<circle class="pf-dot" cx="${x(i)}" cy="${y(p.hours)}" r="3.2"/>`; });
   s += `<g id="pf-mark" style="display:none"><line class="pf-cross" y1="${PAD.t}" y2="${H - PAD.b}"/><circle class="pf-dot on" r="5"/></g>`;
-  if (!activeLogs().length) s += `<text class="pf-none" x="${W / 2}" y="${H / 2 - 8}" text-anchor="middle">記録はまだありません</text>`;
+  if (!activeLogs().length) s += `<text class="pf-none" x="${W / 2}" y="${H / 2 - 8}" text-anchor="middle">${t('pf.none')}</text>`;
   $('pf-svg').innerHTML = s;
 }
 // ホバー(タップ)で、その日の時間を表示
@@ -117,7 +117,7 @@ function hover(e) {
   mark.style.display = '';
   mark.querySelector('line').setAttribute('x1', cx); mark.querySelector('line').setAttribute('x2', cx);
   mark.querySelector('circle').setAttribute('cx', cx); mark.querySelector('circle').setAttribute('cy', cy);
-  tip.textContent = `${md(p.date)}(${WEEK[p.date.getDay()]})  ${fmt(p.hours, 2)} hrs`;
+  tip.textContent = `${t('time.weekFmt', { d: md(p.date), w: t('time.week')[p.date.getDay()] })}  ${fmt(p.hours, 2)} hrs`;
   tip.hidden = false;
   tip.style.left = `${cx / W * box.width}px`;
   tip.style.top = `${Math.max(cy / H * box.height - 12, 0)}px`;
@@ -134,7 +134,7 @@ function renderHistory() {
   const items = logs.map(l => {
     const li = el('li', 'pf-log');
     const left = el('div', 'pf-log-main');
-    left.append(el('div', 'pf-log-title', l.title || '学習'), el('div', 'pf-log-sub', `${l.minutes}分${l.pomodoros ? ` ・ Pomodoro ${l.pomodoros}回` : ''}${l.description ? ` ・ ${l.description}` : ''}`));
+    left.append(el('div', 'pf-log-title', l.title || t('log.default')), el('div', 'pf-log-sub', logMeta(l)));
     li.append(left, el('time', 'pf-log-time', relativeTime(l.at)));
     li.querySelector('time').title = l.at.toLocaleString('ja-JP');
     return li;
@@ -143,13 +143,12 @@ function renderHistory() {
     const li = el('li', 'pf-empty');
     const name = subjectInfo()?.name ?? '';
     li.append(el('p', null, failed()
-      ? (isMe() ? 'ログを読み込めませんでした。Firestore のルールが最新か確認してください。'
-        : `${name} さんのログを読み込めませんでした。Firestore のルール(友だちがログを読める設定)が、公開されているか確認してください。`)
-      : !loaded() ? '読み込み中…'
-      : isMe() ? '学習ログはまだありません。学習を記録すると、ここに新しい順で表示されます。'
-      : `${name} さんの学習ログは、まだありません。`));
+      ? (isMe() ? t('pf.errMe') : t('pf.errFriend', { name }))
+      : !loaded() ? t('common.loading')
+      : isMe() ? t('pf.emptyMe')
+      : t('pf.emptyFriend', { name })));
     if (isMe() && (loaded() || failed())) {
-      const b = el('button', 'fm-btn', 'サンプルで表示を確認');
+      const b = el('button', 'fm-btn', t('pf.sample'));
       b.type = 'button';
       b.addEventListener('click', () => { state.preview = true; renderAll(); });
       li.append(b);
@@ -180,23 +179,23 @@ $('pf-file').addEventListener('change', async e => {
     bitmap = await loadImage(file);
     const url = await openCropper(bitmap); // 範囲と大きさを選ぶ。キャンセルなら null
     if (!url) return;
-    btn.disabled = true; say('アイコンを保存しています…', true);
+    btn.disabled = true; say(t('pf.saving'), true);
     await socialApi.actions.savePhoto(url);
-    say('アイコンを変更しました。', true);
+    say(t('pf.saved'), true);
   } catch (err) {
     console.error(err);
-    say(SOCIAL_MESSAGES[err.code] || errorMessage(err));
+    say(socialMessage(err.code) || errorMessage(err));
   } finally { bitmap?.close?.(); btn.disabled = false; }
 });
 $('pf-photo-remove').addEventListener('click', async () => {
-  try { await socialApi.actions.removePhoto(); say('アイコンを元に戻しました。', true); }
-  catch (err) { say(SOCIAL_MESSAGES[err.code] || errorMessage(err)); }
+  try { await socialApi.actions.removePhoto(); say(t('pf.reset'), true); }
+  catch (err) { say(socialMessage(err.code) || errorMessage(err)); }
 });
 $('pf-copy').addEventListener('click', async () => {
   const b = $('pf-copy');
-  try { await navigator.clipboard.writeText($('pf-uid').textContent); b.textContent = 'コピーしました'; }
-  catch (_) { b.textContent = '選択してコピー'; }
-  setTimeout(() => { b.textContent = 'コピー'; }, 1800);
+  try { await navigator.clipboard.writeText($('pf-uid').textContent); b.textContent = t('pf.copied'); }
+  catch (_) { b.textContent = t('pf.copyManual'); }
+  setTimeout(() => { b.textContent = t('common.copy'); }, 1800);
 });
 
 // ---- 自分 ⇄ 友だち の切り替え ----
@@ -262,3 +261,6 @@ export async function mountProfile(user, api) {
     },
     err => { console.error(err); state.error = true; renderAll(); });
 }
+
+// 言語を切り替えたら、画面を描き直す
+window.addEventListener('langchange', () => { renderMe(); renderAll(); });

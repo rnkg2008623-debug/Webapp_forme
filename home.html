@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Home</title>
-<script>document.documentElement.classList.add("auth-pending")</script>
-<link rel="stylesheet" href="style.css?v=27">
+<script>document.documentElement.classList.add("auth-pending", "i18n-pending"); setTimeout(function () { document.documentElement.classList.remove("i18n-pending"); }, 3000);</script>
+<link rel="stylesheet" href="style.css?v=30">
 </head>
 <body data-view="home">
 
@@ -54,9 +54,9 @@
     <button type="button" class="lg-title" data-go="timer" style="grid-area:tl">Timer</button>
     <button type="button" class="lg-title" data-go="pomodoro" style="grid-area:tc">Pomodoro</button>
     <button type="button" class="lg-title" data-go="manual" style="grid-area:tr">Log manually</button>
-    <button type="button" class="lg-panel left" data-go="timer" style="grid-area:pl" aria-label="Timer を開く"><span>Image#3</span></button>
-    <button type="button" class="lg-panel center" data-go="pomodoro" style="grid-area:pc" aria-label="Pomodoro を開く"><span>Image#1</span></button>
-    <button type="button" class="lg-panel right" data-go="manual" style="grid-area:pr" aria-label="Log manually を開く"><span>Image#2</span></button>
+    <button type="button" class="lg-panel left" data-go="timer" style="grid-area:pl" data-i18n-attr="aria-label:h.open.timer" aria-label="Timer を開く"><span>Image#3</span></button>
+    <button type="button" class="lg-panel center" data-go="pomodoro" style="grid-area:pc" data-i18n-attr="aria-label:h.open.pomodoro" aria-label="Pomodoro を開く"><span>Image#1</span></button>
+    <button type="button" class="lg-panel right" data-go="manual" style="grid-area:pr" data-i18n-attr="aria-label:h.open.manual" aria-label="Log manually を開く"><span>Image#2</span></button>
   </div>
 </main>
 <div class="lg-fade" id="lg-fade" aria-hidden="true"></div>
@@ -65,7 +65,7 @@
 <main class="tm" id="timer-view" aria-label="Timer">
   <div class="tm-grid">
     <div class="tm-clock">
-      <svg id="tm-clock" viewBox="-100 -100 200 200" role="img" aria-label="経過した時間を示す時計">
+      <svg id="tm-clock" viewBox="-100 -100 200 200" role="img" data-i18n-attr="aria-label:h.tm.clockAria" aria-label="経過した時間を示す時計">
         <circle class="tm-face" r="96"/>
         <path id="tm-wedge" class="tm-wedge" d=""/>
         <line class="tm-tick major" x1="0" y1="-86" x2="0" y2="-94" transform="rotate(0)"/><line class="tm-tick" x1="0" y1="-89" x2="0" y2="-94" transform="rotate(30)"/><line class="tm-tick" x1="0" y1="-89" x2="0" y2="-94" transform="rotate(60)"/><line class="tm-tick major" x1="0" y1="-86" x2="0" y2="-94" transform="rotate(90)"/><line class="tm-tick" x1="0" y1="-89" x2="0" y2="-94" transform="rotate(120)"/><line class="tm-tick" x1="0" y1="-89" x2="0" y2="-94" transform="rotate(150)"/><line class="tm-tick major" x1="0" y1="-86" x2="0" y2="-94" transform="rotate(180)"/><line class="tm-tick" x1="0" y1="-89" x2="0" y2="-94" transform="rotate(210)"/><line class="tm-tick" x1="0" y1="-89" x2="0" y2="-94" transform="rotate(240)"/><line class="tm-tick major" x1="0" y1="-86" x2="0" y2="-94" transform="rotate(270)"/><line class="tm-tick" x1="0" y1="-89" x2="0" y2="-94" transform="rotate(300)"/><line class="tm-tick" x1="0" y1="-89" x2="0" y2="-94" transform="rotate(330)"/>
@@ -74,17 +74,17 @@
       </svg>
     </div>
     <div class="tm-set">
-      <div class="tm-time" role="group" aria-label="タイマーの時間(時間:分)">
-        <input class="tm-num" id="tm-h" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" maxlength="3" value="00" aria-label="時間">
+      <div class="tm-time" role="group" data-i18n-attr="aria-label:h.tm.groupAria" aria-label="タイマーの時間(時間:分)">
+        <input class="tm-num" id="tm-h" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" maxlength="3" value="00" data-i18n-attr="aria-label:h.tm.hAria" aria-label="時間">
         <span class="tm-colon" aria-hidden="true">:</span>
-        <input class="tm-num" id="tm-m" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" maxlength="3" value="25" aria-label="分">
+        <input class="tm-num" id="tm-m" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" maxlength="3" value="25" data-i18n-attr="aria-label:h.tm.mAria" aria-label="分">
       </div>
-      <p class="tm-hint" id="tm-hint">数字をクリックして、キーボードで入力(時間 : 分)</p>
+      <p class="tm-hint" id="tm-hint" data-i18n="h.tm.hint">数字をクリックして、キーボードで入力(時間 : 分)</p>
       <p class="tm-left" id="tm-left" aria-live="off"></p>
       <button type="button" class="tm-start" id="tm-start">Start</button>
       <div class="tm-sub" id="tm-sub" hidden>
-        <button type="button" class="pf-link" id="tm-reset">リセット(記録しない)</button>
-        <button type="button" class="pf-link" id="tm-finish">ここで終了して記録</button>
+        <button type="button" class="pf-link" id="tm-reset" data-i18n="h.tm.reset">リセット(記録しない)</button>
+        <button type="button" class="pf-link" id="tm-finish" data-i18n="h.tm.finish">ここで終了して記録</button>
       </div>
       <p class="tm-msg" id="tm-msg" role="status" hidden></p>
     </div>
@@ -93,30 +93,44 @@
 
 <!-- Pomodoro: 左に残り時間、右に設定(作業時間・休憩時間・プリセット)とスタート -->
 <main class="pm" id="pomodoro-view" aria-label="Pomodoro">
-  <section class="pm-left" aria-label="残り時間">
+  <section class="pm-left" data-i18n-attr="aria-label:h.pm.timeAria" aria-label="残り時間">
     <div class="pm-time" id="pm-time" role="timer" aria-live="off">25:00</div>
     <p class="pm-phase" id="pm-phase">作業 25分</p>
     <p class="pm-count" id="pm-count" hidden></p>
   </section>
-  <section class="pm-right" aria-label="ポモドーロ設定">
-    <h2 class="pm-heading">ポモドーロ設定</h2>
+  <section class="pm-right" data-i18n-attr="aria-label:h.pm.heading" aria-label="ポモドーロ設定">
+    <h2 class="pm-heading" data-i18n="h.pm.heading">ポモドーロ設定</h2>
     <div class="pm-row">
-      <label class="pm-label" for="pm-work">作業時間:</label>
-      <span class="pm-sel"><select id="pm-work" aria-label="作業時間(分)"></select><span aria-hidden="true">分</span></span>
+      <label class="pm-label" for="pm-work" data-i18n="h.pm.work">作業時間:</label>
+      <span class="pm-sel"><select id="pm-work" data-i18n-attr="aria-label:h.pm.workAria" data-i18n-attr="aria-label:h.mn.mAria" aria-label="作業時間(分)"></select><span aria-hidden="true" data-i18n="unit.minShort">分</span></span>
     </div>
     <div class="pm-row">
-      <label class="pm-label" for="pm-break">休憩時間:</label>
-      <span class="pm-sel"><select id="pm-break" aria-label="休憩時間(分)"></select><span aria-hidden="true">分</span></span>
+      <label class="pm-label" for="pm-break" data-i18n="h.pm.break">休憩時間:</label>
+      <span class="pm-sel"><select id="pm-break" data-i18n-attr="aria-label:h.pm.breakAria" aria-label="休憩時間(分)"></select><span aria-hidden="true" data-i18n="unit.minShort">分</span></span>
     </div>
-    <div class="pm-presets" role="group" aria-label="プリセット">
-      <button type="button" class="pm-preset" data-work="25" data-break="5" aria-pressed="false"><span class="pm-pname">デフォルト</span><small>(25分 / 5分)</small></button>
-      <button type="button" class="pm-preset" data-work="55" data-break="5" aria-pressed="false"><span class="pm-pname">ハード</span><small>(55分 / 5分)</small></button>
+    <div class="pm-presets" role="group" data-i18n-attr="aria-label:h.pm.presets" aria-label="プリセット">
+      <button type="button" class="pm-preset" data-work="25" data-break="5" aria-pressed="false"><span class="pm-pname" data-i18n="h.pm.default">デフォルト</span><small data-i18n="h.pm.defaultCap">(25分 / 5分)</small></button>
+      <button type="button" class="pm-preset" data-work="55" data-break="5" aria-pressed="false"><span class="pm-pname" data-i18n="h.pm.hard">ハード</span><small data-i18n="h.pm.hardCap">(55分 / 5分)</small></button>
     </div>
     <button type="button" class="pm-start" id="pm-start">スタート</button>
     <div class="tm-sub" id="pm-sub" hidden>
-      <button type="button" class="pf-link" id="pm-stop">終了する(作業分を記録)</button>
+      <button type="button" class="pf-link" id="pm-stop" data-i18n="h.pm.stop">終了する(作業分を記録)</button>
     </div>
     <p class="tm-msg" id="pm-msg" role="status" hidden></p>
+  </section>
+</main>
+
+<!-- Settings(ナビの Settings): 言語の切り替え -->
+<main class="st" id="settings-view" aria-label="Settings">
+  <section class="st-card">
+    <h2 class="st-title">Settings</h2>
+    <h3 class="st-sub" data-i18n="set.language">言語</h3>
+    <div class="st-langs" role="group" data-i18n-attr="aria-label:set.aria" aria-label="言語を選ぶ">
+      <button type="button" class="st-lang" data-lang="en" aria-pressed="false" lang="en"><span class="st-name">English</span><span class="st-sample">Hello</span><svg class="st-check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg></button>
+      <button type="button" class="st-lang" data-lang="ja" aria-pressed="false" lang="ja"><span class="st-name">日本語</span><span class="st-sample">こんにちは</span><svg class="st-check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg></button>
+      <button type="button" class="st-lang" data-lang="zh" aria-pressed="false" lang="zh-CN"><span class="st-name">中文</span><span class="st-sample">你好</span><svg class="st-check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg></button>
+    </div>
+    <p class="st-note" data-i18n="set.note">この設定は、このブラウザに保存されます。</p>
   </section>
 </main>
 
@@ -124,18 +138,18 @@
 <main class="mn" id="manual-view" aria-label="Log manually">
   <div class="mn-card">
     <form class="mn-form" id="mn-form" novalidate>
-      <input class="mn-title" id="mn-title" type="text" maxlength="40" placeholder="Title" autocomplete="off" aria-label="タイトル">
+      <input class="mn-title" id="mn-title" type="text" maxlength="40" placeholder="Title" autocomplete="off" data-i18n-attr="aria-label:h.mn.titleAria" aria-label="タイトル">
       <div class="mn-time">
-        <label class="mn-label" for="mn-h">作業時間:</label>
+        <label class="mn-label" for="mn-h" data-i18n="h.pm.work">作業時間:</label>
         <span class="mn-clock">
-          <input class="mn-num" id="mn-h" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" maxlength="3" value="00" aria-label="作業時間(時間)">
+          <input class="mn-num" id="mn-h" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" maxlength="3" value="00" data-i18n-attr="aria-label:h.mn.hAria" aria-label="作業時間(時間)">
           <span aria-hidden="true">:</span>
           <input class="mn-num" id="mn-m" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" maxlength="3" value="00" aria-label="作業時間(分)">
         </span>
       </div>
-      <textarea class="mn-desc" id="mn-desc" rows="4" maxlength="200" placeholder="description" aria-label="説明"></textarea>
+      <textarea class="mn-desc" id="mn-desc" rows="4" maxlength="200" placeholder="description" data-i18n-attr="aria-label:h.mn.descAria" aria-label="説明"></textarea>
       <p class="tm-msg" id="mn-msg" role="status" hidden></p>
-      <button type="submit" class="mn-done" id="mn-done">完了</button>
+      <button type="submit" class="mn-done" id="mn-done" data-i18n="h.mn.done">完了</button>
     </form>
     <aside class="mn-recent" aria-label="my recent log">
       <h2 class="title">my recent log</h2>
@@ -145,12 +159,12 @@
 </main>
 
 <!-- プロフィール(ナビの Profile)。ヘッダーはそのままで、その下だけが入れ替わる -->
-<main class="profile" id="profile-view" data-subject="me" aria-label="プロフィール">
+<main class="profile" id="profile-view" data-subject="me" data-i18n-attr="aria-label:h.pf.aria" aria-label="プロフィール">
   <div class="pf-left">
-    <button type="button" class="pf-back" id="pf-back" hidden>← 自分のプロフィールに戻る</button>
+    <button type="button" class="pf-back" id="pf-back" hidden data-i18n="h.pf.back">← 自分のプロフィールに戻る</button>
     <section class="pf-card pf-id">
       <div class="pf-top">
-        <button type="button" class="pf-avatar-btn" id="pf-avatar-btn" aria-label="アイコンを変更" title="クリックしてアイコンを変更">
+        <button type="button" class="pf-avatar-btn" id="pf-avatar-btn" data-i18n-attr="aria-label:h.pf.avatarAria;title:pf.avatarClick" aria-label="アイコンを変更" title="クリックしてアイコンを変更">
           <span class="fo-avatar pf-avatar" id="pf-avatar" aria-hidden="true"></span>
           <span class="pf-cam" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.4"/></svg></span>
         </button>
@@ -158,11 +172,11 @@
         <div class="pf-who">
           <div class="pf-name-row">
             <h2 class="pf-name" id="pf-name">…</h2>
-            <button type="button" class="fo-ic neutral pf-edit" id="pf-edit" aria-label="プロフィールを編集" title="プロフィールを編集"><svg viewBox="0 0 24 24"><path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19z"/><path d="M14.5 6.5l3 3"/></svg></button>
+            <button type="button" class="fo-ic neutral pf-edit" id="pf-edit" data-i18n-attr="aria-label:fr.editProfile;title:fr.editProfile" aria-label="プロフィールを編集" title="プロフィールを編集"><svg viewBox="0 0 24 24"><path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19z"/><path d="M14.5 6.5l3 3"/></svg></button>
           </div>
           <div class="pf-presence" id="pf-presence" hidden></div>
-          <div class="pf-uid"><span class="fm-label">USER ID</span><code id="pf-uid">—</code><button type="button" class="fm-btn" id="pf-copy">コピー</button></div>
-          <button type="button" class="pf-link" id="pf-photo-remove" hidden>アイコンを元に戻す</button>
+          <div class="pf-uid"><span class="fm-label">USER ID</span><code id="pf-uid">—</code><button type="button" class="fm-btn" id="pf-copy" data-i18n="common.copy">コピー</button></div>
+          <button type="button" class="pf-link" id="pf-photo-remove" hidden data-i18n="h.pf.resetIcon">アイコンを元に戻す</button>
         </div>
       </div>
       <p class="pf-photo-msg" id="pf-photo-msg" role="status" hidden></p>
@@ -170,19 +184,19 @@
     </section>
 
     <div class="pf-tiles">
-      <div class="pf-tile"><div class="pf-num"><span id="st-streak">0</span><small>日</small></div><div class="pf-lab">Streak(連続学習日数)</div></div>
-      <div class="pf-tile"><div class="pf-num"><span id="st-total">0</span><small>hrs</small></div><div class="pf-lab">合計時間</div></div>
-      <div class="pf-tile"><div class="pf-num"><span id="st-pomo">0</span><small>回</small></div><div class="pf-lab">行なった Pomodoro 数</div></div>
-      <div class="pf-tile"><div class="pf-num"><span id="st-avg">0</span><small>hrs/日</small></div><div class="pf-lab">一週間の平均</div></div>
+      <div class="pf-tile"><div class="pf-num"><span id="st-streak">0</span><small data-i18n="unit.day">日</small></div><div class="pf-lab" data-i18n="h.pf.streak">Streak(連続学習日数)</div></div>
+      <div class="pf-tile"><div class="pf-num"><span id="st-total">0</span><small>hrs</small></div><div class="pf-lab" data-i18n="h.pf.total">合計時間</div></div>
+      <div class="pf-tile"><div class="pf-num"><span id="st-pomo">0</span><small data-i18n="unit.times">回</small></div><div class="pf-lab" data-i18n="h.pf.pomoCount">行なった Pomodoro 数</div></div>
+      <div class="pf-tile"><div class="pf-num"><span id="st-avg">0</span><small data-i18n="unit.hrsDay">hrs/日</small></div><div class="pf-lab" data-i18n="h.pf.avg">一週間の平均</div></div>
     </div>
   </div>
 
   <div class="pf-right">
     <section class="pf-card pf-chart">
       <div class="pf-head">
-        <h2 class="pf-title">学習時間</h2>
-        <label class="pf-range"><span class="fm-label">期間</span>
-          <select id="pf-range" aria-label="グラフの期間">
+        <h2 class="pf-title" data-i18n="h.pf.chartTitle">学習時間</h2>
+        <label class="pf-range"><span class="fm-label" data-i18n="h.pf.period">期間</span>
+          <select id="pf-range" data-i18n-attr="aria-label:h.pf.periodAria" aria-label="グラフの期間">
             <option value="7">1 week</option>
             <option value="14">2 weeks</option>
             <option value="30">1 month</option>
@@ -190,15 +204,15 @@
           </select>
         </label>
       </div>
-      <div class="pf-plot"><svg id="pf-svg" viewBox="0 0 800 300" role="img" aria-label="日ごとの学習時間の折れ線グラフ"></svg></div>
+      <div class="pf-plot"><svg id="pf-svg" viewBox="0 0 800 300" role="img" data-i18n-attr="aria-label:h.pf.svgAria" aria-label="日ごとの学習時間の折れ線グラフ"></svg></div>
     </section>
 
     <section class="pf-card pf-history">
       <div class="pf-head">
         <h2 class="pf-title">Log history</h2>
         <div class="pf-preview" id="pf-preview" hidden>
-          <span>サンプルを表示中(保存されません)</span>
-          <button type="button" class="fm-btn" id="pf-preview-off">閉じる</button>
+          <span data-i18n="h.pf.preview">サンプルを表示中(保存されません)</span>
+          <button type="button" class="fm-btn" id="pf-preview-off" data-i18n="common.close">閉じる</button>
         </div>
       </div>
       <ul class="pf-logs" id="pf-logs"></ul>
@@ -216,28 +230,28 @@
 <aside class="side">
   <section class="panel" id="friend">
     <h2 class="title">Friend</h2>
-    <ul class="friends" id="friend-list"><li class="fm-empty">読み込み中…</li></ul>
+    <ul class="friends" id="friend-list"><li class="fm-empty" data-i18n="common.loading">読み込み中…</li></ul>
   </section>
 
   <section class="panel" id="statistic">
     <h2 class="title">Statistic</h2>
-    <svg class="chart" id="chart" viewBox="0 0 230 120" role="img" aria-label="週間の統計"></svg>
+    <svg class="chart" id="chart" viewBox="0 0 230 120" role="img" data-i18n-attr="aria-label:h.statAria" aria-label="週間の統計"></svg>
   </section>
 </aside>
 
 <div class="fo" id="friend-overlay" hidden>
 <div class="fo-panel">
-  <nav class="fo-rail" aria-label="フレンド">
-    <button type="button" class="fo-tab is-on" data-view="friends" aria-label="フレンド一覧" aria-pressed="true">
+  <nav class="fo-rail" data-i18n-attr="aria-label:h.fo.aria" aria-label="フレンド">
+    <button type="button" class="fo-tab is-on" data-view="friends" data-i18n-attr="aria-label:h.fo.list" aria-label="フレンド一覧" aria-pressed="true">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
     </button>
-    <button type="button" class="fo-tab" data-view="requests" aria-label="フレンド申請" aria-pressed="false">
+    <button type="button" class="fo-tab" data-view="requests" data-i18n-attr="aria-label:h.fo.requests" aria-label="フレンド申請" aria-pressed="false">
       <svg viewBox="0 0 24 24"><circle cx="10" cy="8" r="4"/><path d="M2.5 21c0-4.2 3.3-7 7.5-7 1.4 0 2.6.3 3.7.8"/><path d="M18 14v6M15 17h6"/></svg>
       <span class="badge" id="rail-badge" hidden>0</span>
     </button>
   </nav>
-  <section class="fo-main" id="fo-main" tabindex="-1" role="dialog" aria-modal="true" aria-label="フレンド">
-    <button type="button" class="fo-close" id="fo-close" aria-label="閉じる">×</button>
+  <section class="fo-main" id="fo-main" tabindex="-1" role="dialog" aria-modal="true" data-i18n-attr="aria-label:h.fo.aria" aria-label="フレンド">
+    <button type="button" class="fo-close" id="fo-close" data-i18n-attr="aria-label:common.close" aria-label="閉じる">×</button>
     <div class="fo-bar" id="fo-bar"></div>
     <div class="fo-list" id="fo-list"></div>
   </section>
@@ -251,14 +265,14 @@
     <div id="ed-fields"></div>
     <p class="fm-msg" id="ed-msg" role="alert" hidden></p>
     <div class="ed-actions">
-      <button type="button" class="fm-btn" id="ed-cancel">キャンセル</button>
-      <button type="submit" class="fm-btn primary">保存</button>
+      <button type="button" class="fm-btn" id="ed-cancel" data-i18n="common.cancel">キャンセル</button>
+      <button type="submit" class="fm-btn primary" data-i18n="common.save">保存</button>
     </div>
   </form>
 </div>
 
-<script src="script.js?v=27"></script>
-<script src="logpage.js?v=27"></script>
-<script type="module" src="home-auth.js?v=27"></script>
+<script src="script.js?v=30"></script>
+<script src="logpage.js?v=30"></script>
+<script type="module" src="home-auth.js?v=30"></script>
 </body>
 </html>

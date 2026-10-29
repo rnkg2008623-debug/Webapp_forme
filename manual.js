@@ -1,8 +1,9 @@
 // Log manually: タイトル・作業時間・説明を入力して「完了」を押すと、学習ログ(学習時間)として記録する。右に、自分の最近のログ。
-import { firestore } from './auth.js?v=27';
-import { onLogs, mineLogs } from './logs-store.js?v=27';
-import { relativeTime } from './stats.js?v=27';
-import { fieldsToMinutes } from './timer.js?v=27';
+import { firestore } from './auth.js?v=30';
+import { onLogs, mineLogs } from './logs-store.js?v=30';
+import { relativeTime } from './stats.js?v=30';
+import { t, logMeta } from './i18n.js?v=30';
+import { fieldsToMinutes } from './timer.js?v=30';
 
 const $ = id => document.getElementById(id);
 const pad2 = n => String(n).padStart(2, '0');
@@ -49,20 +50,20 @@ $('mn-form').addEventListener('submit', async e => {
   e.preventDefault();
   const title = $('mn-title').value.trim();
   const minutes = commit();
-  if (!title) { say('タイトルを入力してください。'); $('mn-title').focus(); return; }
-  if (minutes < 1) { say('作業時間を1分以上にしてください。'); H.focus(); return; }
-  if (!db) { say('まだ準備中です。少し待ってから、もう一度押してください。'); return; }
+  if (!title) { say(t('mn.needTitle')); $('mn-title').focus(); return; }
+  if (minutes < 1) { say(t('mn.needTime')); H.focus(); return; }
+  if (!db) { say(t('mn.wait')); return; }
   const button = $('mn-done');
   button.disabled = true;
   try {
     const description = $('mn-desc').value.trim();
     await f.addDoc(f.collection(db, 'users', user.uid, 'logs'), { title, minutes, pomodoros: 0, at: new Date(), ...(description ? { description } : {}) });
-    say(`「${title}」${minutes}分を、学習時間に記録しました。`, true);
+    say(t('mn.saved', { title, n: minutes }), true);
     $('mn-title').value = ''; $('mn-desc').value = ''; H.value = '00'; M.value = '00';
     $('mn-title').focus();
   } catch (err) {
     console.error(err);
-    say('記録できませんでした。通信とログイン状態を確認して、もう一度お試しください。');
+    say(t('mn.fail'));
   } finally { button.disabled = false; }
 });
 
@@ -71,13 +72,13 @@ function renderLogs() {
   const items = mineLogs().map(l => {
     const li = el('li', 'mn-log');
     const left = el('div', 'mn-log-main');
-    left.append(el('div', 'mn-log-title', l.title), el('div', 'mn-log-sub', `${l.minutes}分${l.pomodoros ? ` ・ Pomodoro ${l.pomodoros}回` : ''}${l.description ? ` ・ ${l.description}` : ''}`));
+    left.append(el('div', 'mn-log-title', l.title || t('log.default')), el('div', 'mn-log-sub', logMeta(l)));
     const time = el('time', 'mn-log-time', relativeTime(l.at));
     time.title = l.at.toLocaleString('ja-JP');
     li.append(left, time);
     return li;
   });
-  $('mn-logs').replaceChildren(...(items.length ? items : [el('li', 'mn-empty', 'まだログがありません。')]));
+  $('mn-logs').replaceChildren(...(items.length ? items : [el('li', 'mn-empty', t('mn.empty'))]));
 }
 
 export async function mountManual(currentUser) {
@@ -86,3 +87,6 @@ export async function mountManual(currentUser) {
   setInterval(renderLogs, 60000);
   ({ m: f, db } = await firestore());
 }
+
+// 言語を切り替えたら、画面を描き直す
+window.addEventListener('langchange', () => { renderLogs(); say(''); });

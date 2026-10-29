@@ -1,3 +1,4 @@
+import { t } from './i18n.js?v=30';
 // プロフィール画面の集計(ブラウザ依存なしの純粋な関数)。日付の区切りは利用者のローカル時間。
 const pad = n => String(n).padStart(2, '0');
 export const dayKey = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -43,20 +44,20 @@ export function niceScale(maxValue, ticks = 4) {
 
 export function relativeTime(date, now = new Date()) {
   const s = Math.max(0, Math.round((now - date) / 1000));
-  if (s < 60) return 'たった今';
+  if (s < 60) return t('time.now');
   const m = Math.floor(s / 60);
-  if (m < 60) return `${m}分前`;
+  if (m < 60) return t('time.min', { n: m });
   const h = Math.floor(m / 60);
-  if (h < 24) return `${h}時間前`;
+  if (h < 24) return t('time.hour', { n: h });
   const d = Math.round((new Date(now.getFullYear(), now.getMonth(), now.getDate()) - new Date(date.getFullYear(), date.getMonth(), date.getDate())) / 86400000);
-  if (d === 1) return '昨日';
-  if (d < 7) return `${d}日前`;
+  if (d === 1) return t('time.yesterday');
+  if (d < 7) return t('time.days', { n: d });
   return `${date.getFullYear()}/${pad(date.getMonth() + 1)}/${pad(date.getDate())}`;
 }
 
 // 画面確認用のサンプル(保存はしない)。日付から決まるので毎回同じ形になる。
 export function sampleLogs(now = new Date()) {
-  const titles = ['英語 リスニング', '数学 演習', '物理 復習', '世界史 まとめ', '化学 問題集', '英単語'];
+  const titles = [0, 1, 2, 3, 4, 5].map(i => t(`sample.${i}`));
   const logs = [];
   for (let i = 0; i < 40; i++) {
     if (i % 9 === 5) continue; // ところどころ休む

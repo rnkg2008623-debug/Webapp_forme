@@ -1,5 +1,6 @@
 // フレンド機能のデータ層: プロフィール・フレンドコード・申請・フレンド(Firestore)と、オンライン状態(Realtime Database)
-import { firestore, realtime } from './auth.js?v=27';
+import { firestore, realtime } from './auth.js?v=30';
+import { t, hasKey } from './i18n.js?v=30';
 
 const ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // 0/O, 1/I/L など紛らわしい文字を除く
 const genCode = () => Array.from(crypto.getRandomValues(new Uint8Array(8)), b => ALPHABET[b % ALPHABET.length]).join('');
@@ -10,18 +11,8 @@ const STATUS_KEY = 'myStatus';
 const fail = code => Object.assign(new Error(code), { code });
 export const LIMITS = { name: 20, description: 60, memo: 60 };
 
-export const SOCIAL_MESSAGES = {
-  'bad-code': 'フレンドコードは8文字で入力してください。',
-  'not-found': 'そのフレンドコードのユーザーが見つかりません。',
-  self: '自分自身にはフレンド申請できません。',
-  'already-friends': 'すでにフレンドです。',
-  'already-sent': 'すでに申請を送っています。',
-  'incoming-exists': '相手から申請が届いています。申請の一覧から承認してください。',
-  'empty-name': 'ユーザー名を入力してください。',
-  'bad-type': 'PNG・JPEG・WebP・GIF の画像を選んでください。',
-  'too-big': '画像が大きすぎます(10MBまでの画像を選んでください)。',
-  decode: '画像を読み込めませんでした。別の画像でお試しください。',
-};
+// 画面に出す文言(エラーコードから)。該当がなければ null
+export const socialMessage = code => (hasKey(`social.${code}`) ? t(`social.${code}`) : null);
 
 export async function startSocial(user, render) {
   const [{ m: f, db }, { m: r, db: rtdb }] = await Promise.all([firestore(), realtime()]);
@@ -60,9 +51,9 @@ export async function startSocial(user, render) {
     if (profileSubs.has(id)) return;
     profileSubs.set(id, f.onSnapshot(f.doc(db, 'users', id), s => {
       const d = s.exists() ? s.data() : null;
-      state.profiles[id] = { name: d?.displayName ?? '(不明なユーザー)', description: d?.description ?? '', photo: d?.photo ?? '', friendCode: d?.friendCode ?? '' };
+      state.profiles[id] = { name: d?.displayName ?? t('user.unknown'), description: d?.description ?? '', photo: d?.photo ?? '', friendCode: d?.friendCode ?? '' };
       notify();
-    }, () => { state.profiles[id] = { name: '(不明なユーザー)', description: '', photo: '', friendCode: '' }; notify(); }));
+    }, () => { state.profiles[id] = { name: t('user.unknown'), description: '', photo: '', friendCode: '' }; notify(); }));
   }
 
   // ---- オンライン状態(接続が切れると自動でオフラインになる) ----
@@ -125,7 +116,7 @@ export async function startSocial(user, render) {
       if (state.incoming.some(x => x.uid === other)) throw fail('incoming-exists');
       await f.setDoc(f.doc(db, 'friendRequests', `${uid}_${other}`), { from: uid, to: other, status: 'pending', createdAt: f.serverTimestamp() });
       const p = await f.getDoc(f.doc(db, 'users', other));
-      return p.exists() ? p.data().displayName : 'ユーザー';
+      return p.exists() ? p.data().displayName : t('user.generic');
     },
     async accept(req) {
       const batch = f.writeBatch(db);

@@ -105,3 +105,9 @@ body.mode-signup .signup-view {
 }
 
 .google-btn:disabled, .submit-btn:disabled { opacity: .6; cursor: progress; }
+
+.login-lang { position: absolute; left: 4vw; right: 4vw; bottom: calc(3.6vh + 28px); display: flex; justify-content: center; align-items: center; gap: 10px; font-family: var(--sans); font-size: 14px; color: #8f95a5; }
+.login-lang button { padding: 4px 6px; border-radius: 6px; color: #5d6578; }
+.login-lang button:hover { color: var(--accent); }
+.login-lang button.is-on { color: var(--accent); font-weight: 600; }
+.login-lang button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
