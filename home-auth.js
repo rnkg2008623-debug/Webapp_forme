@@ -1,13 +1,14 @@
 // ホーム画面はログイン済みのユーザーだけが見られる。未ログインならログイン画面へ戻す。
-import { onUser, logOut } from './auth.js?v=30';
-import { t, getLang, setLang } from './i18n.js?v=30';
-import { mountFriends } from './friends-ui.js?v=30';
-import { mountProfile } from './profile.js?v=30';
-import { mountTimer } from './timer.js?v=30';
-import { mountPomodoro } from './pomodoro.js?v=30';
-import { startLogs } from './logs-store.js?v=30';
-import { mountRecent } from './recent.js?v=30';
-import { mountManual } from './manual.js?v=30';
+import { onUser, logOut } from './auth.js?v=32';
+import { t, getLang, setLang } from './i18n.js?v=32';
+import { mountFriends } from './friends-ui.js?v=32';
+import { mountProfile } from './profile.js?v=32';
+import { mountTimer } from './timer.js?v=32';
+import { mountPomodoro } from './pomodoro.js?v=32';
+import { startLogs } from './logs-store.js?v=32';
+import { mountRecent } from './recent.js?v=32';
+import { mountManual } from './manual.js?v=32';
+import './theme.js?v=32';
 
 let social;
 onUser(async user => {
@@ -23,7 +24,7 @@ document.getElementById('logout').addEventListener('click', async () => {
 });
 
 // ---- Settings: 言語の切り替え ----
-const langButtons = [...document.querySelectorAll('.st-lang')];
+const langButtons = [...document.querySelectorAll('.st-lang[data-lang]')];
 const markLang = () => langButtons.forEach(b => { const on = b.dataset.lang === getLang(); b.classList.toggle('is-on', on); b.setAttribute('aria-pressed', String(on)); });
 langButtons.forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
 window.addEventListener('langchange', markLang);

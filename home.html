@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Home</title>
-<script>document.documentElement.classList.add("auth-pending", "i18n-pending"); setTimeout(function () { document.documentElement.classList.remove("i18n-pending"); }, 3000);</script>
-<link rel="stylesheet" href="style.css?v=30">
+<script>try{if(localStorage.theme==="neon")document.documentElement.dataset.theme="neon"}catch(e){}document.documentElement.classList.add("auth-pending", "i18n-pending"); setTimeout(function () { document.documentElement.classList.remove("i18n-pending"); }, 3000);</script>
+<link rel="stylesheet" href="style.css?v=32">
 </head>
 <body data-view="home">
 
@@ -130,6 +130,12 @@
       <button type="button" class="st-lang" data-lang="ja" aria-pressed="false" lang="ja"><span class="st-name">日本語</span><span class="st-sample">こんにちは</span><svg class="st-check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg></button>
       <button type="button" class="st-lang" data-lang="zh" aria-pressed="false" lang="zh-CN"><span class="st-name">中文</span><span class="st-sample">你好</span><svg class="st-check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg></button>
     </div>
+    <h3 class="st-sub" data-i18n="set.theme">表示スタイル</h3>
+    <div class="st-langs st-themes" role="group" data-i18n-attr="aria-label:set.themeAria" aria-label="表示スタイルを選ぶ">
+      <button type="button" class="st-lang st-theme" data-theme="standard" aria-pressed="false"><span class="st-name" data-i18n="set.std">標準</span><span class="st-sample" data-i18n="set.stdSub">明るく爽やか</span><svg class="st-check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg></button>
+      <button type="button" class="st-lang st-theme" data-theme="neon" aria-pressed="false"><span class="st-name" data-i18n="set.neon">ネオン</span><span class="st-sample" data-i18n="set.neonSub">3Dの光る背景</span><svg class="st-check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg></button>
+    </div>
+    <p class="st-note st-gpu-note" data-i18n="set.noGpu" hidden>x</p>
     <p class="st-note" data-i18n="set.note">この設定は、このブラウザに保存されます。</p>
   </section>
 </main>
@@ -271,8 +277,8 @@
   </form>
 </div>
 
-<script src="script.js?v=30"></script>
-<script src="logpage.js?v=30"></script>
-<script type="module" src="home-auth.js?v=30"></script>
+<script src="script.js?v=32"></script>
+<script src="logpage.js?v=32"></script>
+<script type="module" src="home-auth.js?v=32"></script>
 </body>
 </html>

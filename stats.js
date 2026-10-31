@@ -1,4 +1,4 @@
-import { t } from './i18n.js?v=30';
+import { t } from './i18n.js?v=32';
 // プロフィール画面の集計(ブラウザ依存なしの純粋な関数)。日付の区切りは利用者のローカル時間。
 const pad = n => String(n).padStart(2, '0');
 export const dayKey = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
