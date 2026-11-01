@@ -1,9 +1,9 @@
 // Log manually: タイトル・作業時間・説明を入力して「完了」を押すと、学習ログ(学習時間)として記録する。右に、自分の最近のログ。
-import { firestore } from './auth.js?v=35';
-import { onLogs, mineLogs } from './logs-store.js?v=35';
-import { relativeTime } from './stats.js?v=35';
-import { t, logMeta } from './i18n.js?v=35';
-import { fieldsToMinutes } from './timer.js?v=35';
+import { firestore } from './auth.js?v=36';
+import { onLogs, mineLogs } from './logs-store.js?v=36';
+import { relativeTime } from './stats.js?v=36';
+import { t, logMeta } from './i18n.js?v=36';
+import { fieldsToMinutes } from './timer.js?v=36';
 
 const $ = id => document.getElementById(id);
 const pad2 = n => String(n).padStart(2, '0');

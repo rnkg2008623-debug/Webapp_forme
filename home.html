@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Home</title>
 <script>try{if(localStorage.theme==="neon")document.documentElement.dataset.theme="neon"}catch(e){}document.documentElement.classList.add("auth-pending", "i18n-pending"); setTimeout(function () { document.documentElement.classList.remove("i18n-pending"); }, 3000);</script>
-<link rel="stylesheet" href="style.css?v=35">
+<link rel="stylesheet" href="style.css?v=36">
 </head>
 <body data-view="home">
 
@@ -30,6 +30,10 @@
     <button class="nav-item nav-test" data-target="test">
       <svg viewBox="0 0 24 24"><path d="M9 3h6M10 3v6.2L4.6 18.6A1.6 1.6 0 0 0 6 21h12a1.6 1.6 0 0 0 1.4-2.4L14 9.2V3"/><path d="M7.5 15h9"/></svg>
       <span>Test</span>
+    </button>
+    <button class="nav-item nav-test2" data-target="test2">
+      <svg viewBox="0 0 24 24"><path d="M12 2.5v19M7 8h10M9 21.500h6"/><path d="M12 2.500l-1.500 2.500h3z"/></svg>
+      <span>Test2</span>
     </button>
     <button class="nav-item is-active" data-target="log">
       <svg viewBox="0 0 24 24" class="filled"><path d="M6 2.5h8l5 5V20a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 5 20V4A1.5 1.5 0 0 1 6 2.5z"/><path class="cut" d="M8.5 12h7M8.5 15h7M8.5 18h4"/></svg>
@@ -146,6 +150,30 @@
     <button type="button" class="ts-card"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l8 3v6.500c0 5-3.400 8.500-8 10-4.600-1.500-8-5-8-10V5.500z"/></svg><span><b>Threats</b><em>Real attacks and case studies</em></span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
     <button type="button" class="ts-card" data-mode="red" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.500C9.800 5 6.500 4.500 3 5v13c3.500-.5 6.800 0 9 1.500 2.200-1.500 5.500-2 9-1.500V5c-3.500-.5-6.800 0-9 1.500zM12 6.500v13"/></svg><span><b>Knowledge</b><em>Key concepts made simple</em></span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
     <button type="button" class="ts-card"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg><span><b>Practice</b><em>Hands-on and interactive</em></span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+  </div>
+  <div class="ts-dots" aria-hidden="true"><i class="on"></i><i></i><i></i></div>
+</main>
+
+<!-- Test2(ネオンのときだけ): WebGPUで描く白黒のゴシック「Cyber Security」 -->
+<main class="ts gx" id="test2-view" aria-label="Test2">
+  <div class="ts-fallback" aria-hidden="true"></div>
+  <div class="ts-center">
+    <svg class="gx-cross" viewBox="0 0 40 70" aria-hidden="true"><path d="M20 2v66M6 22h28M12 14h16M14 52l6 10 6-10"/><circle cx="20" cy="22" r="2.600"/></svg>
+    <div class="gx-frame">
+      <h2 class="gx-title">Cyber Security</h2>
+      <div class="gx-rule"><i></i><b>◆</b><i></i></div>
+      <p class="gx-sub"><span>·</span> Learn <span>·</span> Understand <span>·</span> Protect <span>·</span></p>
+      <div class="gx-rule thin"><i></i><b>❖</b><i></i></div>
+    </div>
+    <div class="ts-btns">
+      <button type="button" class="gx-btn primary"><span>Start Learning →</span></button>
+      <button type="button" class="gx-btn"><span>Explore Topics</span></button>
+    </div>
+  </div>
+  <div class="ts-cards">
+    <button type="button" class="ts-card gx-card"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.500l8 3v6.500c0 5-3.400 8.500-8 10-4.600-1.500-8-5-8-10V5.500z"/></svg><span><b>Threats</b><em>Real attacks and case studies</em></span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+    <button type="button" class="ts-card gx-card"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.500C9.800 5 6.500 4.500 3 5v13c3.500-.5 6.800 0 9 1.500 2.200-1.500 5.500-2 9-1.500V5c-3.500-.5-6.800 0-9 1.500zM12 6.500v13"/></svg><span><b>Knowledge</b><em>Key concepts made simple</em></span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+    <button type="button" class="ts-card gx-card"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg><span><b>Practice</b><em>Hands-on and interactive</em></span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
   </div>
   <div class="ts-dots" aria-hidden="true"><i class="on"></i><i></i><i></i></div>
 </main>
@@ -307,8 +335,8 @@
   </form>
 </div>
 
-<script src="script.js?v=35"></script>
-<script src="logpage.js?v=35"></script>
-<script type="module" src="home-auth.js?v=35"></script>
+<script src="script.js?v=36"></script>
+<script src="logpage.js?v=36"></script>
+<script type="module" src="home-auth.js?v=36"></script>
 </body>
 </html>

@@ -9,8 +9,8 @@ export const getTheme = () => (root.dataset.theme === 'neon' ? 'neon' : 'standar
 async function apply() {
   const neon = getTheme() === 'neon';
   buttons.forEach(b => { const on = b.dataset.theme === getTheme(); b.classList.toggle('is-on', on); b.setAttribute('aria-pressed', String(on)); });
-  if (!neon && document.body.dataset.view === 'test') window.appSetView('home');
-  const gpu = await import('./neon-bg.js?v=35');
+  if (!neon && /^test2?$/.test(document.body.dataset.view)) window.appSetView('home');
+  const gpu = await import('./neon-bg.js?v=36');
   if (!neon) { gpu.stopNeon(); root.classList.remove('neon-gpu'); if (note) note.hidden = true; return; }
   const ok = await gpu.startNeon(document.querySelector('.bg'));
   root.classList.toggle('neon-gpu', ok);
@@ -28,20 +28,26 @@ if (getTheme() === 'neon') apply(); else buttons.forEach(b => { const on = b.dat
 
 // Test ページ(ネオンのときだけ)。開いている間だけ、WebGPUの背景を動かす
 const testView = document.getElementById('test-view');
-window.addEventListener('viewchange', async e => {
-  const test = await import('./test-bg.js?v=35');
-  if (e.detail === 'test') test.startTest(testView); else test.stopTest();
-});
-if (document.body.dataset.view === 'test') import('./test-bg.js?v=35').then(m => m.startTest(testView));
+const test2View = document.getElementById('test2-view');
+// 今のページに合わせて、Test / Test2 の背景を動かす(開いていない方は止める)
+async function syncTest(view) {
+  const [a, b] = await Promise.all([import('./test-bg.js?v=36'), import('./test2-bg.js?v=36')]);
+  if (view === 'test') a.startTest(testView); else a.stopTest();
+  if (view === 'test2') b.test2.start(test2View); else b.test2.stop();
+}
+window.addEventListener('viewchange', e => syncTest(e.detail));
+if (/^test2?$/.test(document.body.dataset.view)) syncTest(document.body.dataset.view);
 // ページ送りのドット(見た目だけ)をゆっくり切り替える
-const dots = [...document.querySelectorAll('.ts-dots i')];
-let di = 0; setInterval(() => { dots[di].classList.remove('on'); di = (di + 1) % dots.length; dots[di].classList.add('on'); }, 3500);
+document.querySelectorAll('.ts-dots').forEach(box => {
+  const dots = [...box.querySelectorAll('i')]; let di = 0;
+  setInterval(() => { dots[di].classList.remove('on'); di = (di + 1) % dots.length; dots[di].classList.add('on'); }, 3500);
+});
 
 // Knowledge を押すと、ページはそのままで、背景が動いて赤ベースになる(もう一度押す / 他のカードを押すと紫に戻る)
-const cards = [...document.querySelectorAll('.ts-card')];
+const cards = [...document.querySelectorAll('#test-view .ts-card')];
 cards.forEach(card => card.addEventListener('click', async () => {
   const red = card.dataset.mode === 'red' && !testView.classList.contains('red');
-  const test = await import('./test-bg.js?v=35');
+  const test = await import('./test-bg.js?v=36');
   test.setRed(red, testView);
   cards.forEach(c => c.classList.toggle('is-on', red && c === card));
 }));

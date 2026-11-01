@@ -802,7 +802,7 @@ html[data-theme="neon"] .lib-bg {
   display: block; position: absolute; inset: 0;
   background:
     radial-gradient(60% 50% at 50% 0%, rgba(255, 40, 180, .18), transparent 70%),
-    url("library-far.svg?v=35") calc(var(--sx, 0px) * -.3) 0 / auto 25vh repeat,
+    url("library-far.svg?v=36") calc(var(--sx, 0px) * -.3) 0 / auto 25vh repeat,
     #07021a;
   transition: opacity .45s ease-in, transform .5s cubic-bezier(.6, 0, 1, .6), filter .45s ease-in;
 }
@@ -815,7 +815,7 @@ html[data-theme="neon"] .lg-world::before {
   content: ""; position: absolute; inset: 0; pointer-events: none;
   background:
     linear-gradient(180deg, rgba(7, 2, 26, .55), transparent 30%, transparent 70%, rgba(7, 2, 26, .7)),
-    url("library-near.svg?v=35") 0 0 / auto 25vh repeat;
+    url("library-near.svg?v=36") 0 0 / auto 25vh repeat;
   transition: opacity .45s ease-in, transform .5s cubic-bezier(.6, 0, 1, .6), filter .45s ease-in;
 }
 html[data-theme="neon"] .lib-hint {
@@ -847,7 +847,7 @@ html[data-theme="neon"] .lib-hint { text-shadow: 0 0 6px #07021a, 0 0 12px #0702
 .nav-test { display: none; }
 html[data-theme="neon"] .nav-test { display: flex; }
 .ts { background: #05030f; }
-body[data-view="test"] .ts { display: flex; flex-direction: column; align-items: center; justify-content: space-between; animation: page-in .5s ease both; padding: clamp(14px, 3vh, 40px) 3vw clamp(12px, 3vh, 36px); }
+body[data-view="test"] #test-view, body[data-view="test2"] #test2-view { display: flex; flex-direction: column; align-items: center; justify-content: space-between; animation: page-in .5s ease both; padding: clamp(14px, 3vh, 40px) 3vw clamp(12px, 3vh, 36px); }
 .ts-gpu { position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: 0; }
 .ts-fallback { display: none; position: absolute; inset: 0; z-index: 0;
   background: radial-gradient(40% 50% at 50% 38%, rgba(110, 80, 255, .35), transparent 70%), radial-gradient(60% 40% at 0% 100%, rgba(110, 80, 255, .35), transparent 70%), #07041a; }
@@ -909,3 +909,49 @@ body[data-view="test"] .ts { display: flex; flex-direction: column; align-items:
 .ts-card.is-on { box-shadow: 0 0 0 1.5px #ff8a80 inset, 0 0 30px rgba(255, 60, 60, .55); }
 .ts.red .ts-fallback { background: radial-gradient(40% 50% at 50% 38%, rgba(255, 50, 60, .4), transparent 70%), radial-gradient(60% 40% at 100% 100%, rgba(255, 50, 60, .35), transparent 70%), #12030a; }
 .ts-fallback { transition: background 1s; }
+
+/* ---------- ネオン: Test2(白黒のゴシック) ---------- */
+.nav-test2 { display: none; }
+html[data-theme="neon"] .nav-test2 { display: flex; }
+.gx { --gx-serif: "Cormorant Garamond", "Cinzel", "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", Georgia, serif; background: #030304; }
+.gx .ts-fallback, .gx.no-gpu .ts-fallback { background: radial-gradient(35% 55% at 20% 55%, rgba(200, 205, 255, .35), transparent 70%), radial-gradient(35% 55% at 80% 55%, rgba(200, 205, 255, .35), transparent 70%), #07070a; }
+.gx-cross { width: clamp(30px, 3.4vw, 50px); fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; filter: drop-shadow(0 0 8px rgba(255, 255, 255, .9)); }
+.gx-cross circle { fill: #fff; }
+.gx-frame { display: flex; flex-direction: column; align-items: center; gap: clamp(2px, .6vh, 8px); }
+.gx-title {
+  font: italic 500 clamp(44px, 7vw, 120px)/1.02 var(--gx-serif); letter-spacing: .01em; color: #fff;
+  text-shadow: 0 0 18px rgba(255, 255, 255, .55), 0 0 46px rgba(190, 195, 255, .45);
+}
+.gx-rule { display: flex; align-items: center; gap: 10px; width: min(560px, 60vw); color: #fff; font-size: 12px; }
+.gx-rule i { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .9), transparent); }
+.gx-rule b { font-weight: 400; text-shadow: 0 0 8px #fff; }
+.gx-rule.thin { width: min(380px, 44vw); opacity: .8; }
+.gx-sub { font: 400 clamp(12px, 1.3vw, 20px) var(--gx-serif); letter-spacing: .55em; color: #f1f1fa; text-shadow: 0 0 10px rgba(255, 255, 255, .5); }
+.gx-sub span { opacity: .7; margin: 0 .3em; }
+/* ゴシックの飾り枠(二重の細い線+四隅の飾り) */
+.gx-btn {
+  position: relative; min-width: clamp(170px, 17vw, 300px); height: clamp(42px, 3.6vw, 58px); padding: 0 clamp(20px, 2vw, 36px);
+  border: 1px solid rgba(255, 255, 255, .95); border-radius: 18px / 50%; color: #fff; background: rgba(4, 4, 8, .55);
+  box-shadow: 0 0 14px rgba(255, 255, 255, .3), inset 0 0 0 4px rgba(4, 4, 8, .6), inset 0 0 0 5px rgba(255, 255, 255, .55);
+  font: 500 clamp(14px, 1.3vw, 21px) var(--gx-serif); letter-spacing: .03em; transition: transform .2s, box-shadow .25s, background .25s, color .25s;
+}
+.gx-btn.primary { background: linear-gradient(180deg, #fff, #cfd0dc); color: #0a0a10; box-shadow: 0 0 22px rgba(255, 255, 255, .6), inset 0 0 0 4px #e8e8f2, inset 0 0 0 5px rgba(10, 10, 16, .7); }
+.gx-btn::before, .gx-btn::after { content: "✦"; position: absolute; top: 50%; transform: translateY(-50%); font-size: .7em; opacity: .9; }
+.gx-btn::before { left: 14px; } .gx-btn::after { right: 14px; }
+.gx-btn:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(255, 255, 255, .75), inset 0 0 0 4px rgba(4, 4, 8, .6), inset 0 0 0 5px #fff; }
+.gx-btn.primary:hover { box-shadow: 0 0 34px rgba(255, 255, 255, .9), inset 0 0 0 4px #e8e8f2, inset 0 0 0 5px #000; }
+.gx-card {
+  position: relative; border: 1px solid rgba(255, 255, 255, .9); border-radius: 3px; background: rgba(3, 3, 6, .62); backdrop-filter: blur(3px);
+  box-shadow: 0 0 16px rgba(255, 255, 255, .25), inset 0 0 0 5px rgba(3, 3, 6, .7), inset 0 0 0 6px rgba(255, 255, 255, .5); font-family: var(--gx-serif);
+}
+.gx-card:hover { transform: translateY(-3px); box-shadow: 0 0 28px rgba(255, 255, 255, .55), inset 0 0 0 5px rgba(3, 3, 6, .7), inset 0 0 0 6px #fff; }
+.gx-card::before, .gx-card::after {
+  content: ""; position: absolute; width: 16px; height: 16px; border: 2px solid #fff; filter: drop-shadow(0 0 4px #fff);
+}
+.gx-card::before { top: -3px; left: -3px; border-right: 0; border-bottom: 0; }
+.gx-card::after { bottom: -3px; right: -3px; border-left: 0; border-top: 0; }
+.gx-card b { font: 500 clamp(18px, 1.8vw, 28px) var(--gx-serif); letter-spacing: .01em; }
+.gx-card em { font: 400 clamp(12px, 1.1vw, 17px) var(--gx-serif); color: #dcdce8; }
+.gx-card > svg:first-child { stroke: #fff; filter: drop-shadow(0 0 4px rgba(255, 255, 255, .7)); }
+.gx-card .chev { stroke: #fff; }
+.gx .ts-dots i { background: rgba(255, 255, 255, .3); }
