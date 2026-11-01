@@ -1,5 +1,5 @@
 // 学習ログの共有ストア: 自分のログと、友だちのログ(ホームの Recent log 用)を購読して、新しい順にまとめる
-import { firestore } from './auth.js?v=34';
+import { firestore } from './auth.js?v=35';
 
 let f, db, uid;
 let mine = [];

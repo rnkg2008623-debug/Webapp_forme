@@ -802,7 +802,7 @@ html[data-theme="neon"] .lib-bg {
   display: block; position: absolute; inset: 0;
   background:
     radial-gradient(60% 50% at 50% 0%, rgba(255, 40, 180, .18), transparent 70%),
-    url("library-far.svg?v=34") calc(var(--sx, 0px) * -.3) 0 / auto 25vh repeat,
+    url("library-far.svg?v=35") calc(var(--sx, 0px) * -.3) 0 / auto 25vh repeat,
     #07021a;
   transition: opacity .45s ease-in, transform .5s cubic-bezier(.6, 0, 1, .6), filter .45s ease-in;
 }
@@ -815,7 +815,7 @@ html[data-theme="neon"] .lg-world::before {
   content: ""; position: absolute; inset: 0; pointer-events: none;
   background:
     linear-gradient(180deg, rgba(7, 2, 26, .55), transparent 30%, transparent 70%, rgba(7, 2, 26, .7)),
-    url("library-near.svg?v=34") 0 0 / auto 25vh repeat;
+    url("library-near.svg?v=35") 0 0 / auto 25vh repeat;
   transition: opacity .45s ease-in, transform .5s cubic-bezier(.6, 0, 1, .6), filter .45s ease-in;
 }
 html[data-theme="neon"] .lib-hint {
@@ -892,3 +892,20 @@ body[data-view="test"] .ts { display: flex; flex-direction: column; align-items:
 .ts-dots i { width: 8px; height: 8px; border-radius: 50%; background: rgba(255, 255, 255, .3); transition: background .3s; }
 .ts-dots i.on { background: #fff; box-shadow: 0 0 8px #fff; }
 @media (max-width: 820px) { .ts-cards { grid-template-columns: 1fr; } body[data-view="test"] .ts { overflow: auto; } }
+
+/* Test: Knowledge を押すと赤ベース(背景はWebGPU側で動く。ここは前面の色だけ) */
+.ts, .ts * { --ts-a: #8c78ff; --ts-b: #5b45e8; }
+.ts-btn.primary, .ts-card, .ts-shield, .ts-title, .ts-fallback, .ts-card > svg:first-child, .ts-card em { transition: background .9s, border-color .9s, box-shadow .9s, filter .9s, stroke .9s, fill .9s, color .9s; }
+.ts.red .ts-btn.primary { background: linear-gradient(180deg, #ff6a5c, #d11a2e); border-color: #ff9a8f; box-shadow: 0 0 26px rgba(255, 50, 60, .65), inset 0 1px 0 rgba(255, 255, 255, .35); }
+.ts.red .ts-btn:hover { box-shadow: 0 0 30px rgba(255, 70, 70, .75); }
+.ts.red .ts-shield { fill: rgba(255, 70, 70, .25); stroke: #ff8a80; filter: drop-shadow(0 0 12px rgba(255, 60, 60, .9)); }
+.ts.red .ts-title { background-image: linear-gradient(180deg, #fff 20%, #ffb3a8 100%); filter: drop-shadow(0 0 22px rgba(255, 60, 60, .65)); }
+.ts.red .ts-sub { color: #ffd9d2; }
+.ts.red .ts-frame::before, .ts.red .ts-frame::after { border-color: rgba(255, 170, 160, .8); }
+.ts.red .ts-card { border-color: rgba(255, 150, 140, .5); background: linear-gradient(180deg, rgba(220, 70, 80, .36), rgba(110, 20, 35, .32)); }
+.ts.red .ts-card:hover { box-shadow: 0 14px 40px rgba(255, 60, 60, .45), inset 0 1px 0 rgba(255, 255, 255, .25); }
+.ts.red .ts-card > svg:first-child { stroke: #ffb0a6; }
+.ts.red .ts-card em { color: #ffcdc6; }
+.ts-card.is-on { box-shadow: 0 0 0 1.5px #ff8a80 inset, 0 0 30px rgba(255, 60, 60, .55); }
+.ts.red .ts-fallback { background: radial-gradient(40% 50% at 50% 38%, rgba(255, 50, 60, .4), transparent 70%), radial-gradient(60% 40% at 100% 100%, rgba(255, 50, 60, .35), transparent 70%), #12030a; }
+.ts-fallback { transition: background 1s; }

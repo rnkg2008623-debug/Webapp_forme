@@ -1,6 +1,6 @@
 // Test ページの背景(WebGPU): ドットの地球・光の軌道リング・ふわふわ浮かぶガラスの結晶・きらめき。ページを開いている間、ずっと動き続ける。
 const WGSL = /* wgsl */ `
-struct U { a: vec4f, b: vec4f };   // a = (幅, 高さ, 時間, 0)  b = (マウスX, マウスY, 0, 0)
+struct U { a: vec4f, b: vec4f, c: vec4f };   // a = (幅, 高さ, 時間, 0)  b = (マウスX, マウスY, 0, 0)  c = (赤への進み具合 0..1, 切り替え中の勢い, 衝撃波の経過時間, 0)
 @group(0) @binding(0) var<uniform> u: U;
 
 @vertex fn vs(@builtin(vertex_index) i: u32) -> @builtin(position) vec4f {
@@ -32,16 +32,19 @@ fn sdCrystal(p: vec2f, size: vec2f, skew: f32) -> f32 {
   let res = u.a.xy; let t = u.a.z; let m = u.b.xy;
   var uv = (fc.xy - 0.5 * res) / res.y; uv.y = -uv.y;
   let par = m * 0.015;
+  let prog = u.c.x;                       // 0 = 紫 / 1 = 赤
+  let pulse = u.c.y;                      // 切り替えの最中だけ大きくなる勢い
+  let shockAge = u.c.z;
 
-  let violet = vec3f(0.45, 0.32, 1.0);
-  let lilac = vec3f(0.72, 0.62, 1.0);
-  let blue = vec3f(0.35, 0.55, 1.0);
+  let violet = mix(vec3f(0.45, 0.32, 1.0), vec3f(1.0, 0.13, 0.2), prog);
+  let lilac = mix(vec3f(0.72, 0.62, 1.0), vec3f(1.0, 0.5, 0.42), prog);
+  let blue = mix(vec3f(0.35, 0.55, 1.0), vec3f(1.0, 0.3, 0.08), prog);
 
   // ---- 背景(深い紫の闇+大きな光のうねり) ----
-  var col = mix(vec3f(0.03, 0.02, 0.09), vec3f(0.015, 0.01, 0.05), clamp(uv.y + 0.5, 0.0, 1.0));
+  var col = mix(mix(vec3f(0.03, 0.02, 0.09), vec3f(0.09, 0.015, 0.025), prog), mix(vec3f(0.015, 0.01, 0.05), vec3f(0.04, 0.005, 0.01), prog), clamp(uv.y + 0.5, 0.0, 1.0));
   col += violet * 0.22 * exp(-length((uv - vec2f(-0.8, -0.55)) * vec2f(0.8, 1.7)) * 2.2);
   col += blue * 0.12 * exp(-length((uv - vec2f(0.9, 0.25)) * vec2f(1.0, 1.3)) * 2.6);
-  let sw = uv.y + 0.34 + 0.06 * sin(uv.x * 2.3 + t * 0.35) - uv.x * 0.18;
+  let sw = uv.y + 0.34 - prog * 0.5 + 0.06 * sin(uv.x * 2.3 + t * 0.35 + prog * 5.0) - uv.x * (0.18 - prog * 0.5);
   col += violet * 0.5 * exp(-abs(sw) * 38.0) * smoothstep(-0.2, 1.1, -uv.x * 0.7 + 0.5);
   let sw2 = uv.y + 0.44 + 0.05 * sin(uv.x * 1.7 - t * 0.3 + 1.0);
   col += lilac * 0.32 * exp(-abs(sw2) * 70.0) * smoothstep(0.1, 0.9, uv.x * 0.5 + 0.55);
@@ -53,14 +56,15 @@ fn sdCrystal(p: vec2f, size: vec2f, skew: f32) -> f32 {
   col += violet * exp(-ad * 26.0) * 0.12 * smoothstep(0.1, 0.9, uv.x);
 
   // ---- 地球(ドットの球) ----
-  let gc = vec2f(0.0, 0.04) + par;
-  let R = 0.32;
+  let eased = prog * prog * (3.0 - 2.0 * prog);
+  let gc = vec2f(mix(0.0, 0.2, eased) + 0.12 * sin(prog * 3.14159), mix(0.04, -0.1, eased)) + par;   // 動かす: 横へ滑りながら、ぐっと近づく
+  let R = 0.32 * (1.0 + 0.55 * eased + 0.35 * pulse);
   let gp = (uv - gc) / R;
   let rr = dot(gp, gp);
   let inside = step(rr, 1.0);
   let zz = sqrt(max(1.0 - rr, 0.0));
   var n = vec3f(gp.x, gp.y, zz);
-  let spin = t * 0.12;
+  let spin = t * 0.12 + prog * 9.0;
   let cs = cos(spin); let sn = sin(spin);
   let nr = vec3f(n.x * cs + n.z * sn, n.y, -n.x * sn + n.z * cs);
   let lat = asin(clamp(nr.y, -1.0, 1.0));
@@ -76,7 +80,7 @@ fn sdCrystal(p: vec2f, size: vec2f, skew: f32) -> f32 {
   let lit = 0.18 + 0.95 * max(dot(n, L), 0.0);
   let rim = pow(1.0 - zz, 2.6);
   var globe = vec3f(0.015, 0.012, 0.06) + violet * 0.06 * (1.0 - rr);
-  globe += mix(vec3f(0.5, 0.45, 1.0), lilac, rim) * dotm * (0.05 + 1.0 * land) * lit * 1.5;
+  globe += mix(mix(vec3f(0.5, 0.45, 1.0), vec3f(1.0, 0.4, 0.38), prog), lilac, rim) * dotm * (0.05 + 1.0 * land) * lit * 1.5;
   globe += blue * rim * 0.55;
   // 球の外側にもうっすら光のにじみ
   let halo = exp(-max(sqrt(rr) - 1.0, 0.0) * 14.0) * (1.0 - inside) * 0.5;
@@ -86,13 +90,13 @@ fn sdCrystal(p: vec2f, size: vec2f, skew: f32) -> f32 {
   var ringBack = vec3f(0.0); var ringFront = vec3f(0.0);
   for (var k = 0; k < 3; k++) {
     let kf = f32(k);
-    let ang = -0.42 - kf * 0.07;
+    let ang = -0.42 - kf * 0.07 + prog * (1.15 + kf * 0.35) + pulse * 0.25;
     let q0 = (uv - gc - vec2f(0.0, -kf * 0.02)) * rot(ang);
     let q = vec2f(q0.x, q0.y * (2.9 + kf * 0.5));
     let rad = 0.78 + kf * 0.12;
-    let d = abs(length(q) - rad) / (2.9 + kf * 0.5 - 1.0) * 1.0;
+    let d = abs(length(q) - rad * (1.0 + 0.25 * eased)) / (2.9 + kf * 0.5 - 1.0) * 1.0;
     let theta = atan2(q.y, q.x);
-    let sweep = pow(0.5 + 0.5 * cos(theta - t * (0.45 + kf * 0.12) - kf * 2.0), 3.0);
+    let sweep = pow(0.5 + 0.5 * cos(theta - t * (0.45 + kf * 0.12) * (1.0 + pulse * 6.0) - kf * 2.0 - prog * 7.0), 3.0);
     let core = exp(-d * (260.0 - kf * 60.0)) * (0.35 + 1.5 * sweep);
     let glow = exp(-d * 28.0) * (0.04 + 0.28 * sweep);
     let c = (lilac * core + violet * glow) * (1.0 - kf * 0.28);
@@ -110,6 +114,7 @@ fn sdCrystal(p: vec2f, size: vec2f, skew: f32) -> f32 {
     let sz = array<f32, 5>(0.09, 0.075, 0.12, 0.06, 0.03);
     var p = uv - base[i] - par * (1.0 + fi * 0.6);
     p += vec2f(0.012 * sin(t * 0.5 + fi * 2.0), 0.02 * sin(t * 0.7 + fi * 3.1));
+    p -= vec2f(sin(fi * 2.4 + 1.0), cos(fi * 1.7)) * (0.35 * eased + 0.15 * pulse);   // 結晶が弾き飛ばされる
     p = p * rot(0.5 * sin(t * 0.25 + fi) + fi * 0.9);
     let d = sdCrystal(p, vec2f(sz[i], sz[i] * 1.25), 0.45);
     let body = smoothstep(0.003, -0.003, d);
@@ -120,8 +125,13 @@ fn sdCrystal(p: vec2f, size: vec2f, skew: f32) -> f32 {
     col += lilac * edge * (0.45 + 0.4 * sin(t * 0.8 + fi));
   }
 
+  // ---- 衝撃波(切り替えの瞬間に、地球の中心から広がる) ----
+  let shR = shockAge * 1.7;
+  let shD = abs(length((uv - gc) * vec2f(1.0, 1.0)) - shR);
+  col += lilac * exp(-shD * 38.0) * exp(-shockAge * 2.2) * 1.4 * step(shockAge, 3.0);
+  col += violet * 0.18 * pulse;
   // ---- きらめき ----
-  let g1 = uv * 70.0 + vec2f(0.0, t * 0.4);
+  let g1 = uv * 70.0 + vec2f(0.0, t * 0.4 + prog * 6.0 + pulse * 3.0);
   let id = floor(g1); let h = hash(id);
   let sp = length(fract(g1) - 0.5);
   col += lilac * step(0.975, h) * smoothstep(0.26, 0.0, sp) * (0.35 + 0.65 * sin(t * 2.2 + h * 60.0));
@@ -140,6 +150,21 @@ fn sdCrystal(p: vec2f, size: vec2f, skew: f32) -> f32 {
 let adapter = null, device = null, canvas = null, ctx = null, pipeline = null, buf = null, bind = null;
 let raf = 0, running = false;
 const mouse = [0, 0], target = [0, 0];
+// 赤への切り替え: 1.8秒かけて動く(途中が一番勢いが強い)
+const mode = { from: 0, to: 0, start: -10, shock: -10, host: null };
+const DUR = 1.8;
+const ease = x => (x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+export function setRed(on, host) {
+  const now = performance.now() / 1000;
+  const cur = current(now);
+  mode.from = cur.prog; mode.to = on ? 1 : 0; mode.start = now; mode.shock = now;
+  (host || mode.host)?.classList.toggle('red', on);
+}
+export const isRed = () => mode.to === 1;
+function current(now) {
+  const k = Math.min(1, Math.max(0, (now - mode.start) / DUR));
+  return { prog: mode.from + (mode.to - mode.from) * ease(k), pulse: Math.sin(Math.PI * k) * (k < 1 ? 1 : 0) };
+}
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export const gpuSupported = () => !!navigator.gpu;
@@ -161,7 +186,7 @@ async function init(host) {
     layout: 'auto', vertex: { module, entryPoint: 'vs' },
     fragment: { module, entryPoint: 'fs', targets: [{ format }] }, primitive: { topology: 'triangle-list' },
   });
-  buf = device.createBuffer({ size: 32, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
+  buf = device.createBuffer({ size: 48, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
   bind = device.createBindGroup({ layout: pipeline.getBindGroupLayout(0), entries: [{ binding: 0, resource: { buffer: buf } }] });
   window.addEventListener('pointermove', e => { target[0] = e.clientX / innerWidth * 2 - 1; target[1] = -(e.clientY / innerHeight * 2 - 1); });
 }
@@ -173,7 +198,8 @@ function frame(now) {
   const w = Math.max(2, Math.round(canvas.clientWidth * dpr)), h = Math.max(2, Math.round(canvas.clientHeight * dpr));
   if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
   mouse[0] += (target[0] - mouse[0]) * 0.05; mouse[1] += (target[1] - mouse[1]) * 0.05;
-  device.queue.writeBuffer(buf, 0, new Float32Array([w, h, reduce ? 4 : now / 1000, 0, mouse[0], mouse[1], 0, 0]));
+  const sec = now / 1000, cur = current(performance.now() / 1000);
+  device.queue.writeBuffer(buf, 0, new Float32Array([w, h, reduce ? 4 : sec, 0, mouse[0], mouse[1], 0, 0, cur.prog, reduce ? 0 : cur.pulse, performance.now() / 1000 - mode.shock, 0]));
   const enc = device.createCommandEncoder();
   const pass = enc.beginRenderPass({ colorAttachments: [{ view: ctx.getCurrentTexture().createView(), loadOp: 'clear', storeOp: 'store', clearValue: { r: 0, g: 0, b: 0, a: 1 } }] });
   pass.setPipeline(pipeline); pass.setBindGroup(0, bind); pass.draw(3); pass.end();
@@ -181,6 +207,7 @@ function frame(now) {
 }
 
 export async function startTest(host) {
+  mode.host = host;
   if (!gpuSupported()) { host.classList.add('no-gpu'); return false; }
   try {
     if (!canvas) await init(host);
