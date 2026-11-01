@@ -1,6 +1,6 @@
 // アイコンの切り抜き画面: ドラッグで位置、スライダー(またはホイール・ピンチ)で拡大縮小を決める
-import { cropToDataUrl } from './avatar-image.js?v=38';
-import { t } from './i18n.js?v=38';
+import { cropToDataUrl } from './avatar-image.js?v=41';
+import { t } from './i18n.js?v=41';
 
 const ZOOM_MAX = 4;
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));

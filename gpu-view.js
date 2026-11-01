@@ -1,5 +1,5 @@
 // 全画面のフラグメントシェーダを1枚描くだけの、小さなWebGPUビュー(Test2 などで使う)。
-export function createGpuView(wgsl, extra) {   // extra(秒) → 追加の4つの値(uniform の c)
+export function createGpuView(wgsl, extra) {   // extra(秒) → [c.x, c.y, c.z, c.w, b.z, b.w]
   let adapter = null, device = null, canvas = null, ctx = null, pipeline = null, buf = null, bind = null;
   let raf = 0, running = false, host = null;
   const mouse = [0, 0], target = [0, 0];
@@ -33,8 +33,9 @@ export function createGpuView(wgsl, extra) {   // extra(秒) → 追加の4つ�
     const dpr = Math.min(devicePixelRatio || 1, 1.5);
     const w = Math.max(2, Math.round(canvas.clientWidth * dpr)), h = Math.max(2, Math.round(canvas.clientHeight * dpr));
     if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+    const e = extra ? extra(performance.now() / 1000) : [];   // [c.x, c.y, c.z, c.w, b.z, b.w]
     mouse[0] += (target[0] - mouse[0]) * 0.05; mouse[1] += (target[1] - mouse[1]) * 0.05;
-    device.queue.writeBuffer(buf, 0, new Float32Array([w, h, reduce ? 4 : now / 1000, 0, mouse[0], mouse[1], 0, 0, ...(extra ? extra(performance.now() / 1000) : [0, 0, 0, 0])]));
+    device.queue.writeBuffer(buf, 0, new Float32Array([w, h, reduce ? 4 : now / 1000, 0, mouse[0], mouse[1], e[4] || 0, e[5] || 0, e[0] || 0, e[1] || 0, e[2] || 0, e[3] || 0]));
     const enc = device.createCommandEncoder();
     const pass = enc.beginRenderPass({ colorAttachments: [{ view: ctx.getCurrentTexture().createView(), loadOp: 'clear', storeOp: 'store', clearValue: { r: 0, g: 0, b: 0, a: 1 } }] });
     pass.setPipeline(pipeline); pass.setBindGroup(0, bind); pass.draw(3); pass.end();

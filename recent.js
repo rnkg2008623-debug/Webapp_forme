@@ -1,8 +1,8 @@
 // ホームの Recent log: 自分と友だちの最近の学習ログを、新しい順に並べる(ボックスの中をスクロールして、好きなだけ見られる)
-import { onState } from './friends-ui.js?v=38';
-import { onLogs, feedLogs, setFriends, ownerId, deniedCount } from './logs-store.js?v=38';
-import { relativeTime } from './stats.js?v=38';
-import { t } from './i18n.js?v=38';
+import { onState } from './friends-ui.js?v=41';
+import { onLogs, feedLogs, setFriends, ownerId, deniedCount } from './logs-store.js?v=41';
+import { relativeTime } from './stats.js?v=41';
+import { t } from './i18n.js?v=41';
 
 const list = document.getElementById('recent-list');
 let state = null;

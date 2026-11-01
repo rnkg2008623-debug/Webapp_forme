@@ -1,5 +1,5 @@
 // Test2 の背景(WebGPU): 白黒のゴシックの大聖堂。ステンドグラスの光の筋・揺れる鎖・舞う花びら・床への映り込み。
-import { createGpuView } from './gpu-view.js?v=38';
+import { createGpuView } from './gpu-view.js?v=41';
 
 const WGSL = /* wgsl */ `
 struct U { a: vec4f, b: vec4f, c: vec4f };   // a = (幅, 高さ, 時間, 0)  b = (マウスX, マウスY, 0, 0)  c = (鎖が切れた度合い, 鎖が生えた度合い, 鎖が下がった度合い, 切り替えの勢い)
@@ -245,8 +245,11 @@ fn star4(p: vec2f, r: f32) -> f32 {
   col *= 1.0 - smoothstep(0.3, 0.9, vg) * 0.7;
   col += (hash(fc.xy + t) - 0.5) * 0.025;
   col = col / (1.0 + col * 0.45);
+  col *= 1.0 - u.b.w * 0.55;                                    // 文字の多い画面では、背景を少し落ち着かせる
   let lum = dot(col, vec3f(0.3, 0.59, 0.11));
-  return vec4f(pow(mix(vec3f(lum), col, 0.35) * vec3f(0.97, 0.98, 1.03), vec3f(0.9)), 1.0);
+  let base = mix(vec3f(lum), col, 0.35) * vec3f(0.97, 0.98, 1.03);
+  let vio = vec3f(lum) * vec3f(0.78, 0.7, 1.3) * 1.15;          // 紫がかったバージョン
+  return vec4f(pow(mix(base, vio, u.b.z), vec3f(0.9)), 1.0);
 }
 `;
 

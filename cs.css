@@ -1,0 +1,157 @@
+/* ---------- ネオン: CS(IBDP Computer Science HL) ---------- */
+.nav-cs { display: none; }
+html[data-theme="neon"] .nav-cs { display: flex; }
+body[data-view="cs"] #cs-view { display: block; animation: page-in .5s ease both; }
+.cs { --cs-serif: "Cormorant Garamond", "Cinzel", "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", Georgia, serif; background: #030304; font-size: clamp(11px, .96vw, 18px); color: #fff; font-family: var(--cs-serif); }
+.cs .ts-fallback { background: radial-gradient(30% 60% at 12% 50%, rgba(210, 215, 255, .3), transparent 70%), radial-gradient(30% 60% at 88% 50%, rgba(210, 215, 255, .3), transparent 70%), #07070a; }
+.cs-stage { position: absolute; inset: 0; z-index: 1; }
+.cs-page { position: absolute; inset: 0; display: flex; flex-direction: column; overflow: auto; padding: 0 2.4em 1.6em; animation: cs-in .7s cubic-bezier(.2, .7, .2, 1) both; scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, .4) transparent; }
+@keyframes cs-in { from { opacity: 0; transform: scale(1.035); filter: blur(6px); } }
+.cs button, .cs a { font-family: inherit; color: inherit; text-decoration: none; }
+.cs-ic { width: 1.5em; height: 1.5em; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.cs-ic.sm { width: 1.1em; height: 1.1em; } .cs-ic.lead { width: 3em; height: 3em; filter: drop-shadow(0 0 5px rgba(255, 255, 255, .55)); }
+.cs-ic.huge { width: 4.6em; height: 4.6em; stroke-width: 1.2; filter: drop-shadow(0 0 6px rgba(255, 255, 255, .55)); } .cs-ic.big { width: 3em; height: 3em; }
+.cs-spark { width: 1.8em; height: 1.8em; fill: #fff; filter: drop-shadow(0 0 7px #fff); flex: none; }
+
+/* 上のナビ */
+.cs-top { display: flex; align-items: center; justify-content: space-between; padding: 1em 0 .6em; flex: none; }
+.cs-brand { display: flex; align-items: center; gap: .8em; font-size: 1.15em; line-height: 1.15; margin-right: 2em; }
+.cs-brand .cs-spark { width: 2.6em; height: 2.6em; }
+.cs-top.with-brand .cs-brand { padding-right: 1.6em; border-right: 1px solid rgba(255, 255, 255, .35); }
+.cs-nav { display: flex; gap: 3em; flex: 1; font-size: 1.28em; }
+.cs-nav a { position: relative; padding: .55em .2em; opacity: .9; display: inline-flex; align-items: center; gap: .4em; transition: opacity .2s, text-shadow .2s; }
+.cs-nav a:hover { opacity: 1; text-shadow: 0 0 12px #fff; }
+.cs-nav a.on { opacity: 1; }
+.cs-nav a.on::after { content: ""; position: absolute; left: -.3em; right: -.3em; bottom: -.1em; height: 2px; background: #fff; box-shadow: 0 0 10px #fff; border-radius: 2px; }
+.cs-acts { display: flex; align-items: center; gap: 1em; }
+.cs-iconbtn { width: 3.1em; height: 3.1em; display: grid; place-items: center; border: 1px solid rgba(255, 255, 255, .55); border-radius: .9em; background: rgba(0, 0, 0, .35); }
+.cs-iconbtn.round { border-radius: 50%; }
+.cs-pill { height: 3em; padding: 0 1.9em; border: 1.5px solid #fff; border-radius: 2em; background: rgba(0, 0, 0, .4); font-size: 1.2em; }
+.cs-pill.solid { background: #fff; color: #08080c; box-shadow: 0 0 18px rgba(255, 255, 255, .45); }
+.cs-iconbtn:hover, .cs-pill:hover { box-shadow: 0 0 18px rgba(255, 255, 255, .6); }
+
+/* 飾り線・タイトル */
+.cs-rule { display: flex; align-items: center; gap: .8em; width: min(40em, 60%); margin: .5em auto; font-size: .8em; }
+.cs-rule i { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .95), transparent); }
+.cs-rule b { font-weight: 400; text-shadow: 0 0 8px #fff; }
+.cs-rule.thin { width: min(24em, 50%); opacity: .8; }
+.cs-track { text-align: center; letter-spacing: .5em; font-size: 1.15em; text-shadow: 0 0 10px rgba(255, 255, 255, .5); }
+.cs-track.small { font-size: 1em; letter-spacing: .42em; opacity: .92; }
+.cs-h1 { font: italic 500 5.6em/1.05 var(--cs-serif); text-align: center; letter-spacing: .005em; text-shadow: 0 0 20px rgba(255, 255, 255, .55), 0 0 55px rgba(190, 195, 255, .45); }
+.cs-h2 { font: italic 500 5em/1.05 var(--cs-serif); text-align: center; text-shadow: 0 0 20px rgba(255, 255, 255, .5), 0 0 50px rgba(190, 195, 255, .4); }
+.cs-head { display: flex; flex-direction: column; align-items: center; gap: .3em; margin-top: 1.6em; flex: none; }
+.cs-head .cs-spark { margin-bottom: -.4em; }
+
+/* ホーム */
+.cs-p-home { padding-bottom: 1em; }
+.cs-hero { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .2em; padding-top: .5em; }
+.cs-cross { display: flex; flex-direction: column; align-items: center; margin-bottom: -.5em; }
+.cs-cross .cs-ic { width: 3.6em; height: 3.6em; fill: #fff; stroke: none; filter: drop-shadow(0 0 10px #fff); }
+.cs-cross i { width: 2px; height: 3em; background: linear-gradient(#fff, transparent); box-shadow: 0 0 8px #fff; }
+.cs-eyebrow { font-size: 2em; letter-spacing: .6em; display: flex; gap: 1em; align-items: center; text-shadow: 0 0 12px rgba(255, 255, 255, .6); margin-top: .5em; }
+.cs-eyebrow span { font-size: .8em; letter-spacing: 0; opacity: .85; } .cs-eyebrow .flip { transform: scaleX(-1); }
+.cs-btns { display: flex; gap: 1.6em; margin-top: 1.6em; }
+.cs-btn { position: relative; min-width: 15em; height: 3.7em; padding: 0 2.4em; font-size: 1.3em; border: 1px solid #fff; border-radius: 1.2em / 50%; background: rgba(4, 4, 8, .55);
+  box-shadow: 0 0 14px rgba(255, 255, 255, .3), inset 0 0 0 4px rgba(4, 4, 8, .6), inset 0 0 0 5px rgba(255, 255, 255, .55); transition: transform .2s, box-shadow .25s; }
+.cs-btn span { display: inline-flex; align-items: center; gap: .5em; }
+.cs-btn.solid { background: linear-gradient(180deg, #fff, #cdcdda); color: #0a0a10; box-shadow: 0 0 24px rgba(255, 255, 255, .6), inset 0 0 0 4px #e8e8f2, inset 0 0 0 5px rgba(10, 10, 16, .7); }
+.cs-btn::before, .cs-btn::after { content: "✦"; position: absolute; top: 50%; transform: translateY(-50%); font-size: .55em; }
+.cs-btn::before { left: 1.2em; } .cs-btn::after { right: 1.2em; }
+.cs-btn:hover { transform: translateY(-3px); box-shadow: 0 0 32px rgba(255, 255, 255, .8), inset 0 0 0 4px rgba(4, 4, 8, .6), inset 0 0 0 5px #fff; }
+.cs-dots { display: flex; gap: 1em; justify-content: center; margin-top: 1.2em; flex: none; }
+.cs-dots i { width: .6em; height: .6em; border-radius: 50%; background: rgba(255, 255, 255, .3); cursor: pointer; transition: background .3s; }
+.cs-dots i.on { background: #fff; box-shadow: 0 0 8px #fff; }
+
+/* カード(ゴシックの飾り枠) */
+.cs-cards { display: grid; gap: 2em; flex: none; margin: 0 auto; width: 100%; }
+.cs-cards.four { grid-template-columns: 1fr 1fr 1fr 1fr; width: min(96%, 100em); gap: 1.6em; }
+.cs-cards.grid { grid-template-columns: repeat(3, 1fr); width: min(86%, 92em); margin-top: 1.4em; gap: 2em; }
+.cs-cards.grid.wide { width: min(96%, 96em); margin-top: 1.8em; }
+.cs-card { position: relative; display: flex; align-items: center; gap: 1.4em; padding: 1.6em 1.8em; text-align: left; border: 1px solid rgba(255, 255, 255, .92); border-radius: 3px; color: #fff;
+  background: linear-gradient(180deg, rgba(10, 10, 14, .78), rgba(2, 2, 4, .86)); backdrop-filter: blur(3px);
+  box-shadow: 0 0 18px rgba(255, 255, 255, .28), inset 0 0 0 5px rgba(3, 3, 6, .8), inset 0 0 0 6px rgba(255, 255, 255, .5); transition: transform .25s, box-shadow .25s; }
+.cs-card::before, .cs-card::after { content: ""; position: absolute; width: 1.2em; height: 1.2em; border: 2px solid #fff; filter: drop-shadow(0 0 4px #fff); }
+.cs-card::before { top: -4px; left: -4px; border-right: 0; border-bottom: 0; } .cs-card::after { bottom: -4px; right: -4px; border-left: 0; border-top: 0; }
+.cs-card:hover { transform: translateY(-4px); box-shadow: 0 0 34px rgba(255, 255, 255, .65), inset 0 0 0 5px rgba(3, 3, 6, .8), inset 0 0 0 6px #fff; }
+.cs-card > span { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: .3em; }
+.cs-card b { font: 500 1.9em/1.1 var(--cs-serif); } .cs-card em { font: 400 1.15em var(--cs-serif); font-style: normal; color: #dcdce8; }
+.cs-card.tile { padding: 2em 1.6em; min-height: 9.8em; }
+.cs-card.tile strong { font: italic 500 3.4em/1 var(--cs-serif); text-shadow: 0 0 14px rgba(255, 255, 255, .5); }
+.cs-card.tile em { font-size: 1.3em; color: #fff; }
+.cs-card.tile .lead { width: 4em; height: 4em; }
+.cs-card.tile.v { flex-direction: column; justify-content: center; text-align: center; gap: .2em; min-height: 11.5em; }
+.cs-card.tile.v > span { align-items: center; }
+.cs-card.tile.v .lead { width: 3.3em; height: 3.3em; }
+.cs-card.tile.v .side { position: absolute; right: 1.2em; top: 50%; transform: translateY(-50%); }
+.cs-top-star { position: absolute; top: -.85em; left: 50%; transform: translateX(-50%); font-style: normal; font-size: 1.4em; text-shadow: 0 0 10px #fff; }
+.cs-bottom-orn { margin-top: auto; padding-top: 1.4em; }
+.cs-orn { display: flex; align-items: center; gap: 1em; width: min(40em, 60%); margin: 0 auto; }
+.cs-orn i { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, #fff, transparent); } .cs-orn b { font-weight: 400; font-size: 2em; text-shadow: 0 0 12px #fff; }
+.cs-p-practice .cs-top, .cs-p-topics .cs-top { padding-top: 1em; }
+
+/* 左パネル / 本文 */
+.panel { border: 1px solid rgba(255, 255, 255, .85); border-radius: 4px; background: linear-gradient(180deg, rgba(8, 8, 12, .82), rgba(2, 2, 4, .88)); box-shadow: 0 0 18px rgba(255, 255, 255, .22), inset 0 0 0 4px rgba(3, 3, 6, .8), inset 0 0 0 5px rgba(255, 255, 255, .4); position: relative; }
+.cs-split { flex: 1; min-height: 0; display: grid; grid-template-columns: 21em 1fr; gap: 2.4em; margin-top: .6em; }
+.cs-side { padding: 1.6em 1.4em; align-self: start; }
+.cs-side-title { display: flex; align-items: center; gap: .6em; font: italic 500 2.6em var(--cs-serif); }
+.cs-menu { list-style: none; margin-top: 1em; } .cs-menu li { border-bottom: 1px solid rgba(255, 255, 255, .18); }
+.cs-menu button { width: 100%; display: flex; align-items: baseline; gap: 1em; padding: .85em .6em; font-size: 1.15em; text-align: left; }
+.cs-menu b { font: 500 1.35em var(--cs-serif); min-width: 2em; } .cs-menu span { flex: 1; font-size: .95em; } .cs-menu .cs-ic { align-self: center; }
+.cs-menu button.on { border: 1.5px solid #fff; border-radius: .6em; background: rgba(255, 255, 255, .1); box-shadow: 0 0 14px rgba(255, 255, 255, .5); }
+.cs-menu button:hover { background: rgba(255, 255, 255, .08); }
+.cs-main { min-width: 0; display: flex; flex-direction: column; gap: 1em; }
+.cs-crumb { display: flex; align-items: center; gap: .7em; font-size: 1.1em; opacity: .95; }
+.cs-crumb a:hover { text-shadow: 0 0 10px #fff; }
+.cs-mhead, .cs-lhead { display: flex; align-items: center; justify-content: space-between; gap: 2em; }
+.cs-mtitle { display: flex; align-items: center; gap: 1.4em; } .cs-mtitle h2, .cs-ltitle h2 { font-weight: 500; font-size: 3.6em; line-height: 1; } .cs-mtitle h2 i, .cs-ltitle h2 i { font-size: 1.3em; text-shadow: 0 0 16px rgba(255, 255, 255, .6); }
+.cs-mtitle h2 em, .cs-ltitle h2 em { font-size: .7em; } .cs-mtitle p, .cs-ltitle p { font-size: 1.2em; margin-top: .4em; opacity: .9; }
+.cs-overall { display: flex; align-items: center; gap: 1.4em; padding: 1.2em 1.8em; min-width: 21em; } .cs-overall b { font-size: 1.5em; font-weight: 500; } .cs-overall p { margin-top: .4em; font-size: 1.15em; border-top: 1px solid rgba(255, 255, 255, .25); padding-top: .4em; }
+.ring { --p: 50; width: 2.9em; height: 2.9em; border-radius: 50%; display: grid; place-items: center; flex: none;
+  background: conic-gradient(#fff calc(var(--p) * 1%), rgba(255, 255, 255, .18) 0); -webkit-mask: radial-gradient(circle, transparent 58%, #000 60%); mask: radial-gradient(circle, transparent 58%, #000 60%); filter: drop-shadow(0 0 5px rgba(255, 255, 255, .7)); }
+.ring.big { width: 6em; height: 6em; position: relative; -webkit-mask: none; mask: none; background: conic-gradient(#fff calc(var(--p) * 1%), rgba(255, 255, 255, .2) 0); }
+.ring.big::before { content: ""; position: absolute; inset: .5em; border-radius: 50%; background: #05050a; }
+.ring.big span { position: relative; font-size: 1.7em; }
+.cs-rows { list-style: none; display: flex; flex-direction: column; gap: .55em; }
+.cs-row { display: flex; align-items: center; gap: 1.6em; padding: .75em 1.6em .75em 1.4em; border: 1px solid rgba(255, 255, 255, .7); border-radius: 4px; background: linear-gradient(180deg, rgba(8, 8, 12, .85), rgba(2, 2, 4, .9));
+  box-shadow: inset 0 0 0 3px rgba(3, 3, 6, .85), inset 0 0 0 4px rgba(255, 255, 255, .32); transition: transform .2s, box-shadow .2s; }
+.cs-row:hover, .cs-row.hot { box-shadow: 0 0 20px rgba(255, 255, 255, .5), inset 0 0 0 3px rgba(3, 3, 6, .85), inset 0 0 0 4px rgba(255, 255, 255, .85); }
+.cs-row:hover { transform: translateX(4px); }
+.cs-row .lead { width: 2.4em; height: 2.4em; } .cs-row code { font: 500 1.3em var(--cs-serif); width: 4.5em; } .cs-row span { flex: 1; min-width: 0; } .cs-row b { font-weight: 500; font-size: 1.45em; display: block; } .cs-row em { font-size: 1.05em; opacity: .85; font-style: normal; }
+.cs-row strong { font: 500 1.7em var(--cs-serif); }
+
+/* A1 Computer Systems(紫がかった画面) */
+.cs-p-lesson { padding: 1.4em 2em 1em; }
+.cs-p-lesson .cs-split { margin-top: 0; grid-template-columns: 19em 1fr; }
+.violet { --v: rgba(150, 140, 255, .9); }
+.cs-side.violet { background: linear-gradient(180deg, rgba(18, 16, 36, .82), rgba(8, 7, 18, .88)); border-color: rgba(190, 185, 255, .7); box-shadow: 0 0 22px rgba(130, 120, 255, .35), inset 0 0 0 4px rgba(10, 9, 22, .8), inset 0 0 0 5px rgba(190, 185, 255, .3); }
+.cs-lbrand { display: flex; align-items: center; gap: .8em; font-size: 1.5em; cursor: pointer; } .cs-lbrand small { display: block; font-size: .55em; opacity: .85; line-height: 1; } .cs-lbrand .lead { width: 1.8em; height: 1.8em; }
+.cs-acc { width: 100%; display: flex; align-items: center; gap: .9em; padding: .85em .8em; font-size: 1.25em; border-radius: .5em; margin-top: .2em; } .cs-acc .lead { width: 1.6em; height: 1.6em; } .cs-acc b { flex: 1; font-weight: 500; text-align: left; }
+.cs-acc.on { background: linear-gradient(90deg, rgba(110, 100, 220, .55), rgba(70, 65, 160, .35)); border: 1px solid rgba(190, 185, 255, .75); box-shadow: 0 0 14px rgba(140, 130, 255, .45); }
+.cs-acc:not(.on):hover { background: rgba(160, 150, 255, .1); }
+.cs-sub { list-style: none; margin: .6em 0 .6em 1.2em; display: flex; flex-direction: column; gap: .3em; }
+.cs-sub li { display: flex; align-items: center; gap: .8em; padding: .38em .2em; font-size: 1.05em; position: relative; }
+.cs-sub i { width: .45em; height: .45em; border-radius: 50%; background: #b9b2ff; box-shadow: 0 0 6px #b9b2ff; } .cs-sub code { font: inherit; width: 3em; opacity: .9; }
+.cs-sub li.on { font-weight: 600; } .cs-sub li.on i { background: #fff; box-shadow: 0 0 9px #fff; }
+.cs-lhead { padding: 0 0 0 .4em; } .cs-ltitle { display: flex; align-items: center; gap: 1.2em; } .cs-ltitle .cs-spark { width: 3.6em; height: 3.6em; }
+.cs-ltitle h2 { font-size: 3em; } .cs-ltitle h2 i { color: #fff; }
+.cs-quote { font: italic 400 1.2em/1.5 var(--cs-serif); text-align: right; opacity: .9; margin-left: auto; align-self: flex-end; }
+.cs-prog { display: flex; align-items: center; gap: 1.1em; padding: .6em 1em; border-color: rgba(190, 185, 255, .6); } .cs-prog small { font-size: .9em; } .cs-prog .bar { width: 12em; height: .5em; background: rgba(255, 255, 255, .18); border-radius: 1em; margin-top: .3em; overflow: hidden; } .cs-prog .bar i { display: block; width: 18%; height: 100%; background: linear-gradient(90deg, #8b82ff, #d6d2ff); box-shadow: 0 0 8px #a49cff; } .cs-prog > span { font-size: 1.1em; }
+.cs-lessons { list-style: none; display: flex; flex-direction: column; gap: .55em; margin-top: 1.4em; }
+.cs-lesson { display: flex; align-items: center; gap: 1.4em; padding: .55em 1.2em .55em .5em; border: 1px solid rgba(190, 185, 255, .55); border-radius: 3px; background: linear-gradient(180deg, rgba(14, 12, 30, .86), rgba(6, 5, 14, .9)); box-shadow: inset 0 0 0 3px rgba(8, 7, 18, .85), inset 0 0 0 4px rgba(190, 185, 255, .25); transition: transform .2s, box-shadow .2s; }
+.cs-lesson:hover { transform: translateX(4px); box-shadow: 0 0 20px rgba(140, 130, 255, .5), inset 0 0 0 3px rgba(8, 7, 18, .85), inset 0 0 0 4px rgba(190, 185, 255, .7); }
+.cs-thumb { width: 6.4em; height: 4.3em; border-radius: 3px; display: grid; place-items: center; flex: none; background: radial-gradient(70% 90% at 50% 50%, rgba(140, 130, 255, .55), rgba(20, 16, 50, .95)); border: 1px solid rgba(190, 185, 255, .5); }
+.cs-thumb .thumb { width: 2.6em; height: 2.6em; filter: drop-shadow(0 0 8px #a49cff); }
+.cs-lesson .num { width: 2.4em; height: 2.4em; border: 1.5px solid rgba(220, 216, 255, .9); border-radius: 50%; display: grid; place-items: center; font-size: 1.15em; flex: none; box-shadow: 0 0 8px rgba(160, 150, 255, .6); }
+.cs-lesson .txt { flex: 1; min-width: 0; } .cs-lesson .txt b { display: block; font: 500 1.4em var(--cs-serif); } .cs-lesson .txt code { font: inherit; margin-right: 1.4em; } .cs-lesson .txt em { font-style: normal; font-size: 1.02em; opacity: .85; }
+.cs-start { height: 2.5em; min-width: 9.5em; padding: 0 1.2em; display: inline-flex; align-items: center; justify-content: space-between; gap: .6em; border: 1px solid #fff; border-radius: 2em; background: rgba(0, 0, 0, .4); font-size: 1.05em; }
+.cs-start:hover:not(:disabled) { box-shadow: 0 0 18px rgba(255, 255, 255, .7); background: rgba(255, 255, 255, .12); }
+.cs-start.locked { border-color: rgba(220, 216, 255, .35); color: rgba(220, 216, 255, .55); }
+.cs-lesson.locked { opacity: .92; } .cs-lesson.locked .cs-thumb { filter: saturate(.5) brightness(.8); }
+.cs-foot { text-align: right; font: italic 400 1em var(--cs-serif); opacity: .75; margin-top: .6em; }
+
+.cs-toast { position: absolute; left: 50%; bottom: 3em; transform: translate(-50%, 10px); z-index: 5; padding: .7em 1.6em; border: 1px solid #fff; border-radius: 2em; background: rgba(0, 0, 0, .8); font-size: 1.2em; opacity: 0; transition: opacity .3s, transform .3s; box-shadow: 0 0 18px rgba(255, 255, 255, .5); }
+.cs-toast.on { opacity: 1; transform: translate(-50%, 0); } .cs-toast[hidden] { display: none; }
+@media (max-width: 900px) { .cs-cards.four { grid-template-columns: 1fr 1fr; } .cs-cards.grid { grid-template-columns: 1fr 1fr; } .cs-split, .cs-p-lesson .cs-split { grid-template-columns: 1fr; } .cs-nav { gap: 1.4em; } .cs-h1 { font-size: 3.4em; } .cs-mhead, .cs-lhead { flex-wrap: wrap; } }
+@media (prefers-reduced-motion: reduce) { .cs-page { animation: none; } }
+.ts.cs > .cs-stage.cs-stage { position: absolute; inset: 0; z-index: 1; }
+.ts.cs > .cs-toast.cs-toast { position: absolute; z-index: 5; }
