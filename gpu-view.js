@@ -1,5 +1,5 @@
 // 全画面のフラグメントシェーダを1枚描くだけの、小さなWebGPUビュー(Test2 などで使う)。
-export function createGpuView(wgsl) {
+export function createGpuView(wgsl, extra) {   // extra(秒) → 追加の4つの値(uniform の c)
   let adapter = null, device = null, canvas = null, ctx = null, pipeline = null, buf = null, bind = null;
   let raf = 0, running = false, host = null;
   const mouse = [0, 0], target = [0, 0];
@@ -22,7 +22,7 @@ export function createGpuView(wgsl) {
       layout: 'auto', vertex: { module, entryPoint: 'vs' },
       fragment: { module, entryPoint: 'fs', targets: [{ format }] }, primitive: { topology: 'triangle-list' },
     });
-    buf = device.createBuffer({ size: 32, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
+    buf = device.createBuffer({ size: 48, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
     bind = device.createBindGroup({ layout: pipeline.getBindGroupLayout(0), entries: [{ binding: 0, resource: { buffer: buf } }] });
     window.addEventListener('pointermove', e => { target[0] = e.clientX / innerWidth * 2 - 1; target[1] = -(e.clientY / innerHeight * 2 - 1); });
   }
@@ -34,7 +34,7 @@ export function createGpuView(wgsl) {
     const w = Math.max(2, Math.round(canvas.clientWidth * dpr)), h = Math.max(2, Math.round(canvas.clientHeight * dpr));
     if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
     mouse[0] += (target[0] - mouse[0]) * 0.05; mouse[1] += (target[1] - mouse[1]) * 0.05;
-    device.queue.writeBuffer(buf, 0, new Float32Array([w, h, reduce ? 4 : now / 1000, 0, mouse[0], mouse[1], 0, 0]));
+    device.queue.writeBuffer(buf, 0, new Float32Array([w, h, reduce ? 4 : now / 1000, 0, mouse[0], mouse[1], 0, 0, ...(extra ? extra(performance.now() / 1000) : [0, 0, 0, 0])]));
     const enc = device.createCommandEncoder();
     const pass = enc.beginRenderPass({ colorAttachments: [{ view: ctx.getCurrentTexture().createView(), loadOp: 'clear', storeOp: 'store', clearValue: { r: 0, g: 0, b: 0, a: 1 } }] });
     pass.setPipeline(pipeline); pass.setBindGroup(0, bind); pass.draw(3); pass.end();

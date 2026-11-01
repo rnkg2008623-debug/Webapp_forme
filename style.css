@@ -802,7 +802,7 @@ html[data-theme="neon"] .lib-bg {
   display: block; position: absolute; inset: 0;
   background:
     radial-gradient(60% 50% at 50% 0%, rgba(255, 40, 180, .18), transparent 70%),
-    url("library-far.svg?v=36") calc(var(--sx, 0px) * -.3) 0 / auto 25vh repeat,
+    url("library-far.svg?v=38") calc(var(--sx, 0px) * -.3) 0 / auto 25vh repeat,
     #07021a;
   transition: opacity .45s ease-in, transform .5s cubic-bezier(.6, 0, 1, .6), filter .45s ease-in;
 }
@@ -815,7 +815,7 @@ html[data-theme="neon"] .lg-world::before {
   content: ""; position: absolute; inset: 0; pointer-events: none;
   background:
     linear-gradient(180deg, rgba(7, 2, 26, .55), transparent 30%, transparent 70%, rgba(7, 2, 26, .7)),
-    url("library-near.svg?v=36") 0 0 / auto 25vh repeat;
+    url("library-near.svg?v=38") 0 0 / auto 25vh repeat;
   transition: opacity .45s ease-in, transform .5s cubic-bezier(.6, 0, 1, .6), filter .45s ease-in;
 }
 html[data-theme="neon"] .lib-hint {
@@ -955,3 +955,4 @@ html[data-theme="neon"] .nav-test2 { display: flex; }
 .gx-card > svg:first-child { stroke: #fff; filter: drop-shadow(0 0 4px rgba(255, 255, 255, .7)); }
 .gx-card .chev { stroke: #fff; }
 .gx .ts-dots i { background: rgba(255, 255, 255, .3); }
+.gx-card.is-on { box-shadow: 0 0 34px rgba(255, 255, 255, .75), inset 0 0 0 5px rgba(3, 3, 6, .7), inset 0 0 0 6px #fff; background: rgba(40, 40, 52, .6); }

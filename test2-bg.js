@@ -1,8 +1,8 @@
 // Test2 の背景(WebGPU): 白黒のゴシックの大聖堂。ステンドグラスの光の筋・揺れる鎖・舞う花びら・床への映り込み。
-import { createGpuView } from './gpu-view.js?v=36';
+import { createGpuView } from './gpu-view.js?v=38';
 
 const WGSL = /* wgsl */ `
-struct U { a: vec4f, b: vec4f };   // a = (幅, 高さ, 時間, 0)  b = (マウスX, マウスY, 0, 0)
+struct U { a: vec4f, b: vec4f, c: vec4f };   // a = (幅, 高さ, 時間, 0)  b = (マウスX, マウスY, 0, 0)  c = (鎖が切れた度合い, 鎖が生えた度合い, 鎖が下がった度合い, 切り替えの勢い)
 @group(0) @binding(0) var<uniform> u: U;
 
 @vertex fn vs(@builtin(vertex_index) i: u32) -> @builtin(position) vec4f {
@@ -53,12 +53,14 @@ fn glass(p: vec2f, w: f32, h: f32, t: f32, seed: f32) -> f32 {
 }
 
 // 鎖(つなぎ目が交互に向きを変える輪)。戻り値: x = 不透明度, y = 明るさ
-fn chain(uv: vec2f, p0: vec2f, p1: vec2f, sag: f32, link: f32, t: f32, seed: f32) -> vec2f {
+fn chain(uv: vec2f, p0: vec2f, p1: vec2f, sag: f32, link: f32, t: f32, seed: f32, reveal: f32, brk: f32) -> vec2f {
   let dx = p1.x - p0.x;
   let s = clamp((uv.x - p0.x) / dx, -0.2, 1.2);
   let sway = 0.012 * sin(t * 0.8 + seed * 3.0 + s * 4.0);
-  let yc = mix(p0.y, p1.y, s) - sag * 4.0 * s * (1.0 - s) + sway;
-  let slope = ((p1.y - p0.y) - sag * 4.0 * (1.0 - 2.0 * s)) / dx;
+  let e = min(s, 1.0 - s);                                          // 近い方の端からの距離
+  let swing = brk * 1.3 * e * e * 4.0 + brk * 0.03 * sin(t * 3.0 + e * 9.0 + seed);   // 切れた鎖は、端を支点に垂れ下がって揺れる
+  let yc = mix(p0.y, p1.y, s) - sag * 4.0 * s * (1.0 - s) + sway - swing;
+  let slope = ((p1.y - p0.y) - sag * 4.0 * (1.0 - 2.0 * s) - brk * 1.3 * 8.0 * e * select(-1.0, 1.0, s < 0.5)) / dx;
   let ang = atan2(slope, 1.0);
   let q = rot(-ang) * vec2f(uv.x - uv.x, uv.y - yc);   // 接線方向に直した、鎖からの垂直距離
   let perp = (uv.y - yc) * cos(ang);
@@ -77,6 +79,10 @@ fn chain(uv: vec2f, p0: vec2f, p1: vec2f, sag: f32, link: f32, t: f32, seed: f32
     let lit = 0.35 + 0.65 * pow(0.5 + 0.5 * sin(perp / ww * 2.4 + 1.2 + f32(k) * 0.7), 3.0);
     if (a > best) { best = a; shade = lit; }
   }
+  let gap = 0.02 + 0.12 * brk;
+  best *= select(1.0, smoothstep(gap - 0.01, gap + 0.01, abs(s - 0.5)), brk > 0.001);    // 真ん中が切れて、すき間が開く
+  best *= 1.0 - smoothstep(reveal - 0.03, reveal, s);                                     // 端から伸びてくる
+  shade += smoothstep(0.06, 0.0, abs(s - reveal)) * select(0.0, 0.8, reveal < 0.999);   // 伸びている先端は光る
   return vec2f(best, shade);
 }
 
@@ -87,7 +93,9 @@ fn star4(p: vec2f, r: f32) -> f32 {
 
 @fragment fn fs(@builtin(position) fc: vec4f) -> @location(0) vec4f {
   let res = u.a.xy; let t = u.a.z; let m = u.b.xy;
-  var uv = (fc.xy - 0.5 * res) / res.y; uv.y = -uv.y;
+  var uv0 = (fc.xy - 0.5 * res) / res.y; uv0.y = -uv0.y;
+  let brk = u.c.x; let grw = u.c.y; let drp = u.c.z; let pulse = u.c.w;
+  let uv = uv0 / (1.0 + 0.75 * brk * brk * (3.0 - 2.0 * brk) + 0.12 * pulse);    // 前へ進む: 窓も羅針盤も、ぐっと迫ってくる
   let par = m * 0.012;
   var col = vec3f(0.0);
 
@@ -163,21 +171,49 @@ fn star4(p: vec2f, r: f32) -> f32 {
     col += vec3f(0.5) * exp(-abs(d) * 160.0) * 0.12;       // 床の奥の縁
   }
 
-  // ---- 鎖(奥の2本が交差し、手前は大きくぼやける) ----
-  let cu = uv - par * 1.5;
-  var chainAcc = vec3f(0.0); var cover = 0.0;
-  let cA = chain(cu, vec2f(-1.0, 0.5), vec2f(1.0, 0.02), 0.16, 0.034, t, 0.0);
-  let cB = chain(cu, vec2f(-1.0, 0.0), vec2f(1.0, 0.52), 0.14, 0.032, t, 1.0);
-  let cC = chain(cu, vec2f(-1.0, -0.38), vec2f(-0.1, -0.6), 0.1, 0.05, t, 2.0);
-  let cD = chain(cu, vec2f(0.2, -0.6), vec2f(1.0, -0.2), 0.12, 0.085, t, 3.0);
+  // ---- 鎖(奥の2本が交差し、手前は大きくぼやける。Threats: 切れる / Knowledge: 上下から生える / Practice: 全部が下がっていく) ----
+  let cu = uv0 - par * 1.5;
   let metal = vec3f(0.86, 0.88, 0.95);
+  let dpA = drp * 1.5;
+  let cA = chain(cu + vec2f(0.0, dpA), vec2f(-1.0, 0.5), vec2f(1.0, 0.02), 0.16, 0.034, t, 0.0, 1.0, brk);
+  let cB = chain(cu + vec2f(0.0, dpA * 1.1), vec2f(-1.0, 0.0), vec2f(1.0, 0.52), 0.14, 0.032, t, 1.0, 1.0, brk);
+  let cC = chain(cu + vec2f(0.0, dpA * 1.25), vec2f(-1.0, -0.38), vec2f(-0.1, -0.6), 0.1, 0.05, t, 2.0, 1.0, brk);
+  let cD = chain(cu + vec2f(0.0, dpA * 1.15), vec2f(0.2, -0.6), vec2f(1.0, -0.2), 0.12, 0.085, t, 3.0, 1.0, brk);
   col = mix(col, metal * (0.12 + 0.75 * cA.y), cA.x);
   col = mix(col, metal * (0.12 + 0.75 * cB.y), cB.x);
   col = mix(col, metal * (0.08 + 0.55 * cC.y), cC.x * 0.85);
   col = mix(col, metal * (0.1 + 0.7 * cD.y), cD.x * 0.9);
-  // 鎖のきらめき
-  let gl = 0.5 + 0.5 * sin(t * 1.3 + uv.x * 6.0);
-  col += vec3f(1.0) * star4(fract(uv * 6.0 + vec2f(0.0, 0.0)) - 0.5, 0.08) * 0.0;
+  // Knowledge: 上から垂れ下がる鎖と、下からせり上がる鎖(順番に伸びる)
+  for (var i = 0; i < 6; i++) {
+    let fi = f32(i);
+    let down = i < 3;
+    let xs = array<f32, 6>(-0.62, 0.08, 0.58, -0.3, 0.34, 0.84);
+    let ls = array<f32, 6>(0.05, 0.065, 0.048, 0.07, 0.05, 0.08);
+    let rv = clamp(grw * 1.6 - fi * 0.13, 0.0, 1.0);
+    let xx = xs[i] + 0.05 * sin(fi * 2.0);
+    // 縦の鎖は、座標の x と y を入れ替えて描く(上の鎖は y=0.7 から下へ、下の鎖は y=-0.7 から上へ)
+    let y0 = select(-0.7, 0.7, down);
+    let y1 = select(0.25 + 0.1 * sin(fi), -0.28 + 0.1 * cos(fi), down);
+    let ch = chain(vec2f(uv0.y + drp * 1.5, uv0.x - par.x), vec2f(y0, xx), vec2f(y1, xx + 0.08 * sin(fi * 3.0)), 0.04, ls[i], t, 4.0 + fi, rv, 0.0);
+    let on = step(0.001, grw);
+    col = mix(col, metal * (0.1 + 0.8 * ch.y), ch.x * on * select(0.8, 1.0, i % 2 == 0));
+  }
+  // 切れた瞬間の火花と、前へ飛んでくる鎖のかけら
+  for (var i = 0; i < 22; i++) {
+    let fi = f32(i);
+    let ang = hash(vec2f(fi, 7.0)) * 6.2832;
+    let spd = 0.25 + hash(vec2f(fi, 8.0)) * 0.9;
+    let org = vec2f(0.0, 0.17) + (vec2f(hash(vec2f(fi, 9.0)), hash(vec2f(fi, 10.0))) - 0.5) * 0.25;
+    let pp = org + vec2f(cos(ang), sin(ang)) * (brk * brk * spd * 1.6);
+    let q = rot(t * 1.5 + fi) * (uv0 - pp);
+    let sz = (0.008 + hash(vec2f(fi, 11.0)) * 0.008) * (1.0 + brk * 3.5);
+    let ring = abs(length(q / vec2f(sz * 1.5, sz)) - 1.0) - 0.06;
+    col += metal * smoothstep(0.1, -0.1, ring) * step(0.001, brk) * (1.0 - smoothstep(0.85, 1.0, brk)) * 0.85;
+  }
+  col += vec3f(1.0) * exp(-length(uv0 - vec2f(0.0, 0.17)) * 7.0) * pulse * brk * 0.6;
+  // 前へ進む勢いの線(切り替え中だけ)
+  let sa = atan2(uv0.y - 0.17, uv0.x); let sr = length(uv0 - vec2f(0.0, 0.17));
+  col += vec3f(0.9) * pow(0.5 + 0.5 * sin(sa * 70.0 + hash(vec2f(floor(sa * 11.0), 3.0)) * 20.0), 6.0) * smoothstep(0.1, 0.9, sr) * pulse * 0.28 * brk;
 
   // ---- 手前の百合(白い花)のぼんやりした影 ----
   let lp = uv - vec2f(-0.76, -0.42);
@@ -193,14 +229,14 @@ fn star4(p: vec2f, r: f32) -> f32 {
     let sp = 0.04 + hash(vec2f(fi, 1.0)) * 0.05;
     let ph = fract(t * sp + hash(vec2f(fi, 2.0)));
     var pp = vec2f(mix(-1.0, 1.0, hash(vec2f(fi, 3.0))) + 0.18 * sin(t * 0.4 + fi * 2.0), mix(0.6, -0.55, ph));
-    let q = rot(t * (0.4 + hash(vec2f(fi, 4.0))) + fi) * (uv - pp);
+    let q = rot(t * (0.4 + hash(vec2f(fi, 4.0))) + fi) * (uv0 - pp);
     let sz = 0.008 + hash(vec2f(fi, 5.0)) * 0.009;
     let e = length(q / vec2f(sz * 2.0, sz)) - 1.0;
     col += vec3f(0.9, 0.92, 1.0) * smoothstep(0.2, -0.2, e) * 0.55 * smoothstep(0.0, 0.12, ph) * smoothstep(1.0, 0.85, ph);
   }
 
   // ---- 光のちり ----
-  let g1 = uv * 60.0 + vec2f(t * 0.3, t * 0.5);
+  let g1 = uv0 * 60.0 + vec2f(t * 0.3, t * 0.5);
   let hh = hash(floor(g1));
   col += vec3f(0.8) * step(0.985, hh) * smoothstep(0.3, 0.0, length(fract(g1) - 0.5)) * (0.4 + 0.6 * sin(t * 2.0 + hh * 50.0));
 
@@ -214,5 +250,31 @@ fn star4(p: vec2f, r: f32) -> f32 {
 }
 `;
 
-export const test2 = createGpuView(WGSL);
+// モード: threats = 鎖が切れて前に進む / knowledge = 鎖が上下から生える / practice = 鎖が全部下がっていく
+const MODES = ['brk', 'grw', 'drp'];
+const KEY = { threats: 'brk', knowledge: 'grw', practice: 'drp' };
+const DUR = 2.2;
+const st = Object.fromEntries(MODES.map(k => [k, { from: 0, to: 0, start: -10 }]));
+const ease = x => (x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const cur = (k, now) => { const m = st[k], x = Math.min(1, Math.max(0, (now - m.start) / DUR)); return { v: m.from + (m.to - m.from) * ease(x), x }; };
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let active = null;
+
+export const test2 = createGpuView(WGSL, now => {
+  let pulse = 0;
+  const v = MODES.map(k => { const c = cur(k, now); if (c.x < 1) pulse = Math.max(pulse, Math.sin(Math.PI * c.x)); return c.v; });
+  return [v[0], v[1], v[2], reduce ? 0 : pulse];
+});
+
+// 同じモードをもう一度押すと元に戻る。ほかのモードに切り替えると、今のモードは元に戻りながら次が始まる
+export function setMode(name) {
+  const now = performance.now() / 1000;
+  const next = active === name ? null : name;
+  MODES.forEach(k => {
+    const to = next && KEY[next] === k ? 1 : 0, c = cur(k, now);
+    if (st[k].to !== to) st[k] = { from: c.v, to, start: now };
+  });
+  active = next;
+  return active;
+}
 export { WGSL };
