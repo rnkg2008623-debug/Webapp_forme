@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Home</title>
 <script>try{if(localStorage.theme==="neon")document.documentElement.dataset.theme="neon"}catch(e){}document.documentElement.classList.add("auth-pending", "i18n-pending"); setTimeout(function () { document.documentElement.classList.remove("i18n-pending"); }, 3000);</script>
-<link rel="stylesheet" href="style.css?v=32">
+<link rel="stylesheet" href="style.css?v=33">
 </head>
 <body data-view="home">
 
@@ -50,6 +50,8 @@
 
 <!-- Log data(ナビの Log data)。ヘッダーはそのままで、その下だけが入れ替わる -->
 <main class="lg" id="log-view" aria-label="Log data">
+  <div class="lib-bg" aria-hidden="true"></div>
+  <div class="lib-scroll" id="lib-scroll">
   <div class="lg-world" id="lg-world">
     <button type="button" class="lg-title" data-go="timer" style="grid-area:tl">Timer</button>
     <button type="button" class="lg-title" data-go="pomodoro" style="grid-area:tc">Pomodoro</button>
@@ -58,6 +60,8 @@
     <button type="button" class="lg-panel center" data-go="pomodoro" style="grid-area:pc" data-i18n-attr="aria-label:h.open.pomodoro" aria-label="Pomodoro を開く"><span>Image#1</span></button>
     <button type="button" class="lg-panel right" data-go="manual" style="grid-area:pr" data-i18n-attr="aria-label:h.open.manual" aria-label="Log manually を開く"><span>Image#2</span></button>
   </div>
+  </div>
+  <p class="lib-hint" data-i18n="lg.scroll">横にスクロール</p>
 </main>
 <div class="lg-fade" id="lg-fade" aria-hidden="true"></div>
 
@@ -277,8 +281,8 @@
   </form>
 </div>
 
-<script src="script.js?v=32"></script>
-<script src="logpage.js?v=32"></script>
-<script type="module" src="home-auth.js?v=32"></script>
+<script src="script.js?v=33"></script>
+<script src="logpage.js?v=33"></script>
+<script type="module" src="home-auth.js?v=33"></script>
 </body>
 </html>

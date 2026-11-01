@@ -1,6 +1,6 @@
 // フレンド機能のデータ層: プロフィール・フレンドコード・申請・フレンド(Firestore)と、オンライン状態(Realtime Database)
-import { firestore, realtime } from './auth.js?v=32';
-import { t, hasKey } from './i18n.js?v=32';
+import { firestore, realtime } from './auth.js?v=33';
+import { t, hasKey } from './i18n.js?v=33';
 
 const ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // 0/O, 1/I/L など紛らわしい文字を除く
 const genCode = () => Array.from(crypto.getRandomValues(new Uint8Array(8)), b => ALPHABET[b % ALPHABET.length]).join('');

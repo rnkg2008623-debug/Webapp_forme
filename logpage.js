@@ -16,10 +16,26 @@
     world.style.transition = '';
   }
 
+  // ネオン: 本棚の背景が「シュッ」と消えて、選んだ扉だけが残ってから次のページへ
+  function swoosh(target, panel) {
+    view.classList.add('lib-out');
+    panel.classList.add('is-target');
+    setTimeout(() => {
+      fade.classList.add('on');
+      setTimeout(() => {
+        window.appSetView(target);
+        view.classList.remove('lib-out');
+        panel.classList.remove('is-target');
+        requestAnimationFrame(() => { fade.classList.remove('on'); busy = false; });
+      }, FADE_MS);
+    }, 700);
+  }
+
   function go(target, panel) {
     if (busy) return;
     busy = true;
     if (reduce()) { window.appSetView(target); busy = false; return; }
+    if (document.documentElement.dataset.theme === 'neon') { swoosh(target, panel); return; }
     const area = view.getBoundingClientRect();
     const r = panel.getBoundingClientRect();
     const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
@@ -50,5 +66,21 @@
     t.addEventListener('pointerleave', () => panel().classList.remove('hover'));
     t.addEventListener('focus', () => panel().classList.add('hover'));
     t.addEventListener('blur', () => panel().classList.remove('hover'));
+  });
+
+  // ネオンの図書館: 横スクロール(縦のホイールも横に変換)+奥の本棚を少しずらして奥行きを出す
+  const scroller = document.getElementById('lib-scroll');
+  const onScroll = () => view.style.setProperty('--sx', scroller.scrollLeft + 'px');
+  scroller.addEventListener('scroll', onScroll, { passive: true });
+  scroller.addEventListener('wheel', e => {
+    if (document.documentElement.dataset.theme !== 'neon' || Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+    e.preventDefault();
+    scroller.scrollLeft += e.deltaY;
+  }, { passive: false });
+  scroller.addEventListener('keydown', e => {
+    if (document.documentElement.dataset.theme !== 'neon') return;
+    const step = innerWidth * .4;
+    if (e.key === 'ArrowRight') { scroller.scrollBy({ left: step, behavior: 'smooth' }); e.preventDefault(); }
+    if (e.key === 'ArrowLeft') { scroller.scrollBy({ left: -step, behavior: 'smooth' }); e.preventDefault(); }
   });
 })();

@@ -1,14 +1,14 @@
 // ホーム画面はログイン済みのユーザーだけが見られる。未ログインならログイン画面へ戻す。
-import { onUser, logOut } from './auth.js?v=32';
-import { t, getLang, setLang } from './i18n.js?v=32';
-import { mountFriends } from './friends-ui.js?v=32';
-import { mountProfile } from './profile.js?v=32';
-import { mountTimer } from './timer.js?v=32';
-import { mountPomodoro } from './pomodoro.js?v=32';
-import { startLogs } from './logs-store.js?v=32';
-import { mountRecent } from './recent.js?v=32';
-import { mountManual } from './manual.js?v=32';
-import './theme.js?v=32';
+import { onUser, logOut } from './auth.js?v=33';
+import { t, getLang, setLang } from './i18n.js?v=33';
+import { mountFriends } from './friends-ui.js?v=33';
+import { mountProfile } from './profile.js?v=33';
+import { mountTimer } from './timer.js?v=33';
+import { mountPomodoro } from './pomodoro.js?v=33';
+import { startLogs } from './logs-store.js?v=33';
+import { mountRecent } from './recent.js?v=33';
+import { mountManual } from './manual.js?v=33';
+import './theme.js?v=33';
 
 let social;
 onUser(async user => {

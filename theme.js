@@ -9,7 +9,7 @@ export const getTheme = () => (root.dataset.theme === 'neon' ? 'neon' : 'standar
 async function apply() {
   const neon = getTheme() === 'neon';
   buttons.forEach(b => { const on = b.dataset.theme === getTheme(); b.classList.toggle('is-on', on); b.setAttribute('aria-pressed', String(on)); });
-  const gpu = await import('./neon-bg.js?v=32');
+  const gpu = await import('./neon-bg.js?v=33');
   if (!neon) { gpu.stopNeon(); root.classList.remove('neon-gpu'); if (note) note.hidden = true; return; }
   const ok = await gpu.startNeon(document.querySelector('.bg'));
   root.classList.toggle('neon-gpu', ok);

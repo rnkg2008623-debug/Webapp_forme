@@ -793,3 +793,52 @@ html[data-theme="neon"] .mn-label, html[data-theme="neon"] .mn-clock, html[data-
 html[data-theme="neon"] .mn-time { border-bottom-color: rgba(46, 242, 255, .6); }
 html[data-theme="neon"] .mn-done { background: linear-gradient(90deg, #ff2fb0, #7a3bff); border-color: #ff6fd0; color: #fff; box-shadow: 0 0 18px rgba(255, 40, 180, .5); }
 html[data-theme="neon"] .mn-num { color: #fff; }
+
+/* ---------- ネオン: Log data = 図書館(横スクロール) ---------- */
+.lib-scroll { position: absolute; inset: 0; }
+.lib-bg, .lib-hint { display: none; }
+html[data-theme="neon"] .lg { background: #07021a; }
+html[data-theme="neon"] .lib-bg {
+  display: block; position: absolute; inset: 0;
+  background:
+    radial-gradient(60% 50% at 50% 0%, rgba(255, 40, 180, .18), transparent 70%),
+    url("library-far.svg?v=33") calc(var(--sx, 0px) * -.3) 0 / auto 25vh repeat,
+    #07021a;
+  transition: opacity .45s ease-in, transform .5s cubic-bezier(.6, 0, 1, .6), filter .45s ease-in;
+}
+html[data-theme="neon"] .lib-scroll { overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; scrollbar-color: #ff4fc3 rgba(255, 255, 255, .06); }
+html[data-theme="neon"] .lg-world {
+  position: relative; inset: auto; display: block; width: max(250vw, 2200px); height: 100%; padding: 0; transition: none; will-change: auto;
+}
+/* 手前の本棚(スクロールと一緒に動く) */
+html[data-theme="neon"] .lg-world::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(7, 2, 26, .55), transparent 30%, transparent 70%, rgba(7, 2, 26, .7)),
+    url("library-near.svg?v=33") 0 0 / auto 25vh repeat;
+  transition: opacity .45s ease-in, transform .5s cubic-bezier(.6, 0, 1, .6), filter .45s ease-in;
+}
+html[data-theme="neon"] .lib-hint {
+  display: block; position: absolute; left: 0; right: 0; bottom: 2.2vh; text-align: center; pointer-events: none; z-index: 2;
+  font: 400 clamp(14px, 1.2vw, 18px) var(--serif); letter-spacing: .12em; color: #9ee9ff; text-shadow: 0 0 10px rgba(46, 242, 255, .7);
+  animation: lib-pulse 2.4s ease-in-out infinite;
+}
+html[data-theme="neon"] .lib-hint::before { content: "← "; } html[data-theme="neon"] .lib-hint::after { content: " →"; }
+@keyframes lib-pulse { 50% { opacity: .45; } }
+html[data-theme="neon"] .lg-title, html[data-theme="neon"] .lg-panel { position: absolute; z-index: 1; }
+html[data-theme="neon"] .lg-title { width: 24vw; min-width: 220px; border-bottom-color: #ff4fc3; top: 7vh; justify-self: auto; }
+html[data-theme="neon"] .lg-panel { width: 24vw; min-width: 220px; height: 58vh; top: 18vh; align-self: auto; justify-self: auto; border-radius: 120px 120px 14px 14px; }
+html[data-theme="neon"] .lg-panel.center, html[data-theme="neon"] .lg-panel.left, html[data-theme="neon"] .lg-panel.right { height: 58vh; }
+html[data-theme="neon"] .lg-title[data-go="timer"], html[data-theme="neon"] .lg-panel[data-go="timer"] { left: 14vw; }
+html[data-theme="neon"] .lg-title[data-go="pomodoro"], html[data-theme="neon"] .lg-panel[data-go="pomodoro"] { left: 100vw; }
+html[data-theme="neon"] .lg-title[data-go="manual"], html[data-theme="neon"] .lg-panel[data-go="manual"] { left: 186vw; }
+html[data-theme="neon"] .lg-panel { background: linear-gradient(180deg, rgba(46, 242, 255, .16), rgba(12, 5, 38, .86) 70%); box-shadow: 0 0 30px rgba(46, 242, 255, .45), 0 0 70px rgba(255, 40, 180, .25); }
+
+/* クリック: 本棚の背景が「シュッ」と消えて、選んだ扉だけが残り、次のページへ */
+html[data-theme="neon"] .lg.lib-out .lib-bg, html[data-theme="neon"] .lg.lib-out .lg-world::before { opacity: 0; filter: blur(8px); transform: translateX(-14vw) scaleX(1.15); }
+html[data-theme="neon"] .lg.lib-out .lg-title:not([data-go].is-target), html[data-theme="neon"] .lg.lib-out .lg-panel:not(.is-target) { opacity: 0; transition: opacity .35s ease-in; }
+html[data-theme="neon"] .lg.lib-out .lg-title { opacity: 0; transition: opacity .3s ease-in; }
+html[data-theme="neon"] .lg.lib-out { pointer-events: none; }
+html[data-theme="neon"] .lg.lib-out .lg-panel.is-target { transition: transform .55s cubic-bezier(.5, 0, .2, 1) .2s, box-shadow .5s; transform: scale(1.12); box-shadow: 0 0 60px rgba(46, 242, 255, .9), 0 0 120px rgba(255, 40, 180, .6); animation: none; }
+html[data-theme="neon"] .lg-title { text-shadow: 0 0 6px #07021a, 0 0 14px #07021a, 0 0 14px rgba(46, 242, 255, .7); }
+html[data-theme="neon"] .lib-hint { text-shadow: 0 0 6px #07021a, 0 0 12px #07021a, 0 0 10px rgba(46, 242, 255, .7); }
