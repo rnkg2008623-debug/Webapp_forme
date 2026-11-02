@@ -1,5 +1,5 @@
 // Test2 の背景(WebGPU): 白黒のゴシックの大聖堂。ステンドグラスの光の筋・揺れる鎖・舞う花びら・床への映り込み。
-import { createGpuView } from './gpu-view.js?v=41';
+import { createGpuView } from './gpu-view.js?v=43';
 
 const WGSL = /* wgsl */ `
 struct U { a: vec4f, b: vec4f, c: vec4f };   // a = (幅, 高さ, 時間, 0)  b = (マウスX, マウスY, 0, 0)  c = (鎖が切れた度合い, 鎖が生えた度合い, 鎖が下がった度合い, 切り替えの勢い)

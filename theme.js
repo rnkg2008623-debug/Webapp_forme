@@ -10,7 +10,7 @@ async function apply() {
   const neon = getTheme() === 'neon';
   buttons.forEach(b => { const on = b.dataset.theme === getTheme(); b.classList.toggle('is-on', on); b.setAttribute('aria-pressed', String(on)); });
   if (!neon && /^(test2?|cs)$/.test(document.body.dataset.view)) window.appSetView('home');
-  const gpu = await import('./neon-bg.js?v=41');
+  const gpu = await import('./neon-bg.js?v=43');
   if (!neon) { gpu.stopNeon(); root.classList.remove('neon-gpu'); if (note) note.hidden = true; return; }
   const ok = await gpu.startNeon(document.querySelector('.bg'));
   root.classList.toggle('neon-gpu', ok);
@@ -32,7 +32,7 @@ const test2View = document.getElementById('test2-view');
 // 今のページに合わせて、Test / Test2 の背景を動かす(開いていない方は止める)
 async function syncTest(view) {
   if (getTheme() !== 'neon') return;
-  const [a, b, c] = await Promise.all([import('./test-bg.js?v=41'), import('./test2-bg.js?v=41'), import('./cs.js?v=41')]);
+  const [a, b, c] = await Promise.all([import('./test-bg.js?v=43'), import('./test2-bg.js?v=43'), import('./cs.js?v=43')]);
   if (view === 'test') a.startTest(testView); else a.stopTest();
   if (view === 'test2') b.test2.start(test2View); else b.test2.stop();
   if (view === 'cs') c.cs.start(); else c.cs.stop();
@@ -49,7 +49,7 @@ document.querySelectorAll('.ts-dots').forEach(box => {
 const cards = [...document.querySelectorAll('#test-view .ts-card')];
 cards.forEach(card => card.addEventListener('click', async () => {
   const red = card.dataset.mode === 'red' && !testView.classList.contains('red');
-  const test = await import('./test-bg.js?v=41');
+  const test = await import('./test-bg.js?v=43');
   test.setRed(red, testView);
   cards.forEach(c => c.classList.toggle('is-on', red && c === card));
 }));
@@ -57,7 +57,7 @@ cards.forEach(card => card.addEventListener('click', async () => {
 // Test2: Threats = 鎖が全部切れて前へ進む / Knowledge = 鎖が上下から生えてくる / Practice = 鎖が全部下へ下がっていく(もう一度押すと元に戻る)
 const gxCards = [...document.querySelectorAll('#test2-view .gx-card')];
 gxCards.forEach(card => card.addEventListener('click', async () => {
-  const m = await import('./test2-bg.js?v=41');
+  const m = await import('./test2-bg.js?v=43');
   const on = m.setMode(card.dataset.mode);
   gxCards.forEach(c => c.classList.toggle('is-on', on === c.dataset.mode));
 }));

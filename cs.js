@@ -1,7 +1,8 @@
 // CS(ネオンのときだけ): 「IBDP Computer Science HL」の学習サイトの画面一式。背景はWebGPU(白黒のゴシックの大聖堂)で、ずっと動いている。
 // 画面: home / topics / practice / pa1(Practice A1の一覧) / lesson(A1 Computer Systems)
-import { createGpuView } from './gpu-view.js?v=41';
-import { WGSL } from './test2-bg.js?v=41';
+import { createGpuView } from './gpu-view.js?v=43';
+import { WGSL } from './test2-bg.js?v=43';
+import { GROUPS, TERMS, FIGS } from './casestudy.js?v=43';
 
 const host = document.getElementById('cs-view');
 const stage = document.getElementById('cs-stage');
@@ -77,6 +78,7 @@ const topNav = (page, brand) => `
     </nav>
     <div class="cs-acts"><button class="cs-iconbtn" data-soon aria-label="Search">${ic('search')}</button><button class="cs-pill" data-soon>Log In</button><button class="cs-pill solid" data-soon>Sign Up</button></div>
   </header>`;
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 const orn = '<div class="cs-orn"><i></i><b>' + '✦' + '</b><i></i></div>';
 
 const PAGES = {
@@ -97,18 +99,18 @@ const PAGES = {
 
   topics: () => `${topNav('topics', false)}
     <section class="cs-head center"><p class="cs-track small">IBDP · Computer Science HL</p>${sparkle}<h2 class="cs-h2">Select a Topic</h2><div class="cs-rule"><i></i><b>✦</b><i></i></div></section>
-    <div class="cs-cards grid wide">${SECTIONS.map(([c, n, i]) => `<button class="cs-card tile" ${c === 'A1' ? 'data-go="lesson"' : 'data-soon'}><i class="cs-top-star">✦</i>${ic(i, 'lead')}<span><strong>${c}</strong><em>${n}</em></span>${ic('chev', 'sm')}</button>`).join('')}</div>`,
+    <div class="cs-cards grid wide">${SECTIONS.map(([c, n, i]) => `<button class="cs-card tile" ${c === 'A1' ? 'data-go="lesson"' : c === 'Case Study' ? 'data-go="case"' : 'data-soon'}><i class="cs-top-star">✦</i>${ic(i, 'lead')}<span><strong>${c}</strong><em>${n}</em></span>${ic('chev', 'sm')}</button>`).join('')}</div>`,
 
   practice: () => `${topNav('practice', true)}
     <section class="cs-head center"><div class="cs-rule"><i></i><b>✦</b><i></i></div><h2 class="cs-h2">Practice</h2><div class="cs-rule thin"><i></i><b>✦</b><i></i></div><p class="cs-track small">✦ &nbsp;Choose a Section to Practice&nbsp; ✦</p></section>
-    <div class="cs-cards grid"><!---->${SECTIONS.map(([c, n, i]) => `<button class="cs-card tile v" ${c === 'A1' ? 'data-go="pa1"' : 'data-soon'}><i class="cs-top-star">✦</i>${ic(i, 'lead')}<span><strong>${c}</strong><em>${n}</em></span>${ic('chev', 'sm side')}</button>`).join('')}</div>
+    <div class="cs-cards grid"><!---->${SECTIONS.map(([c, n, i]) => `<button class="cs-card tile v" ${c === 'A1' ? 'data-go="pa1"' : c === 'Case Study' ? 'data-go="case"' : 'data-soon'}><i class="cs-top-star">✦</i>${ic(i, 'lead')}<span><strong>${c}</strong><em>${n}</em></span>${ic('chev', 'sm side')}</button>`).join('')}</div>
     <div class="cs-bottom-orn">${orn}</div>`,
 
   pa1: () => `${topNav('pa1', true)}
     <div class="cs-split">
       <aside class="cs-side panel">
         <h3 class="cs-side-title">${sparkle}Practice</h3><div class="cs-rule thin"><i></i><b>◆</b><i></i></div>
-        <ul class="cs-menu">${SECTIONS.map(([c, n]) => `<li><button ${c === 'A1' ? 'class="on" data-go="practice"' : 'data-soon'}><b>${c}</b><span>${n}</span>${ic('chev', 'sm')}</button></li>`).join('')}</ul>
+        <ul class="cs-menu">${SECTIONS.map(([c, n]) => `<li><button ${c === 'A1' ? 'class="on" data-go="practice"' : c === 'Case Study' ? 'data-go="case"' : 'data-soon'}><b>${c}</b><span>${n}</span>${ic('chev', 'sm')}</button></li>`).join('')}</ul>
       </aside>
       <section class="cs-main">
         <div class="cs-crumb">${ic('home', 'sm')}<a data-go="practice" href="#">Practice</a>${ic('chev', 'sm')}<span>A1</span></div>
@@ -119,6 +121,30 @@ const PAGES = {
         <ul class="cs-rows">${PRACTICE_ROWS.map(([c, n, d, p, i], k) => `<li class="cs-row ${k === 0 ? 'hot' : ''}">${ic(i, 'lead')}<code>${c}</code><span><b>${n}</b><em>${d}</em></span><strong>${p}%</strong><div class="ring" style="--p:${p}"></div>${ic('chev', 'sm')}</li>`).join('')}</ul>
       </section>
     </div>`,
+
+  case: () => {
+    const badge = l => (l === 'hl' ? '<span class="cs-badge hl">HL only</span>' : '<span class="cs-badge">SL + HL</span>');
+    const term = t => `<article class="cs-term panel" id="ct-${t.id}" data-q="${esc(t.term.toLowerCase())}">
+        <header><h3>${esc(t.term)}</h3>${badge(t.level)}<span class="cs-ref">lines ${t.ref}</span></header>
+        <p class="en">${esc(t.en)}</p>${t.fig ? FIGS[t.fig] : ''}<p class="ja" lang="ja">${esc(t.ja)}</p></article>`;
+    return `${topNav('case', true)}
+    <div class="cs-split cs-case">
+      <aside class="cs-side panel cs-index">
+        <h3 class="cs-side-title">${sparkle}Key terms</h3>
+        <input class="cs-search" type="search" placeholder="Search terms…" aria-label="Search terms">
+        <div class="cs-langs" role="group" aria-label="Language"><button data-mode="both" class="on">EN + 日本語</button><button data-mode="en">EN</button><button data-mode="ja">日本語</button></div>
+        <nav>${GROUPS.map(g => `<div class="cs-ig" data-g="${g.id}"><h4>${g.title}<small>${g.ja}</small></h4>${TERMS.filter(t => t.group === g.id).map(t => `<a href="#" data-jump="ct-${t.id}" data-q="${esc(t.term.toLowerCase())}">${esc(t.term)}${t.level === 'hl' ? '<i>HL</i>' : ''}</a>`).join('')}</div>`).join('')}</nav>
+      </aside>
+      <section class="cs-main cs-doc" data-mode="both">
+        <div class="cs-crumb">${ic('home', 'sm')}<a data-go="practice" href="#">Practice</a>${ic('chev', 'sm')}<span>Case Study</span></div>
+        <div class="cs-casehead"><p class="cs-track small">IBDP · Computer Science · for May &amp; November 2027</p><h2 class="cs-h2 left">Generative AI for image creation <em>— a diffuse vision</em></h2>
+          <p class="cs-lede">Every key term of the case study, explained section by section in English and Japanese. <span class="cs-badge">SL + HL</span> terms are for everyone; <span class="cs-badge hl">HL only</span> terms are for higher level only. “lines” refer to the numbered lines in the case study booklet.</p></div>
+        ${GROUPS.map(g => `<div class="cs-group" data-g="${g.id}"><h2 class="cs-gt"><span>${g.title}</span><small>${g.ja}</small></h2>${TERMS.filter(t => t.group === g.id).map(term).join('')}</div>`).join('')}
+        <p class="cs-none" hidden>No matching terms.</p>
+        <p class="cs-foot">Source: IB Computer Science Case Study 2027. Explanations are study notes written for this platform.</p>
+      </section>
+    </div>`;
+  },
 
   lesson: () => `<div class="cs-split lesson">
       <aside class="cs-side panel violet">
@@ -139,7 +165,7 @@ const PAGES = {
     </div>`,
 };
 // ページごとの背景の見え方: 紫がかり(tint)と、落ち着かせる度合い(dim)
-const LOOK = { home: [0, 0], topics: [0, 0.12], practice: [0, 0.05], pa1: [0, 0.55], lesson: [1, 0.3] };
+const LOOK = { case: [0, 0.6], home: [0, 0], topics: [0, 0.12], practice: [0, 0.05], pa1: [0, 0.55], lesson: [1, 0.3] };
 
 // ---- 背景(WebGPU) ----
 const look = { tint: 0, dim: 0, tT: 0, tD: 0, last: performance.now() / 1000 };
@@ -169,7 +195,20 @@ function show(next) {
   host.dataset.page = next;
   try { sessionStorage.csPage = next; } catch {}
 }
+stage.addEventListener('input', e => {   // 用語の検索
+  if (!e.target.matches('.cs-search')) return;
+  const q = e.target.value.trim().toLowerCase(); let n = 0;
+  stage.querySelectorAll('.cs-term').forEach(a => { const hit = !q || a.dataset.q.includes(q); a.hidden = !hit; if (hit) n++; });
+  stage.querySelectorAll('.cs-index nav a').forEach(a => { a.hidden = !!q && !a.dataset.q.includes(q) && !stage.querySelector('#' + a.dataset.jump + ':not([hidden])'); });
+  stage.querySelectorAll('.cs-group').forEach(g => { g.hidden = !g.querySelector('.cs-term:not([hidden])'); });
+  stage.querySelectorAll('.cs-ig').forEach(g => { g.hidden = !g.querySelector('a:not([hidden])'); });
+  const none = stage.querySelector('.cs-none'); if (none) none.hidden = n > 0;
+});
 stage.addEventListener('click', e => {
+  const jump = e.target.closest('[data-jump]');
+  if (jump) { e.preventDefault(); const t = stage.querySelector('#' + jump.dataset.jump); t?.scrollIntoView({ behavior: 'smooth', block: 'start' }); t?.classList.add('flash'); setTimeout(() => t?.classList.remove('flash'), 1400); return; }
+  const lm = e.target.closest('.cs-langs button');
+  if (lm) { stage.querySelector('.cs-doc').dataset.mode = lm.dataset.mode; lm.parentElement.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === lm)); return; }
   const go = e.target.closest('[data-go]');
   if (go) { e.preventDefault(); show(go.dataset.go); return; }
   if (e.target.closest('[data-soon]')) { e.preventDefault(); say('Coming soon'); }

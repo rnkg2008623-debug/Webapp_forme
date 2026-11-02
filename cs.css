@@ -155,3 +155,35 @@ body[data-view="cs"] #cs-view { display: block; animation: page-in .5s ease both
 @media (prefers-reduced-motion: reduce) { .cs-page { animation: none; } }
 .ts.cs > .cs-stage.cs-stage { position: absolute; inset: 0; z-index: 1; }
 .ts.cs > .cs-toast.cs-toast { position: absolute; z-index: 5; }
+
+/* ---------- Case Study(キータームの解説) ---------- */
+.cs-case { grid-template-columns: 23em 1fr; align-items: start; }
+.cs-index { position: sticky; top: .4em; max-height: calc(100vh - 12em); overflow: auto; scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, .4) transparent; }
+.cs-search { width: 100%; margin-top: .8em; height: 2.6em; padding: 0 1em; border: 1px solid rgba(255, 255, 255, .6); border-radius: 2em; background: rgba(0, 0, 0, .5); color: #fff; font: inherit; font-size: 1.05em; outline: none; }
+.cs-search:focus { box-shadow: 0 0 14px rgba(255, 255, 255, .55); }
+.cs-langs { display: flex; gap: .4em; margin: .7em 0 .4em; } .cs-langs button { flex: 1; height: 2.2em; border: 1px solid rgba(255, 255, 255, .45); border-radius: 2em; font-size: .95em; background: rgba(0, 0, 0, .4); }
+.cs-langs button.on { background: #fff; color: #08080c; box-shadow: 0 0 12px rgba(255, 255, 255, .6); }
+.cs-ig h4 { margin: 1em 0 .3em; font-weight: 500; font-size: 1.05em; letter-spacing: .04em; border-bottom: 1px solid rgba(255, 255, 255, .25); padding-bottom: .25em; } .cs-ig h4 small { display: block; opacity: .65; font-size: .8em; font-weight: 400; }
+.cs-ig a { display: flex; justify-content: space-between; gap: .5em; padding: .32em .4em; font-size: .98em; border-radius: .4em; opacity: .9; } .cs-ig a:hover { background: rgba(255, 255, 255, .1); opacity: 1; text-shadow: 0 0 8px #fff; }
+.cs-ig a i { font-style: normal; font-size: .75em; border: 1px solid #fff; border-radius: 1em; padding: 0 .6em; align-self: center; }
+.cs-casehead { margin-bottom: .6em; } .cs-h2.left { text-align: left; font-size: 3.6em; line-height: 1.08; margin: .15em 0; } .cs-h2.left em { font-size: .62em; opacity: .9; }
+.cs-lede { font-size: 1.2em; line-height: 1.6; max-width: 46em; opacity: .92; }
+.cs-badge { display: inline-block; padding: .05em .9em; border: 1px solid rgba(255, 255, 255, .85); border-radius: 2em; font-size: .85em; font-family: var(--cs-serif); white-space: nowrap; }
+.cs-badge.hl { background: linear-gradient(90deg, #fff, #c9c9e0); color: #08080c; box-shadow: 0 0 10px rgba(255, 255, 255, .5); }
+.cs-gt { display: flex; align-items: baseline; gap: 1em; margin: 1.6em 0 .7em; font: italic 500 2.6em var(--cs-serif); text-shadow: 0 0 16px rgba(255, 255, 255, .45); } .cs-gt small { font: 400 .42em var(--cs-serif); opacity: .7; letter-spacing: .06em; }
+.cs-gt::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(255, 255, 255, .7), transparent); align-self: center; }
+.cs-term { padding: 1.4em 1.8em 1.5em; margin-bottom: 1em; scroll-margin-top: .6em; transition: box-shadow .4s; } .cs-term[hidden], .cs-group[hidden], .cs-ig[hidden], .cs-ig a[hidden], .cs-none[hidden] { display: none; }
+.cs-term.flash { box-shadow: 0 0 34px rgba(255, 255, 255, .8), inset 0 0 0 4px rgba(3, 3, 6, .8), inset 0 0 0 5px #fff; }
+.cs-term header { display: flex; align-items: center; flex-wrap: wrap; gap: .8em; margin-bottom: .7em; } .cs-term h3 { font: italic 500 2.3em/1.1 var(--cs-serif); margin-right: .3em; text-shadow: 0 0 12px rgba(255, 255, 255, .4); }
+.cs-ref { margin-left: auto; font-size: .9em; opacity: .65; letter-spacing: .05em; }
+.cs-term p.en { font-size: 1.28em; line-height: 1.62; }
+.cs-term p.ja { margin-top: .9em; padding-left: 1em; border-left: 2px solid rgba(255, 255, 255, .45); font: 400 1.1em/1.85 "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", var(--cs-serif); opacity: .9; }
+.cs-doc[data-mode="en"] .ja, .cs-doc[data-mode="ja"] .en { display: none; } .cs-doc[data-mode="ja"] p.ja { margin-top: 0; font-size: 1.25em; }
+.cs-none { text-align: center; opacity: .8; margin: 2em; font-size: 1.2em; }
+.cs-fig { display: block; width: min(100%, 42em); margin: 1.2em auto .4em; filter: drop-shadow(0 0 6px rgba(255, 255, 255, .4)); }
+.cs-denoise { display: grid; grid-template-columns: repeat(9, 1fr); gap: .5em; margin: 1.2em 0 .4em; } .cs-denoise p { grid-column: 1 / -1; text-align: center; font-style: italic; opacity: .8; font-size: 1.05em; }
+.cs-denoise span { aspect-ratio: 1; position: relative; overflow: hidden; border: 1px solid rgba(255, 255, 255, .5); background: radial-gradient(60% 45% at 50% 55%, #cfd3ff, transparent 70%), linear-gradient(135deg, #171726, #4b4b78 60%, #1b1b2b); }
+.cs-denoise span::after { content: ""; position: absolute; inset: 0; opacity: var(--n); background: repeating-conic-gradient(#ff3df0 0 25%, #29e6ff 0 50%, #ffe14d 0 75%, #2a2a2a 0 100%) 0 0 / 7px 7px; animation: cs-noise .35s steps(3) infinite; }
+@keyframes cs-noise { to { background-position: 7px 4px; } }
+.cs-p-case .cs-top.with-brand { margin-bottom: 0; }
+@media (max-width: 900px) { .cs-case { grid-template-columns: 1fr; } .cs-index { position: static; max-height: none; } }
