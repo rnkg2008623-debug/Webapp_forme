@@ -1,5 +1,5 @@
 // 言語の切り替え(English / 日本語 / 中文)。選んだ言語は、このブラウザの localStorage に保存する。
-import { MESSAGES } from './messages.js?v=48';
+import { MESSAGES } from './messages.js?v=50';
 
 export const LANGS = ['en', 'ja', 'zh'];
 const KEY = 'lang';
@@ -27,6 +27,12 @@ export function t(key, vars) {
 }
 
 // ログ1件の補足(例: "25分 ・ Pomodoro 1回 ・ 説明")。プロフィールと Log manually で共通。
+// 分 → 「1時間30分」「45分」(言語に合わせる)
+export function duration(min) {
+  const h = Math.floor(min / 60), m = min % 60;
+  return h === 0 ? t('unit.min', { n: m }) : m === 0 ? t('mn.h', { h }) : t('mn.hm', { h, m });
+}
+
 export function logMeta(l) {
   return `${t('unit.min', { n: l.minutes })}${l.pomodoros ? t('log.pomo', { n: l.pomodoros }) : ''}${l.description ? ` ・ ${l.description}` : ''}`;
 }

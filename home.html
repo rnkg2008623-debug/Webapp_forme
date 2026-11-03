@@ -7,8 +7,8 @@
 <script>try{if(localStorage.theme==="neon")document.documentElement.dataset.theme="neon"}catch(e){}document.documentElement.classList.add("auth-pending", "i18n-pending"); setTimeout(function () { document.documentElement.classList.remove("i18n-pending"); }, 3000);</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap">
-<link rel="stylesheet" href="style.css?v=48">
-<link rel="stylesheet" href="cs.css?v=48">
+<link rel="stylesheet" href="style.css?v=50">
+<link rel="stylesheet" href="cs.css?v=50">
 </head>
 <body data-view="home">
 
@@ -50,6 +50,10 @@
       <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
       <span>Friend</span>
       <span class="badge" id="friend-badge" hidden>0</span>
+    </button>
+    <button class="nav-item nav-compare" data-target="compare" data-i18n-attr="aria-label:cp.title" aria-label="勉強時間の比較">
+      <svg viewBox="0 0 24 24"><path d="M5 20V11M12 20V4M19 20v-6"/><path d="M3 20h18"/></svg>
+      <span>Compare</span>
     </button>
     <button class="nav-item nav-notice" data-target="notice" data-i18n-attr="aria-label:no.title" aria-label="お知らせ">
       <svg viewBox="0 0 24 24"><path d="M6 17V11a6 6 0 0 1 12 0v6l1.500 2H4.500z"/><path d="M10 21.500a2.200 2.200 0 0 0 4 0"/></svg>
@@ -323,6 +327,18 @@
 </aside>
 
 <!-- お知らせ(フレンドと同じように、ページの上に重ねて表示)。オーナーのアカウントだけ「出す」タブが出る -->
+<!-- Compare(フレンドと同じように、ページの上に重ねて表示): 自分と友だちの、今日・今週の勉強時間を比べる -->
+<div class="fo" id="compare-overlay" hidden>
+<div class="fo-panel cp-panel">
+  <section class="fo-main" id="cp-main" tabindex="-1" role="dialog" aria-modal="true" data-i18n-attr="aria-label:cp.title" aria-label="勉強時間の比較">
+    <button type="button" class="fo-close" id="cp-close" data-i18n-attr="aria-label:common.close" aria-label="閉じる">×</button>
+    <h2 class="no-h" data-i18n="cp.title"></h2>
+    <div class="cp-body" id="cp-body"></div>
+    <p class="no-hint" data-i18n="cp.hint"></p>
+  </section>
+</div>
+</div>
+
 <div class="fo" id="notice-overlay" hidden>
 <div class="fo-panel no-panel">
   <nav class="fo-rail no-rail" id="no-rail" data-i18n-attr="aria-label:no.title" aria-label="お知らせ" hidden>
@@ -379,8 +395,8 @@
   </form>
 </div>
 
-<script src="script.js?v=48"></script>
-<script src="logpage.js?v=48"></script>
-<script type="module" src="home-auth.js?v=48"></script>
+<script src="script.js?v=50"></script>
+<script src="logpage.js?v=50"></script>
+<script type="module" src="home-auth.js?v=50"></script>
 </body>
 </html>

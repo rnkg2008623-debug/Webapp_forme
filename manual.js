@@ -1,9 +1,9 @@
 // Log manually: タイトル・作業時間・説明を入力して「完了」を押すと、学習ログ(学習時間)として記録する。右に、自分の最近のログ。
-import { firestore } from './auth.js?v=48';
-import { onLogs, mineLogs } from './logs-store.js?v=48';
-import { relativeTime } from './stats.js?v=48';
-import { t, getLang } from './i18n.js?v=48';
-import { fieldsToMinutes } from './timer.js?v=48';
+import { firestore } from './auth.js?v=50';
+import { onLogs, mineLogs } from './logs-store.js?v=50';
+import { relativeTime } from './stats.js?v=50';
+import { t, getLang, duration } from './i18n.js?v=50';
+import { fieldsToMinutes } from './timer.js?v=50';
 
 const $ = id => document.getElementById(id);
 const pad2 = n => String(n).padStart(2, '0');
@@ -70,10 +70,6 @@ $('mn-form').addEventListener('submit', async e => {
 // ---- my recent log(新しい順。ボックスの中をスクロールして、すべて見られる) ----
 // 1件ごとに、タイトル・作業時間・日にち(時刻つき)・説明(全文)を表示する
 const LOCALES = { ja: 'ja-JP', en: 'en-GB', zh: 'zh-CN' };
-const duration = min => {
-  const h = Math.floor(min / 60), m = min % 60;
-  return h === 0 ? t('unit.min', { n: m }) : m === 0 ? t('mn.h', { h }) : t('mn.hm', { h, m });
-};
 const fmtWhen = d => (d instanceof Date && !isNaN(d)
   ? new Intl.DateTimeFormat(LOCALES[getLang()] || 'en-GB', { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short', hour: '2-digit', minute: '2-digit' }).format(d)
   : '');
