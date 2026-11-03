@@ -1,9 +1,9 @@
 // Log manually: タイトル・作業時間・説明を入力して「完了」を押すと、学習ログ(学習時間)として記録する。右に、自分の最近のログ。
-import { firestore } from './auth.js?v=43';
-import { onLogs, mineLogs } from './logs-store.js?v=43';
-import { relativeTime } from './stats.js?v=43';
-import { t, logMeta } from './i18n.js?v=43';
-import { fieldsToMinutes } from './timer.js?v=43';
+import { firestore } from './auth.js?v=44';
+import { onLogs, mineLogs } from './logs-store.js?v=44';
+import { relativeTime } from './stats.js?v=44';
+import { t, getLang } from './i18n.js?v=44';
+import { fieldsToMinutes } from './timer.js?v=44';
 
 const $ = id => document.getElementById(id);
 const pad2 = n => String(n).padStart(2, '0');
@@ -68,14 +68,26 @@ $('mn-form').addEventListener('submit', async e => {
 });
 
 // ---- my recent log(新しい順。ボックスの中をスクロールして、すべて見られる) ----
+// 1件ごとに、タイトル・作業時間・日にち(時刻つき)・説明(全文)を表示する
+const LOCALES = { ja: 'ja-JP', en: 'en-GB', zh: 'zh-CN' };
+const duration = min => {
+  const h = Math.floor(min / 60), m = min % 60;
+  return h === 0 ? t('unit.min', { n: m }) : m === 0 ? t('mn.h', { h }) : t('mn.hm', { h, m });
+};
+const when = d => (d instanceof Date && !isNaN(d)
+  ? new Intl.DateTimeFormat(LOCALES[getLang()] || 'en-GB', { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short', hour: '2-digit', minute: '2-digit' }).format(d)
+  : '');
 function renderLogs() {
   const items = mineLogs().map(l => {
     const li = el('li', 'mn-log');
-    const left = el('div', 'mn-log-main');
-    left.append(el('div', 'mn-log-title', l.title || t('log.default')), el('div', 'mn-log-sub', logMeta(l)));
-    const time = el('time', 'mn-log-time', relativeTime(l.at));
-    time.title = l.at.toLocaleString('ja-JP');
-    li.append(left, time);
+    const top = el('div', 'mn-log-top');
+    top.append(el('div', 'mn-log-title', l.title || t('log.default')), el('span', 'mn-log-dur', duration(l.minutes)));
+    const meta = el('div', 'mn-log-when');
+    const time = el('time', '', when(l.at) || relativeTime(l.at));
+    if (l.at instanceof Date && !isNaN(l.at)) time.dateTime = l.at.toISOString();
+    meta.append(time);
+    if (l.pomodoros) meta.append(el('span', 'mn-log-pomo', 'Pomodoro ×' + l.pomodoros));
+    li.append(top, meta, el('p', 'mn-log-desc' + (l.description ? '' : ' none'), l.description || t('mn.noDesc')));
     return li;
   });
   $('mn-logs').replaceChildren(...(items.length ? items : [el('li', 'mn-empty', t('mn.empty'))]));
