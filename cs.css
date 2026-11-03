@@ -90,7 +90,7 @@ body[data-view="cs"] #cs-view { display: block; animation: page-in .5s ease both
 .cs-p-practice .cs-top, .cs-p-topics .cs-top { padding-top: 1em; }
 
 /* 左パネル / 本文 */
-.panel { border: 1px solid rgba(255, 255, 255, .85); border-radius: 4px; background: linear-gradient(180deg, rgba(8, 8, 12, .82), rgba(2, 2, 4, .88)); box-shadow: 0 0 18px rgba(255, 255, 255, .22), inset 0 0 0 4px rgba(3, 3, 6, .8), inset 0 0 0 5px rgba(255, 255, 255, .4); position: relative; }
+.cs .panel { border: 1px solid rgba(255, 255, 255, .85); border-radius: 4px; background: linear-gradient(180deg, rgba(8, 8, 12, .82), rgba(2, 2, 4, .88)); box-shadow: 0 0 18px rgba(255, 255, 255, .22), inset 0 0 0 4px rgba(3, 3, 6, .8), inset 0 0 0 5px rgba(255, 255, 255, .4); position: relative; }
 .cs-split { flex: 1; min-height: 0; display: grid; grid-template-columns: 21em 1fr; gap: 2.4em; margin-top: .6em; }
 .cs-side { padding: 1.6em 1.4em; align-self: start; }
 .cs-side-title { display: flex; align-items: center; gap: .6em; font: italic 500 2.6em var(--cs-serif); }

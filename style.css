@@ -653,7 +653,7 @@ body[data-view="manual"] .mn { display: flex; align-items: center; justify-conte
 .mn-log { list-style: none; display: flex; flex-direction: column; gap: 5px; padding: 13px 4px; border-top: 1.5px solid rgba(31, 39, 64, .3); }
 .mn-log:first-child { border-top: 0; }
 .mn-log-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-.mn-log-title { min-width: 0; font-size: clamp(17px, 1.45vw, 24px); overflow-wrap: anywhere; color: #141a33; }
+.mn-log-title { flex: 1; min-width: 0; font-size: clamp(17px, 1.45vw, 24px); overflow-wrap: anywhere; color: #141a33; }
 .mn-log-dur { flex: none; padding: 1px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-size: clamp(12px, 1vw, 15px); font-variant-numeric: tabular-nums; }
 .mn-log-when { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: clamp(12px, 1vw, 15px); color: var(--ink-sub); font-variant-numeric: tabular-nums; }
 .mn-log-desc { font-size: clamp(13px, 1.1vw, 17px); line-height: 1.55; color: #2b3144; white-space: pre-wrap; overflow-wrap: anywhere; }
@@ -804,7 +804,7 @@ html[data-theme="neon"] .lib-bg {
   display: block; position: absolute; inset: 0;
   background:
     radial-gradient(60% 50% at 50% 0%, rgba(255, 40, 180, .18), transparent 70%),
-    url("library-far.svg?v=44") calc(var(--sx, 0px) * -.3) 0 / auto 25vh repeat,
+    url("library-far.svg?v=46") calc(var(--sx, 0px) * -.3) 0 / auto 25vh repeat,
     #07021a;
   transition: opacity .45s ease-in, transform .5s cubic-bezier(.6, 0, 1, .6), filter .45s ease-in;
 }
@@ -817,7 +817,7 @@ html[data-theme="neon"] .lg-world::before {
   content: ""; position: absolute; inset: 0; pointer-events: none;
   background:
     linear-gradient(180deg, rgba(7, 2, 26, .55), transparent 30%, transparent 70%, rgba(7, 2, 26, .7)),
-    url("library-near.svg?v=44") 0 0 / auto 25vh repeat;
+    url("library-near.svg?v=46") 0 0 / auto 25vh repeat;
   transition: opacity .45s ease-in, transform .5s cubic-bezier(.6, 0, 1, .6), filter .45s ease-in;
 }
 html[data-theme="neon"] .lib-hint {
@@ -960,3 +960,29 @@ html[data-theme="neon"] .nav-test2 { display: flex; }
 .gx-card.is-on { box-shadow: 0 0 34px rgba(255, 255, 255, .75), inset 0 0 0 5px rgba(3, 3, 6, .7), inset 0 0 0 6px #fff; background: rgba(40, 40, 52, .6); }
 html[data-theme="neon"] .mn-log-desc { color: #e8eaff; }
 html[data-theme="neon"] .mn-log-dur { background: rgba(46, 242, 255, .14); color: #2ef2ff; }
+
+/* Log manually: 過去のログの編集 */
+.mn-log-edit { flex: none; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 8px; color: var(--ink-sub); opacity: .75; transition: background .15s, color .15s, opacity .15s; }
+.mn-log-edit svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.mn-log:hover .mn-log-edit, .mn-log-edit:focus-visible { opacity: 1; }
+.mn-log-edit:hover { background: var(--accent-soft); color: var(--accent); }
+.mn-log-edit:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.mn-log.editing { background: rgba(59, 111, 216, .05); border-radius: 10px; }
+.mn-edit { display: flex; flex-direction: column; gap: 10px; }
+.mn-edit input, .mn-edit textarea { font: inherit; font-size: clamp(14px, 1.15vw, 18px); color: #141a33; border: 1.5px solid #1f2740; border-radius: 8px; padding: 7px 10px; background: rgba(255, 255, 255, .9); min-width: 0; }
+.mn-edit input:focus-visible, .mn-edit textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.mn-e-title { font-size: clamp(16px, 1.35vw, 22px) !important; }
+.mn-e-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: clamp(13px, 1vw, 16px); color: var(--ink-sub); }
+.mn-e-num { width: 4.2em; text-align: right; }
+.mn-e-when { flex: 1; min-width: 12em; }
+.mn-e-desc { resize: vertical; min-height: 64px; line-height: 1.5; }
+.mn-e-bar { display: flex; gap: 8px; }
+.mn-e-bar button { height: 36px; padding: 0 16px; border-radius: 8px; border: 1.5px solid #1f2740; font-size: clamp(13px, 1vw, 16px); }
+.mn-e-save { background: #1f2740; color: #fff; } .mn-e-save:disabled { opacity: .6; }
+.mn-e-cancel { background: rgba(255, 255, 255, .85); }
+.mn-e-del { margin-left: auto; border-color: #c0392b !important; color: #c0392b; background: rgba(255, 255, 255, .85); }
+.mn-e-del:hover { background: #c0392b; color: #fff; }
+html[data-theme="neon"] .mn-edit input, html[data-theme="neon"] .mn-edit textarea { background: rgba(255, 255, 255, .06); border-color: rgba(46, 242, 255, .6); color: #fff; color-scheme: dark; }
+html[data-theme="neon"] .mn-e-bar button { border-color: rgba(46, 242, 255, .7); color: #fff; background: rgba(12, 5, 38, .8); }
+html[data-theme="neon"] .mn-e-save { background: linear-gradient(90deg, #ff2fb0, #7a3bff); border-color: #ff6fd0; }
+html[data-theme="neon"] .mn-log.editing { background: rgba(46, 242, 255, .06); }

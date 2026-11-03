@@ -1,9 +1,9 @@
 // Log manually: タイトル・作業時間・説明を入力して「完了」を押すと、学習ログ(学習時間)として記録する。右に、自分の最近のログ。
-import { firestore } from './auth.js?v=44';
-import { onLogs, mineLogs } from './logs-store.js?v=44';
-import { relativeTime } from './stats.js?v=44';
-import { t, getLang } from './i18n.js?v=44';
-import { fieldsToMinutes } from './timer.js?v=44';
+import { firestore } from './auth.js?v=46';
+import { onLogs, mineLogs } from './logs-store.js?v=46';
+import { relativeTime } from './stats.js?v=46';
+import { t, getLang } from './i18n.js?v=46';
+import { fieldsToMinutes } from './timer.js?v=46';
 
 const $ = id => document.getElementById(id);
 const pad2 = n => String(n).padStart(2, '0');
@@ -74,16 +74,69 @@ const duration = min => {
   const h = Math.floor(min / 60), m = min % 60;
   return h === 0 ? t('unit.min', { n: m }) : m === 0 ? t('mn.h', { h }) : t('mn.hm', { h, m });
 };
-const when = d => (d instanceof Date && !isNaN(d)
+const fmtWhen = d => (d instanceof Date && !isNaN(d)
   ? new Intl.DateTimeFormat(LOCALES[getLang()] || 'en-GB', { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short', hour: '2-digit', minute: '2-digit' }).format(d)
   : '');
+let editingId = null;   // 編集中のログ(編集中は、一覧を描き直さない)
+const pencil = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4"/></svg>';
+const toLocalInput = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}T${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+
+function editForm(l) {
+  const form = el('form', 'mn-edit');
+  form.noValidate = true;
+  const title = el('input', 'mn-e-title'); title.type = 'text'; title.maxLength = 40; title.value = l.title; title.setAttribute('aria-label', t('h.mn.titleAria'));
+  const row = el('div', 'mn-e-row');
+  const h = el('input', 'mn-e-num'); h.type = 'number'; h.min = 0; h.max = 12; h.value = Math.floor(l.minutes / 60); h.setAttribute('aria-label', t('mn.hShort'));
+  const m = el('input', 'mn-e-num'); m.type = 'number'; m.min = 0; m.max = 59; m.value = l.minutes % 60; m.setAttribute('aria-label', t('unit.minShort'));
+  const when = el('input', 'mn-e-when'); when.type = 'datetime-local'; when.value = toLocalInput(l.at); when.max = toLocalInput(new Date()); when.setAttribute('aria-label', t('mn.when'));
+  row.append(h, el('span', '', t('mn.hShort')), m, el('span', '', t('unit.minShort')), when);
+  const desc = el('textarea', 'mn-e-desc'); desc.rows = 3; desc.maxLength = 200; desc.value = l.description; desc.placeholder = 'description'; desc.setAttribute('aria-label', t('h.mn.descAria'));
+  const msg = el('p', 'tm-msg'); msg.hidden = true; msg.setAttribute('role', 'status');
+  const bar = el('div', 'mn-e-bar');
+  const save = el('button', 'mn-e-save', t('mn.save')); save.type = 'submit';
+  const cancel = el('button', 'mn-e-cancel', t('mn.cancel')); cancel.type = 'button';
+  const del = el('button', 'mn-e-del', t('mn.delete')); del.type = 'button';
+  bar.append(save, cancel, del);
+  form.append(title, row, desc, msg, bar);
+  const fail = text => { msg.textContent = text; msg.hidden = !text; };
+  const close = () => { editingId = null; renderLogs(); };
+  cancel.addEventListener('click', close);
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const newTitle = title.value.trim();
+    const minutes = (parseInt(h.value, 10) || 0) * 60 + (parseInt(m.value, 10) || 0);
+    const at = new Date(when.value);
+    if (!newTitle) { fail(t('mn.needTitle')); title.focus(); return; }
+    if (minutes < 1 || minutes > 720) { fail(t('mn.needTime')); h.focus(); return; }
+    if (isNaN(at)) { fail(t('mn.future')); when.focus(); return; }
+    if (at.getTime() > Date.now() + 60000) { fail(t('mn.future')); when.focus(); return; }
+    const description = desc.value.trim();
+    save.disabled = true;
+    try {
+      await f.updateDoc(f.doc(db, 'users', user.uid, 'logs', l.docId), { title: newTitle, minutes, at, description: description || f.deleteField() });
+      close();
+    } catch (err) { console.error(err); fail(t('mn.editFail')); save.disabled = false; }
+  });
+  del.addEventListener('click', async () => {
+    if (!confirm(t('mn.confirmDel'))) return;
+    del.disabled = true;
+    try { await f.deleteDoc(f.doc(db, 'users', user.uid, 'logs', l.docId)); close(); }
+    catch (err) { console.error(err); fail(t('mn.delFail')); del.disabled = false; }
+  });
+  setTimeout(() => title.focus(), 0);
+  return form;
+}
+
 function renderLogs() {
+  if (editingId) return;
   const items = mineLogs().map(l => {
     const li = el('li', 'mn-log');
     const top = el('div', 'mn-log-top');
-    top.append(el('div', 'mn-log-title', l.title || t('log.default')), el('span', 'mn-log-dur', duration(l.minutes)));
+    const edit = el('button', 'mn-log-edit'); edit.type = 'button'; edit.innerHTML = pencil; edit.title = t('mn.edit'); edit.setAttribute('aria-label', t('mn.editAria'));
+    edit.addEventListener('click', () => { editingId = l.id; li.replaceChildren(editForm(l)); li.classList.add('editing'); });
+    top.append(el('div', 'mn-log-title', l.title || t('log.default')), el('span', 'mn-log-dur', duration(l.minutes)), edit);
     const meta = el('div', 'mn-log-when');
-    const time = el('time', '', when(l.at) || relativeTime(l.at));
+    const time = el('time', '', fmtWhen(l.at) || relativeTime(l.at));
     if (l.at instanceof Date && !isNaN(l.at)) time.dateTime = l.at.toISOString();
     meta.append(time);
     if (l.pomodoros) meta.append(el('span', 'mn-log-pomo', 'Pomodoro ×' + l.pomodoros));
@@ -101,4 +154,4 @@ export async function mountManual(currentUser) {
 }
 
 // 言語を切り替えたら、画面を描き直す
-window.addEventListener('langchange', () => { renderLogs(); say(''); });
+window.addEventListener('langchange', () => { editingId = null; renderLogs(); say(''); });
