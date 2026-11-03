@@ -46,7 +46,7 @@ function setView(name) {
 window.appSetView = setView;
 navButtons.forEach(btn => btn.addEventListener('click', () => {
   const t = btn.dataset.target;
-  if (t === 'friend') return;          // フレンドはページの上に重ねて表示する(friends-ui.js)
+  if (t === 'friend' || t === 'notice') return;          // フレンドはページの上に重ねて表示する(friends-ui.js)
   if (t in VIEWS) setView(t);
 }));
 document.querySelector('.logo').addEventListener('click', e => { e.preventDefault(); setView('home'); });

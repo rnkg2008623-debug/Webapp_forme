@@ -1,8 +1,8 @@
 // CS(ネオンのときだけ): 「IBDP Computer Science HL」の学習サイトの画面一式。背景はWebGPU(白黒のゴシックの大聖堂)で、ずっと動いている。
 // 画面: home / topics / practice / pa1(Practice A1の一覧) / lesson(A1 Computer Systems)
-import { createGpuView } from './gpu-view.js?v=46';
-import { WGSL } from './test2-bg.js?v=46';
-import { GROUPS, TERMS, FIGS } from './casestudy.js?v=46';
+import { createGpuView } from './gpu-view.js?v=48';
+import { WGSL } from './test2-bg.js?v=48';
+import { GROUPS, TERMS, FIGS } from './casestudy.js?v=48';
 
 const host = document.getElementById('cs-view');
 const stage = document.getElementById('cs-stage');

@@ -13,6 +13,8 @@ service cloud.firestore {
       return exists(/databases/$(database)/documents/friendships/$(uid() + '_' + other))
           || exists(/databases/$(database)/documents/friendships/$(other + '_' + uid()));
     }
+    // オーナーのアカウント(お知らせを出せるのはこのメールアドレスだけ)
+    function isOwner() { return signedIn() && request.auth.token.email == 'hireo559@gmail.com'; }
     function validDesc(d) { return !('description' in d) || (d.description is string && d.description.size() <= 60); }
 
     // プロフィール: 1件ずつ取得のみ(一覧は不可)。メールアドレスは保存しない。
@@ -90,6 +92,18 @@ service cloud.firestore {
         && id == request.resource.data.members[0] + '_' + request.resource.data.members[1]
         && exists(/databases/$(database)/documents/friendRequests/$(otherOf(request.resource.data.members) + '_' + uid()));
       allow delete: if signedIn() && inId(id);   // どちらからでも解除できる
+    }
+
+    // お知らせ: 読めるのはログイン中の全員。出す・消すのはオーナーだけ(時刻はサーバーが付ける)。
+    match /announcements/{id} {
+      allow read: if signedIn();
+      allow create: if isOwner()
+        && request.resource.data.keys().hasOnly(['title', 'body', 'at'])
+        && request.resource.data.title is string && request.resource.data.title.size() >= 1 && request.resource.data.title.size() <= 80
+        && request.resource.data.body is string && request.resource.data.body.size() >= 1 && request.resource.data.body.size() <= 2000
+        && request.resource.data.at == request.time;
+      allow update: if false;
+      allow delete: if isOwner();
     }
   }
 }

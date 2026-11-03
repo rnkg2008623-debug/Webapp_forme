@@ -804,7 +804,7 @@ html[data-theme="neon"] .lib-bg {
   display: block; position: absolute; inset: 0;
   background:
     radial-gradient(60% 50% at 50% 0%, rgba(255, 40, 180, .18), transparent 70%),
-    url("library-far.svg?v=46") calc(var(--sx, 0px) * -.3) 0 / auto 25vh repeat,
+    url("library-far.svg?v=48") calc(var(--sx, 0px) * -.3) 0 / auto 25vh repeat,
     #07021a;
   transition: opacity .45s ease-in, transform .5s cubic-bezier(.6, 0, 1, .6), filter .45s ease-in;
 }
@@ -817,7 +817,7 @@ html[data-theme="neon"] .lg-world::before {
   content: ""; position: absolute; inset: 0; pointer-events: none;
   background:
     linear-gradient(180deg, rgba(7, 2, 26, .55), transparent 30%, transparent 70%, rgba(7, 2, 26, .7)),
-    url("library-near.svg?v=46") 0 0 / auto 25vh repeat;
+    url("library-near.svg?v=48") 0 0 / auto 25vh repeat;
   transition: opacity .45s ease-in, transform .5s cubic-bezier(.6, 0, 1, .6), filter .45s ease-in;
 }
 html[data-theme="neon"] .lib-hint {
@@ -986,3 +986,33 @@ html[data-theme="neon"] .mn-edit input, html[data-theme="neon"] .mn-edit textare
 html[data-theme="neon"] .mn-e-bar button { border-color: rgba(46, 242, 255, .7); color: #fff; background: rgba(12, 5, 38, .8); }
 html[data-theme="neon"] .mn-e-save { background: linear-gradient(90deg, #ff2fb0, #7a3bff); border-color: #ff6fd0; }
 html[data-theme="neon"] .mn-log.editing { background: rgba(46, 242, 255, .06); }
+
+/* ---------- お知らせ(ページの上に重ねて表示。フレンドの .fo と同じ枠) ---------- */
+.no-panel { inset: 6px 14vw 10.5vh; }
+.no-rail[hidden] { display: none; }
+.no-h { font-weight: 500; font-size: clamp(24px, 2.2vw, 36px); margin: 22px 48px 14px 0; color: var(--ink); }
+.no-list { display: flex; flex-direction: column; gap: 14px; }
+.no-empty { color: var(--ink-sub); font-size: 16px; padding: 10px 2px; }
+.no-item { position: relative; padding: 16px 20px 16px 22px; border: 1px solid #e3e7f1; border-radius: 12px; background: #fff; box-shadow: 0 2px 10px rgba(50, 70, 120, .06); }
+.no-item.is-new { border-color: #9db9ee; background: #f6f9ff; box-shadow: 0 2px 14px rgba(59, 111, 216, .14); }
+.no-item.is-new::before { content: ""; position: absolute; left: 0; top: 14px; bottom: 14px; width: 4px; border-radius: 0 4px 4px 0; background: var(--accent); }
+.no-item-head { display: flex; align-items: center; gap: 10px; }
+.no-item-title { font-weight: 600; font-size: clamp(18px, 1.5vw, 24px); line-height: 1.3; overflow-wrap: anywhere; color: #141a33; }
+.no-new { padding: 1px 9px; border-radius: 999px; background: #e5483f; color: #fff; font: 600 11px/18px Georgia, serif; letter-spacing: .06em; }
+.no-item-time { display: block; margin: 4px 0 10px; font-size: 13px; color: var(--ink-sub); font-variant-numeric: tabular-nums; }
+.no-item-body { font-size: clamp(15px, 1.2vw, 18px); line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; color: #2b3144; }
+.no-del { position: absolute; top: 12px; right: 12px; padding: 3px 10px; border: 1px solid #e0b3ad; border-radius: 8px; font-size: 12px; color: #c0392b; background: #fff; opacity: .7; }
+.no-del:hover { opacity: 1; background: #c0392b; color: #fff; }
+.no-form { display: flex; flex-direction: column; gap: 12px; }
+.no-in { font: inherit; font-size: clamp(15px, 1.2vw, 18px); color: #141a33; border: 1.5px solid #cfd6e4; border-radius: 10px; padding: 10px 14px; background: #fff; width: 100%; }
+.no-in:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+#no-title { font-size: clamp(17px, 1.4vw, 22px); }
+.no-ta { resize: vertical; min-height: 180px; line-height: 1.6; }
+.no-foot { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.no-count { font-size: 13px; color: var(--ink-sub); font-variant-numeric: tabular-nums; }
+.no-foot .fm-msg { flex: 1; margin: 0; }
+.no-send { margin-left: auto; height: 42px; padding: 0 28px; border-radius: 10px; background: #1f2740; color: #fff; font-size: 16px; }
+.no-send:hover:not(:disabled) { filter: brightness(1.25); } .no-send:disabled { opacity: .6; }
+.no-hint { font-size: 13px; color: var(--ink-sub); }
+html[data-theme="neon"] .no-h, html[data-theme="neon"] .no-item-title { color: #141a33; }
+.no-list[hidden], .no-form[hidden], .no-rail[hidden] { display: none; }
