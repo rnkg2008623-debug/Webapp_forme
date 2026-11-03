@@ -1,8 +1,8 @@
 // CS(ネオンのときだけ): 「IBDP Computer Science HL」の学習サイトの画面一式。背景はWebGPU(白黒のゴシックの大聖堂)で、ずっと動いている。
-// 画面: home / topics / practice / pa1(Practice A1の一覧) / lesson(A1 Computer Systems)
-import { createGpuView } from './gpu-view.js?v=50';
-import { WGSL } from './test2-bg.js?v=50';
-import { GROUPS, TERMS, FIGS } from './casestudy.js?v=50';
+// 画面: home / topics / practice / pa(Practice の一覧。A1〜A4) / lesson(A1〜A4 の学習ページ) / case(Case Study)
+import { createGpuView } from './gpu-view.js?v=51';
+import { WGSL } from './cs-bg.js?v=51';
+import { GROUPS, TERMS, FIGS } from './casestudy.js?v=51';
 
 const host = document.getElementById('cs-view');
 const stage = document.getElementById('cs-stage');
@@ -45,7 +45,7 @@ const SECTIONS = [
   ['A1', 'System Fundamentals', 'chip'], ['A2', 'Computer Organization', 'db'], ['A3', 'Networks', 'code'],
   ['A4', 'Computational Thinking', 'shield'], ['Theme B', 'Application Development', 'gears'], ['Case Study', 'Prescribed Case Study', 'book'],
 ];
-const PRACTICE_ROWS = [
+const A1_PRACTICE = [
   ['A1.2.3', 'Logic Gates', 'AND, OR, NOT, NAND, NOR, XOR and truth tables.', 86, 'chip'],
   ['A1.2.2', 'Use of binary to store data', 'How data is represented and stored in binary form.', 78, 'binary'],
   ['A1.2.1', 'Data representation', 'Forms of data representation (binary, hexadecimal, ASCII, etc.).', 71, 'db'],
@@ -55,7 +55,7 @@ const PRACTICE_ROWS = [
   ['A1.1.6', 'Pipelining HL', 'How pipelining improves the performance of a CPU.', 59, 'pipe'],
   ['A1.1.5', 'Fetch Decode Execute Cycle', 'The stages of the instruction cycle and their roles.', 88, 'cycle'],
 ];
-const LESSONS = [
+const A1_LESSONS = [
   ['A1.1', 'Computer Fundamentals', 'The basic concepts and components of computer systems.', 'chip', 'start'],
   ['A1.2', 'Data Representation', 'How data is stored and represented in a computer.', 'binary', 'start'],
   ['A1.3', 'Computer Networks', 'How computers communicate and share data.', 'net', 'start'],
@@ -64,7 +64,20 @@ const LESSONS = [
   ['A1.6', 'Pipelining HL', 'Improving performance with pipelining.', 'pipe', 'locked'],
   ['A1.7', 'Secondary Memory', 'Long-term storage and its types.', 'disk', 'locked'],
 ];
-const SIDE_SUBS = ['Computer Systems', 'Data Representation', 'Computer Networks', 'Memory', 'CPU', 'Pipelining HL', 'Secondary Memory'];
+// A2〜A4 は、内容が決まるまで仮の名前(あとで差し替える)
+const placeholder = (code, name, icon, tagline) => ({
+  code, name, practiceName: name, icon, tagline,
+  lessons: [1, 2, 3, 4, 5].map(i => [`${code}.${i}`, `Placeholder topic ${i}`, 'Content will be added later.', icon, i <= 2 ? 'start' : 'locked']),
+  practice: [1, 2, 3, 4, 5, 6].map(i => [`${code}.${i}.1`, `Placeholder topic ${i}`, 'Questions will be added later.', 0, icon]),
+  overall: [0, '0 / 0'],
+});
+const UNITS = {
+  A1: { code: 'A1', name: 'Computer Systems', practiceName: 'System Fundamentals', icon: 'chip', tagline: 'Understanding how computers work.', lessons: A1_LESSONS, practice: A1_PRACTICE, overall: [72, '288 / 400'] },
+  A2: placeholder('A2', 'Computer Organization', 'db', 'Placeholder description. Details will be added later.'),
+  A3: placeholder('A3', 'Networks', 'code', 'Placeholder description. Details will be added later.'),
+  A4: placeholder('A4', 'Computational Thinking', 'shield', 'Placeholder description. Details will be added later.'),
+};
+const unitOf = c => UNITS[c] || UNITS.A1;
 
 // ---- 画面のテンプレート ----
 const topNav = (page, brand) => `
@@ -73,10 +86,10 @@ const topNav = (page, brand) => `
     <nav class="cs-nav">
       <a data-go="home" href="#" class="${page === 'home' ? 'on' : ''}">Home</a>
       <a data-go="topics" href="#" class="${page === 'topics' ? 'on' : ''}">Topics${page === 'home' || page === 'topics' ? ic('down', 'sm') : ''}</a>
-      <a data-go="practice" href="#" class="${page === 'practice' || page === 'pa1' ? 'on' : ''}">Practice</a>
+      <a data-go="practice" href="#" class="${page === 'practice' || page === 'pa' ? 'on' : ''}">Practice</a>
       <a data-soon href="#">Resources</a><a data-soon href="#">About</a>
     </nav>
-    <div class="cs-acts"><button class="cs-iconbtn" data-soon aria-label="Search">${ic('search')}</button><button class="cs-pill" data-soon>Log In</button><button class="cs-pill solid" data-soon>Sign Up</button></div>
+    <div class="cs-acts"><button class="cs-iconbtn" data-soon aria-label="Search">${ic('search')}</button></div>
   </header>`;
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 const orn = '<div class="cs-orn"><i></i><b>' + '✦' + '</b><i></i></div>';
@@ -99,28 +112,28 @@ const PAGES = {
 
   topics: () => `${topNav('topics', false)}
     <section class="cs-head center"><p class="cs-track small">IBDP · Computer Science HL</p>${sparkle}<h2 class="cs-h2">Select a Topic</h2><div class="cs-rule"><i></i><b>✦</b><i></i></div></section>
-    <div class="cs-cards grid wide">${SECTIONS.map(([c, n, i]) => `<button class="cs-card tile" ${c === 'A1' ? 'data-go="lesson"' : c === 'Case Study' ? 'data-go="case"' : 'data-soon'}><i class="cs-top-star">✦</i>${ic(i, 'lead')}<span><strong>${c}</strong><em>${n}</em></span>${ic('chev', 'sm')}</button>`).join('')}</div>`,
+    <div class="cs-cards grid wide">${SECTIONS.map(([c, n, i]) => `<button class="cs-card tile" ${UNITS[c] ? `data-go="lesson:${c}"` : c === 'Case Study' ? 'data-go="case"' : 'data-soon'}><i class="cs-top-star">✦</i>${ic(i, 'lead')}<span><strong>${c}</strong><em>${n}</em></span>${ic('chev', 'sm')}</button>`).join('')}</div>`,
 
   practice: () => `${topNav('practice', true)}
     <section class="cs-head center"><div class="cs-rule"><i></i><b>✦</b><i></i></div><h2 class="cs-h2">Practice</h2><div class="cs-rule thin"><i></i><b>✦</b><i></i></div><p class="cs-track small">✦ &nbsp;Choose a Section to Practice&nbsp; ✦</p></section>
-    <div class="cs-cards grid"><!---->${SECTIONS.map(([c, n, i]) => `<button class="cs-card tile v" ${c === 'A1' ? 'data-go="pa1"' : c === 'Case Study' ? 'data-go="case"' : 'data-soon'}><i class="cs-top-star">✦</i>${ic(i, 'lead')}<span><strong>${c}</strong><em>${n}</em></span>${ic('chev', 'sm side')}</button>`).join('')}</div>
+    <div class="cs-cards grid"><!---->${SECTIONS.map(([c, n, i]) => `<button class="cs-card tile v" ${UNITS[c] ? `data-go="pa:${c}"` : c === 'Case Study' ? 'data-go="case"' : 'data-soon'}><i class="cs-top-star">✦</i>${ic(i, 'lead')}<span><strong>${c}</strong><em>${n}</em></span>${ic('chev', 'sm side')}</button>`).join('')}</div>
     <div class="cs-bottom-orn">${orn}</div>`,
 
-  pa1: () => `${topNav('pa1', true)}
+  pa: (code = 'A1') => { const u = unitOf(code); return `${topNav('pa', true)}
     <div class="cs-split">
       <aside class="cs-side panel">
         <h3 class="cs-side-title">${sparkle}Practice</h3><div class="cs-rule thin"><i></i><b>◆</b><i></i></div>
-        <ul class="cs-menu">${SECTIONS.map(([c, n]) => `<li><button ${c === 'A1' ? 'class="on" data-go="practice"' : c === 'Case Study' ? 'data-go="case"' : 'data-soon'}><b>${c}</b><span>${n}</span>${ic('chev', 'sm')}</button></li>`).join('')}</ul>
+        <ul class="cs-menu">${SECTIONS.map(([c, n]) => `<li><button class="${c === u.code ? 'on' : ''}" ${UNITS[c] ? `data-go="pa:${c}"` : c === 'Case Study' ? 'data-go="case"' : 'data-soon'}><b>${c}</b><span>${n}</span>${ic('chev', 'sm')}</button></li>`).join('')}</ul>
       </aside>
       <section class="cs-main">
-        <div class="cs-crumb">${ic('home', 'sm')}<a data-go="practice" href="#">Practice</a>${ic('chev', 'sm')}<span>A1</span></div>
+        <div class="cs-crumb">${ic('home', 'sm')}<a data-go="practice" href="#">Practice</a>${ic('chev', 'sm')}<span>${u.code}</span></div>
         <div class="cs-mhead">
-          <div class="cs-mtitle">${ic('chip', 'huge')}<div><h2><i>A1</i> <em>System Fundamentals</em></h2><p>Practice questions for A1. Test your understanding and track your progress.</p></div></div>
-          <div class="cs-overall panel"><div class="ring big" style="--p:72"><span>72%</span></div><div><b>A1 Overall</b><p>Correct: 288 / 400</p></div></div>
+          <div class="cs-mtitle">${ic(u.icon, 'huge')}<div><h2><i>${u.code}</i> <em>${u.practiceName}</em></h2><p>Practice questions for ${u.code}. Test your understanding and track your progress.</p></div></div>
+          <div class="cs-overall panel"><div class="ring big" style="--p:${u.overall[0]}"><span>${u.overall[0]}%</span></div><div><b>${u.code} Overall</b><p>Correct: ${u.overall[1]}</p></div></div>
         </div>
-        <ul class="cs-rows">${PRACTICE_ROWS.map(([c, n, d, p, i], k) => `<li class="cs-row ${k === 0 ? 'hot' : ''}">${ic(i, 'lead')}<code>${c}</code><span><b>${n}</b><em>${d}</em></span><strong>${p}%</strong><div class="ring" style="--p:${p}"></div>${ic('chev', 'sm')}</li>`).join('')}</ul>
+        <ul class="cs-rows">${u.practice.map(([c, n, d, p, i], k) => `<li class="cs-row ${k === 0 ? 'hot' : ''}">${ic(i, 'lead')}<code>${c}</code><span><b>${n}</b><em>${d}</em></span><strong>${p}%</strong><div class="ring" style="--p:${p}"></div>${ic('chev', 'sm')}</li>`).join('')}</ul>
       </section>
-    </div>`,
+    </div>`; },
 
   case: () => {
     const badge = l => (l === 'hl' ? '<span class="cs-badge hl">HL only</span>' : '<span class="cs-badge">SL + HL</span>');
@@ -146,26 +159,26 @@ const PAGES = {
     </div>`;
   },
 
-  lesson: () => `<div class="cs-split lesson">
-      <aside class="cs-side panel violet">
+  lesson: (code = 'A1') => { const u = unitOf(code); return `<div class="cs-split lesson">
+      <aside class="cs-side panel">
         <div class="cs-lbrand" data-go="home">${ic('cycle', 'lead')}<span><small>IBDP</small>Computer Science HL</span></div><div class="cs-rule thin"><i></i><b>✦</b><i></i></div>
-        <button class="cs-acc on">${ic('chip', 'lead')}<b>A1</b>${ic('up', 'sm')}</button>
-        <ul class="cs-sub">${SIDE_SUBS.map((n, i) => `<li class="${i === 1 ? 'on' : ''}"><i></i><code>A1.${i + 1}</code><span>${n}</span></li>`).join('')}</ul>
-        ${[['db', 'A2'], ['code', 'A3'], ['shield', 'A4'], ['gears', 'Theme B'], ['book', 'Case Study']].map(([i, n]) => `<button class="cs-acc" data-soon>${ic(i, 'lead')}<b>${n}</b>${ic('down', 'sm')}</button>`).join('')}
+        ${SECTIONS.map(([c, n, i]) => (c === u.code
+          ? `<button class="cs-acc on">${ic(i, 'lead')}<b>${c}</b>${ic('up', 'sm')}</button><ul class="cs-sub">${u.lessons.map(([lc, ln], k) => `<li class="${k === (c === 'A1' ? 1 : 0) ? 'on' : ''}"><i></i><code>${lc}</code><span>${ln}</span></li>`).join('')}</ul>`
+          : `<button class="cs-acc" ${UNITS[c] ? `data-go="lesson:${c}"` : c === 'Case Study' ? 'data-go="case"' : 'data-soon'}>${ic(i, 'lead')}<b>${c}</b>${ic('down', 'sm')}</button>`)).join('')}
       </aside>
-      <section class="cs-main violet">
+      <section class="cs-main">
         <div class="cs-lhead">
-          <div class="cs-ltitle">${sparkle}<div><h2><i>A1</i> <em>Computer Systems</em></h2><p>Understanding how computers work.</p></div></div>
+          <div class="cs-ltitle">${sparkle}<div><h2><i>${u.code}</i> <em>${u.name}</em></h2><p>${u.tagline}</p></div></div>
           <div class="cs-quote">“ Small steps<br>&nbsp; build great understanding.”</div>
-          <div class="cs-prog panel"><button class="cs-iconbtn" data-soon aria-label="Search">${ic('search')}</button><div><small>Progress</small><div class="bar"><i></i></div></div><span>0/7</span><button class="cs-iconbtn round" data-go="home" aria-label="Account">${ic('user')}</button></div>
+          <div class="cs-prog panel"><button class="cs-iconbtn" data-soon aria-label="Search">${ic('search')}</button><div><small>Progress</small><div class="bar"><i></i></div></div><span>0/${u.lessons.length}</span><button class="cs-iconbtn round" data-go="home" aria-label="Account">${ic('user')}</button></div>
         </div>
-        <ul class="cs-lessons">${LESSONS.map(([c, n, d, i, st], k) => `<li class="cs-lesson ${st}"><div class="cs-thumb">${ic(i, 'thumb')}</div><span class="num">${k + 1}</span><span class="txt"><b><code>${c}</code>${n}</b><em>${d}</em></span>${st === 'start' ? `<button class="cs-start" data-soon>Start ${ic('arrow', 'sm')}</button>` : `<button class="cs-start locked" disabled>${ic('lock', 'sm')} Locked ${ic('arrow', 'sm')}</button>`}</li>`).join('')}</ul>
+        <ul class="cs-lessons">${u.lessons.map(([c, n, d, i, st], k) => `<li class="cs-lesson ${st}"><div class="cs-thumb">${ic(i, 'thumb')}</div><span class="num">${k + 1}</span><span class="txt"><b><code>${c}</code>${n}</b><em>${d}</em></span>${st === 'start' ? `<button class="cs-start" data-soon>Start ${ic('arrow', 'sm')}</button>` : `<button class="cs-start locked" disabled>${ic('lock', 'sm')} Locked ${ic('arrow', 'sm')}</button>`}</li>`).join('')}</ul>
         <p class="cs-foot">— Knowledge turns into power —</p>
       </section>
-    </div>`,
+    </div>`; },
 };
 // ページごとの背景の見え方: 紫がかり(tint)と、落ち着かせる度合い(dim)
-const LOOK = { case: [0, 0.6], home: [0, 0], topics: [0, 0.12], practice: [0, 0.05], pa1: [0, 0.55], lesson: [1, 0.3] };
+const LOOK = { case: [0, 0.6], home: [0, 0], topics: [0, 0.12], practice: [0, 0.05], pa: [0, 0.55], lesson: [0, 0.3] };
 
 // ---- 背景(WebGPU) ----
 const look = { tint: 0, dim: 0, tT: 0, tD: 0, last: performance.now() / 1000 };
@@ -186,14 +199,16 @@ function say(msg) {
   toast.textContent = msg; toast.hidden = false; toast.classList.add('on');
   clearTimeout(toastTimer); toastTimer = setTimeout(() => { toast.classList.remove('on'); setTimeout(() => { toast.hidden = true; }, 300); }, 1600);
 }
-function show(next) {
+function show(target) {
+  const [next, arg] = String(target).split(':');   // 例: 'lesson:A2'
   page = next;
-  stage.innerHTML = `<div class="cs-page cs-p-${next}">${PAGES[next]()}</div>`;
+  stage.innerHTML = `<div class="cs-page cs-p-${next}">${PAGES[next](arg)}</div>`;
   stage.firstElementChild.scrollTop = 0;
   [look.tT, look.tD] = LOOK[next];
   punch = performance.now() / 1000;
   host.dataset.page = next;
-  try { sessionStorage.csPage = next; } catch {}
+  host.dataset.unit = arg || '';
+  try { sessionStorage.csPage = target; } catch {}
 }
 stage.addEventListener('input', e => {   // 用語の検索
   if (!e.target.matches('.cs-search')) return;
@@ -221,7 +236,7 @@ setInterval(() => {   // ホームのページ送りのドット(見た目だけ
 }, 3500);
 
 let start0 = 'home';
-try { if (sessionStorage.csPage in PAGES) start0 = sessionStorage.csPage; } catch {}
+try { if (String(sessionStorage.csPage).split(':')[0] in PAGES) start0 = sessionStorage.csPage; } catch {}
 show(start0);
 
 export const cs = { start: () => view.start(host), stop: () => view.stop() };

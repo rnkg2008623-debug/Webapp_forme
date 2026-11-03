@@ -1,7 +1,6 @@
-// Test2 の背景(WebGPU): 白黒のゴシックの大聖堂。ステンドグラスの光の筋・揺れる鎖・舞う花びら・床への映り込み。
-import { createGpuView } from './gpu-view.js?v=50';
-
-const WGSL = /* wgsl */ `
+// CS 画面の背景(WebGPU): 白黒のゴシックの大聖堂。ステンドグラスの光の筋・揺れる鎖・舞う花びら・床への映り込み。
+// uniform c = (鎖が切れた度合い, 生えた度合い, 下がった度合い, 切り替えの勢い) / b.zw = (紫がかり, 落ち着かせる度合い)。
+export const WGSL = /* wgsl */ `
 struct U { a: vec4f, b: vec4f, c: vec4f };   // a = (幅, 高さ, 時間, 0)  b = (マウスX, マウスY, 0, 0)  c = (鎖が切れた度合い, 鎖が生えた度合い, 鎖が下がった度合い, 切り替えの勢い)
 @group(0) @binding(0) var<uniform> u: U;
 
@@ -252,32 +251,3 @@ fn star4(p: vec2f, r: f32) -> f32 {
   return vec4f(pow(mix(base, vio, u.b.z), vec3f(0.9)), 1.0);
 }
 `;
-
-// モード: threats = 鎖が切れて前に進む / knowledge = 鎖が上下から生える / practice = 鎖が全部下がっていく
-const MODES = ['brk', 'grw', 'drp'];
-const KEY = { threats: 'brk', knowledge: 'grw', practice: 'drp' };
-const DUR = 2.2;
-const st = Object.fromEntries(MODES.map(k => [k, { from: 0, to: 0, start: -10 }]));
-const ease = x => (x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
-const cur = (k, now) => { const m = st[k], x = Math.min(1, Math.max(0, (now - m.start) / DUR)); return { v: m.from + (m.to - m.from) * ease(x), x }; };
-const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-let active = null;
-
-export const test2 = createGpuView(WGSL, now => {
-  let pulse = 0;
-  const v = MODES.map(k => { const c = cur(k, now); if (c.x < 1) pulse = Math.max(pulse, Math.sin(Math.PI * c.x)); return c.v; });
-  return [v[0], v[1], v[2], reduce ? 0 : pulse];
-});
-
-// 同じモードをもう一度押すと元に戻る。ほかのモードに切り替えると、今のモードは元に戻りながら次が始まる
-export function setMode(name) {
-  const now = performance.now() / 1000;
-  const next = active === name ? null : name;
-  MODES.forEach(k => {
-    const to = next && KEY[next] === k ? 1 : 0, c = cur(k, now);
-    if (st[k].to !== to) st[k] = { from: c.v, to, start: now };
-  });
-  active = next;
-  return active;
-}
-export { WGSL };
