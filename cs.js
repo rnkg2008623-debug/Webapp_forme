@@ -1,8 +1,9 @@
 // CS(ネオンのときだけ): 「IBDP Computer Science HL」の学習サイトの画面一式。背景はWebGPU(白黒のゴシックの大聖堂)で、ずっと動いている。
 // 画面: home / topics / practice / pa(Practice の一覧。A1〜A4) / lesson(A1〜A4 の学習ページ) / case(Case Study)
-import { createGpuView } from './gpu-view.js?v=54';
-import { WGSL } from './cs-bg.js?v=54';
-import { GROUPS, TERMS, FIGS } from './casestudy.js?v=54';
+import { createGpuView } from './gpu-view.js?v=56';
+import { WGSL } from './cs-bg.js?v=56';
+import { GROUPS, TERMS, FIGS } from './casestudy.js?v=56';
+import { mountQuiz, quizScore, quizTotal, QUIZ_CODES } from './quiz.js?v=56';
 
 const host = document.getElementById('cs-view');
 const stage = document.getElementById('cs-stage');
@@ -148,7 +149,12 @@ const PAGES = {
     <div class="cs-cards grid"><!---->${SECTIONS.map(([c, n, i]) => `<button class="cs-card tile v" ${UNITS[c] ? `data-go="pa:${c}"` : c === 'Case Study' ? 'data-go="case"' : 'data-soon'}><i class="cs-top-star">✦</i>${ic(i, 'lead')}<span><strong>${c}</strong><em>${n}</em></span>${ic('chev', 'sm side')}</button>`).join('')}</div>
     <div class="cs-bottom-orn">${orn}</div>`,
 
-  pa: (code = 'A1') => { const u = unitOf(code); return `${topNav('pa', true)}
+  pa: (code = 'A1') => {
+    const u = unitOf(code);
+    const codes = u.practice.map(r => r[0]).filter(c => QUIZ_CODES.includes(c));
+    const earned = codes.reduce((n, c) => n + (quizScore(c)?.earned || 0), 0), total = codes.reduce((n, c) => n + quizTotal(c), 0);
+    const overall = total ? [Math.round(earned / total * 100), `${earned} / ${total} marks`] : u.overall;
+    return `${topNav('pa', true)}
     <div class="cs-split">
       <aside class="cs-side panel">
         <h3 class="cs-side-title">${sparkle}Practice</h3><div class="cs-rule thin"><i></i><b>◆</b><i></i></div>
@@ -158,11 +164,13 @@ const PAGES = {
         <div class="cs-crumb">${ic('home', 'sm')}<a data-go="practice" href="#">Practice</a>${ic('chev', 'sm')}<span>${u.code}</span></div>
         <div class="cs-mhead">
           <div class="cs-mtitle">${ic(u.icon, 'huge')}<div><h2><i>${u.code}</i> <em>${u.practiceName}</em></h2><p>Practice questions for ${u.code}. Test your understanding and track your progress.</p></div></div>
-          <div class="cs-overall panel"><div class="ring big" style="--p:${u.overall[0]}"><span>${u.overall[0]}%</span></div><div><b>${u.code} Overall</b><p>Correct: ${u.overall[1]}</p></div></div>
+          <div class="cs-overall panel"><div class="ring big" style="--p:${overall[0]}"><span>${overall[0]}%</span></div><div><b>${u.code} Overall</b><p>Correct: ${overall[1]}</p></div></div>
         </div>
-        <ul class="cs-rows">${u.practice.map(([c, n, d, p, i], k) => `<li class="cs-row ${k === 0 ? 'hot' : ''}">${ic(i, 'lead')}<code>${c}</code><span><b>${n}</b>${d ? `<em>${d}</em>` : ''}</span><strong>${p}%</strong><div class="ring" style="--p:${p}"></div>${ic('chev', 'sm')}</li>`).join('')}</ul>
+        <ul class="cs-rows">${u.practice.map(([c, n, d, p0, i], k) => { const sc = quizScore(c), p = sc ? sc.pct : p0, link = QUIZ_CODES.includes(c); return `<li class="cs-row ${link ? 'link' : ''} ${k === 0 ? 'hot' : ''}" ${link ? `data-go="quiz:${c}" tabindex="0" role="link"` : 'data-soon'}>${ic(i, 'lead')}<code>${c}</code><span><b>${n}</b>${d ? `<em>${d}</em>` : ''}</span><strong>${p}%</strong><div class="ring" style="--p:${p}"></div>${ic('chev', 'sm')}</li>`; }).join('')}</ul>
       </section>
     </div>`; },
+
+  quiz: code => `${topNav('pa', true)}<div class="cq" data-code="${esc(code || 'A1.2.3')}"></div>`,
 
   case: () => {
     const badge = l => (l === 'hl' ? '<span class="cs-badge hl">HL only</span>' : '<span class="cs-badge">SL + HL</span>');
@@ -207,7 +215,7 @@ const PAGES = {
     </div>`; },
 };
 // ページごとの背景の見え方: 紫がかり(tint)と、落ち着かせる度合い(dim)
-const LOOK = { case: [0, 0.6], home: [0, 0], topics: [0, 0.12], practice: [0, 0.05], pa: [0, 0.55], lesson: [0, 0.3] };
+const LOOK = { quiz: [0, 0.3], case: [0, 0.6], home: [0, 0], topics: [0, 0.12], practice: [0, 0.05], pa: [0, 0.55], lesson: [0, 0.3] };
 
 // ---- 背景(WebGPU) ----
 const look = { tint: 0, dim: 0, tT: 0, tD: 0, last: performance.now() / 1000 };
@@ -237,6 +245,7 @@ function show(target) {
   punch = performance.now() / 1000;
   host.dataset.page = next;
   host.dataset.unit = arg || '';
+  if (next === 'quiz') mountQuiz(stage.querySelector('.cq'), arg || 'A1.2.3', { icon: ic, back: () => show('pa:A1') });
   try { sessionStorage.csPage = target; } catch {}
 }
 stage.addEventListener('input', e => {   // 用語の検索
@@ -258,6 +267,10 @@ stage.addEventListener('click', e => {
   if (e.target.closest('[data-soon]')) { e.preventDefault(); say('Coming soon'); }
   const dots = e.target.closest('.cs-dots i');
   if (dots) { dots.parentElement.querySelectorAll('i').forEach(i => i.classList.toggle('on', i === dots)); }
+});
+stage.addEventListener('keydown', e => {   // Enter で、リンクの行を開く
+  const row = e.target.closest('[data-go][tabindex]');
+  if (row && e.key === 'Enter') { e.preventDefault(); show(row.dataset.go); }
 });
 setInterval(() => {   // ホームのページ送りのドット(見た目だけ)
   const d = [...stage.querySelectorAll('.cs-dots i')]; if (!d.length) return;
