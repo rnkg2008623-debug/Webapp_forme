@@ -1,9 +1,9 @@
 // CS(ネオンのときだけ): 「IBDP Computer Science HL」の学習サイトの画面一式。背景はWebGPU(白黒のゴシックの大聖堂)で、ずっと動いている。
 // 画面: home / topics / practice / pa(Practice の一覧。A1〜A4) / lesson(A1〜A4 の学習ページ) / case(Case Study)
-import { createGpuView } from './gpu-view.js?v=59';
-import { WGSL } from './cs-bg.js?v=59';
-import { GROUPS, TERMS, FIGS } from './casestudy.js?v=59';
-import { mountQuiz, quizScore, quizTotal, QUIZ_CODES } from './quiz.js?v=59';
+import { createGpuView } from './gpu-view.js?v=60';
+import { WGSL } from './cs-bg.js?v=60';
+import { GROUPS, TERMS, FIGS } from './casestudy.js?v=60';
+import { mountQuiz, quizScore, quizTotal, QUIZ_CODES } from './quiz.js?v=60';
 
 const host = document.getElementById('cs-view');
 const stage = document.getElementById('cs-stage');
@@ -250,7 +250,8 @@ function show(target) {
   punch = performance.now() / 1000;
   host.dataset.page = next;
   host.dataset.unit = arg || '';
-  if (next === 'quiz') mountQuiz(stage.querySelector('.cq'), arg || 'A1.2.3', { icon: ic, back: () => show(quizFrom && /^(lesson|pa):/.test(quizFrom) ? quizFrom : 'pa:A1') });
+  // 来た画面が分からないときは、そのユニットの学習ページへ戻る
+  if (next === 'quiz') mountQuiz(stage.querySelector('.cq'), arg || 'A1.2.3', { icon: ic, back: () => show(quizFrom && /^(lesson|pa):/.test(quizFrom) ? quizFrom : `lesson:${String(arg || 'A1.2.3').split('.')[0]}`) });
   try { sessionStorage.csPage = target; } catch {}
 }
 stage.addEventListener('input', e => {   // 用語の検索

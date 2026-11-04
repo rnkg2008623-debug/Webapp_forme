@@ -1,5 +1,5 @@
 // 言語の切り替え(English / 日本語 / 中文)。選んだ言語は、このブラウザの localStorage に保存する。
-import { MESSAGES } from './messages.js?v=59';
+import { MESSAGES } from './messages.js?v=60';
 
 export const LANGS = ['en', 'ja', 'zh'];
 const KEY = 'lang';
