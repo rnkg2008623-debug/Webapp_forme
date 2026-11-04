@@ -1,9 +1,9 @@
 // CS(ネオンのときだけ): 「IBDP Computer Science HL」の学習サイトの画面一式。背景はWebGPU(白黒のゴシックの大聖堂)で、ずっと動いている。
 // 画面: home / topics / practice / pa(Practice の一覧。A1〜A4) / lesson(A1〜A4 の学習ページ) / case(Case Study)
-import { createGpuView } from './gpu-view.js?v=56';
-import { WGSL } from './cs-bg.js?v=56';
-import { GROUPS, TERMS, FIGS } from './casestudy.js?v=56';
-import { mountQuiz, quizScore, quizTotal, QUIZ_CODES } from './quiz.js?v=56';
+import { createGpuView } from './gpu-view.js?v=57';
+import { WGSL } from './cs-bg.js?v=57';
+import { GROUPS, TERMS, FIGS } from './casestudy.js?v=57';
+import { mountQuiz, quizScore, quizTotal, QUIZ_CODES } from './quiz.js?v=57';
 
 const host = document.getElementById('cs-view');
 const stage = document.getElementById('cs-stage');
@@ -209,7 +209,7 @@ const PAGES = {
           <div class="cs-quote">“ Small steps<br>&nbsp; build great understanding.”</div>
           <div class="cs-prog panel"><button class="cs-iconbtn" data-soon aria-label="Search">${ic('search')}</button><div><small>Progress</small><div class="bar"><i></i></div></div><span>0/${u.topicCount}</span><button class="cs-iconbtn round" data-go="home" aria-label="Account">${ic('user')}</button></div>
         </div>
-        <ul class="cs-lessons">${u.lessons.map(([c, n, d, i, st], k) => `<li class="cs-lesson ${st}"><div class="cs-thumb">${ic(i, 'thumb')}</div><span class="num">${k + 1}</span><span class="txt"><b><code>${c}</code>${n}</b>${d ? `<em>${d}</em>` : ''}</span>${st === 'start' ? `<button class="cs-start" data-soon>Start ${ic('arrow', 'sm')}</button>` : `<button class="cs-start locked" disabled>${ic('lock', 'sm')} Locked ${ic('arrow', 'sm')}</button>`}</li>`).join('')}</ul>
+        <ul class="cs-lessons">${u.lessons.map(([c, n, d, i, st], k) => `<li class="cs-lesson ${st}"><div class="cs-thumb">${ic(i, 'thumb')}</div><span class="num">${k + 1}</span><span class="txt"><b><code>${c}</code>${n}</b>${d ? `<em>${d}</em>` : ''}</span>${st === 'start' ? `<button class="cs-start" ${QUIZ_CODES.includes(c) ? `data-go="quiz:${c}"` : 'data-soon'}>Start ${ic('arrow', 'sm')}</button>` : `<button class="cs-start locked" disabled>${ic('lock', 'sm')} Locked ${ic('arrow', 'sm')}</button>`}</li>`).join('')}</ul>
         <p class="cs-foot">— Knowledge turns into power —</p>
       </section>
     </div>`; },
