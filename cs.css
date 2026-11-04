@@ -187,3 +187,10 @@ body[data-view="cs"] #cs-view { display: block; animation: page-in .5s ease both
 @keyframes cs-noise { to { background-position: 7px 4px; } }
 .cs-p-case .cs-top.with-brand { margin-bottom: 0; }
 @media (max-width: 900px) { .cs-case { grid-template-columns: 1fr; } .cs-index { position: static; max-height: none; } }
+
+/* 長いトピック一覧: 左メニューは中でスクロール、長いタイトルは「…」で省略 */
+.cs-p-lesson .cs-side { max-height: calc(100vh - 11em); overflow: auto; scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, .4) transparent; align-self: start; position: sticky; top: .4em; }
+.cs-sub li { min-width: 0; } .cs-sub li span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+.cs-sub li.on { font-weight: 500; }
+.cs-lesson .txt b { display: flex; align-items: baseline; } .cs-lesson .txt code { flex: none; }
+.cs-lesson .txt b:not(:has(code:not(:empty))) { display: block; }

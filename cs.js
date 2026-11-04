@@ -1,8 +1,8 @@
 // CS(ネオンのときだけ): 「IBDP Computer Science HL」の学習サイトの画面一式。背景はWebGPU(白黒のゴシックの大聖堂)で、ずっと動いている。
 // 画面: home / topics / practice / pa(Practice の一覧。A1〜A4) / lesson(A1〜A4 の学習ページ) / case(Case Study)
-import { createGpuView } from './gpu-view.js?v=51';
-import { WGSL } from './cs-bg.js?v=51';
-import { GROUPS, TERMS, FIGS } from './casestudy.js?v=51';
+import { createGpuView } from './gpu-view.js?v=52';
+import { WGSL } from './cs-bg.js?v=52';
+import { GROUPS, TERMS, FIGS } from './casestudy.js?v=52';
 
 const host = document.getElementById('cs-view');
 const stage = document.getElementById('cs-stage');
@@ -42,40 +42,68 @@ const sparkle = `<svg class="cs-spark" viewBox="0 0 24 24" aria-hidden="true">${
 
 // ---- データ ----
 const SECTIONS = [
-  ['A1', 'System Fundamentals', 'chip'], ['A2', 'Computer Organization', 'db'], ['A3', 'Networks', 'code'],
-  ['A4', 'Computational Thinking', 'shield'], ['Theme B', 'Application Development', 'gears'], ['Case Study', 'Prescribed Case Study', 'book'],
+  ['A1', 'Computer Fundamentals', 'chip'], ['A2', 'Networks', 'net'], ['A3', 'Databases', 'db'],
+  ['A4', 'Machine Learning', 'gears'], ['Theme B', 'Application Development', 'code'], ['Case Study', 'Prescribed Case Study', 'book'],
 ];
-const A1_PRACTICE = [
-  ['A1.2.3', 'Logic Gates', 'AND, OR, NOT, NAND, NOR, XOR and truth tables.', 86, 'chip'],
-  ['A1.2.2', 'Use of binary to store data', 'How data is represented and stored in binary form.', 78, 'binary'],
-  ['A1.2.1', 'Data representation', 'Forms of data representation (binary, hexadecimal, ASCII, etc.).', 71, 'db'],
-  ['A1.1.9', 'Cloud computing', 'Concepts, advantages, and real-world applications.', 68, 'cloud'],
-  ['A1.1.8', 'Compression', 'Data compression techniques and their uses.', 62, 'zip'],
-  ['A1.1.7', 'Secondary memory', 'Hard drives, SSDs, and other secondary storage devices.', 75, 'ram'],
-  ['A1.1.6', 'Pipelining HL', 'How pipelining improves the performance of a CPU.', 59, 'pipe'],
-  ['A1.1.5', 'Fetch Decode Execute Cycle', 'The stages of the instruction cycle and their roles.', 88, 'cycle'],
-];
-const A1_LESSONS = [
-  ['A1.1', 'Computer Fundamentals', 'The basic concepts and components of computer systems.', 'chip', 'start'],
-  ['A1.2', 'Data Representation', 'How data is stored and represented in a computer.', 'binary', 'start'],
-  ['A1.3', 'Computer Networks', 'How computers communicate and share data.', 'net', 'start'],
-  ['A1.4', 'Memory', 'Types of memory and how they are used.', 'ram', 'locked'],
-  ['A1.5', 'CPU', 'The central processing unit and its functions.', 'chip', 'locked'],
-  ['A1.6', 'Pipelining HL', 'Improving performance with pipelining.', 'pipe', 'locked'],
-  ['A1.7', 'Secondary Memory', 'Long-term storage and its types.', 'disk', 'locked'],
-];
-// A2〜A4 は、内容が決まるまで仮の名前(あとで差し替える)
-const placeholder = (code, name, icon, tagline) => ({
-  code, name, practiceName: name, icon, tagline,
-  lessons: [1, 2, 3, 4, 5].map(i => [`${code}.${i}`, `Placeholder topic ${i}`, 'Content will be added later.', icon, i <= 2 ? 'start' : 'locked']),
-  practice: [1, 2, 3, 4, 5, 6].map(i => [`${code}.${i}.1`, `Placeholder topic ${i}`, 'Questions will be added later.', 0, icon]),
-  overall: [0, '0 / 0'],
-});
+// 各ユニットのトピック一覧(コード順)。「…」で終わるものは、画像で途中までしか読めなかったタイトル(全文が分かったら差し替える)。
+// コードのない行は、ユニットのノート・資料。
+const TOPICS = {
+  A1: [
+    'Unit 1 Computer Fundamentals AI',
+    'A1.1.5 Fetch Decode Execute Cycle', 'A1.1.6 Pipelining HL', 'A1.1.7 Secondary memory', 'A1.1.8 Compression', 'A1.1.9 Cloud computing',
+    'A1.2.1 Data representation', 'A1.2.2 Use of binary to store data', 'A1.2.3 Logic Gates', 'A1.2.4 Truth tables', 'A1.2.5 Logic Diagrams',
+    'A1.3.1 Operating Systems', 'A1.3.2 Functions of an OS', 'A1.3.3 Scheduling Algorithms', 'A1.3.4 Evaluate the use of polling and interrupt ha…',
+    'A1.3.5 Role of the OS in managing multitasking an…', 'A1.3.6 Control Systems', 'A1.3.7 Control Systems in the Real World',
+    'A1.4.1 Evaluate the translation processes of interpr…',
+  ],
+  A2: [
+    'Unit 2 Networks NotebookLM',
+    'A2.1.1 Describe the purpose and characteristics of…', 'A2.1.2 Describe the purpose, benefits and limitatio…', 'A2.1.3 Functions of Network Devices',
+    'A2.1.4 Network protocols used for transport and a…', 'A2.1.5 Describe the function of the TCP/IP model',
+    'A2.2.1 Describe the functions and practical applic…', 'A2.2.2 Describe the function of servers. (HL only)', 'A2.2.3 Compare and contrast networking models',
+    'A2.2.4 Explain the concepts and applications of ne…',
+    'A2.3.1 Describe Different Types of IP Addressing', 'A2.3.2 Compare types of media for data transmiss…', 'A2.3.3 Explain how packet switching is used to sen…',
+    'A2.3.4 Explain how static routing and dynamic rou…',
+    'A2.4.1 Discuss the effectiveness of firewalls at pro…', 'A2.4.2 Describe common network vulnerabilities', 'A2.4.3 Describe common network countermeasures',
+    'A2.4.4 Describe the process of encryption and dig…',
+  ],
+  A3: [
+    'A3.1.1 Explain the features, benefits and limitations…',
+    'A3.2.1 Describe Database Schemas', 'A3.2.2 Construct ERDs', 'A3.2.3 Outline the different data types used in rela…',
+    'A3.2.4 Construct tables for relational databases', 'A3.2.5 Explain the difference between normal forms', 'A3.2.6 Construct a database normalized to 3NF fo…',
+    'A3.2.7 Evaluate the need for denormalizing databa…',
+    'A3.3.1 Outline the differences between data langu…', 'A3.3.2 Construct queries between two tables in SQL', 'A3.3.3 Explain how SQL can be used to update dat…',
+    'A3.3.4 Construct calculations within a database u…', 'A3.3.5 Describe different database views', 'A3.3.6 Describe how transactions maintain data in…',
+    'A3.4.1 Outline the different types of databases as …', 'A3.4.2 Explain the primary objectives of data ware…', 'A3.4.3 Explain the role of online analytical process…',
+    'A3.4.4 Describe the features of distributed databa…',
+  ],
+  A4: [
+    'A4.1.1 Types of Machine Learning and their applic…', 'A4.1.2 Hardware requirements for various scenario…',
+    'A4.2.1 Data cleaning', 'A4.2.2 Feature selection', 'A4.2.3 Describe the importance of dimensionality …',
+    'A4.3.1 Explain how linear regression is used to pre…', 'A4.3.2 Explain how classifications techniques in su…', 'A4.3.3 Explain the role of hyperparameter tuning …',
+    'A4.3.4 Describe how clustering techniques in unsu…', 'A4.3.5 Describe how learning techniques using th…', 'A4.3.6 Describe how an agent learns to make deci…',
+    'A4.3.7 Describe the application of genetic algorith…', 'A4.3.8 Outline the structure and function of ANNs …', 'A4.3.9 Describe how CNNs are designed to adapti…',
+    'A4.3.10 Explain the importance of model selection…',
+    'Case Study for Paper 1',
+    'A4.4.1 Discuss the ethical implications of machine …', 'A4.4.2 Discuss ethical aspects of the increasing in…',
+  ],
+};
+const parseTopic = line => { const m = /^(A\d\.\d+\.\d+)\s+(.*)$/.exec(line); return m ? { code: m[1], title: m[2] } : { code: '', title: line }; };
+const unit = (code, name, icon, tagline) => {
+  const rows = TOPICS[code].map(parseTopic);
+  return {
+    code, name, practiceName: name, icon, tagline,
+    lessons: rows.map(r => [r.code, r.title, '', r.code ? icon : 'book', 'start']),      // [コード, タイトル, 説明, アイコン, 状態]
+    practice: rows.filter(r => r.code).reverse().map(r => [r.code, r.title, '', 0, icon]),  // Practice は新しいコードから(正答率は、まだ記録なし)
+    topicCount: rows.filter(r => r.code).length,
+    overall: [0, '0 / 0'],
+  };
+};
 const UNITS = {
-  A1: { code: 'A1', name: 'Computer Systems', practiceName: 'System Fundamentals', icon: 'chip', tagline: 'Understanding how computers work.', lessons: A1_LESSONS, practice: A1_PRACTICE, overall: [72, '288 / 400'] },
-  A2: placeholder('A2', 'Computer Organization', 'db', 'Placeholder description. Details will be added later.'),
-  A3: placeholder('A3', 'Networks', 'code', 'Placeholder description. Details will be added later.'),
-  A4: placeholder('A4', 'Computational Thinking', 'shield', 'Placeholder description. Details will be added later.'),
+  A1: unit('A1', 'Computer Fundamentals', 'chip', 'Understanding how computers work.'),
+  A2: unit('A2', 'Networks', 'net', 'How computers communicate and share data.'),
+  A3: unit('A3', 'Databases', 'db', 'Organizing, querying and managing data.'),
+  A4: unit('A4', 'Machine Learning', 'gears', 'How machines learn from data.'),
 };
 const unitOf = c => UNITS[c] || UNITS.A1;
 
@@ -131,7 +159,7 @@ const PAGES = {
           <div class="cs-mtitle">${ic(u.icon, 'huge')}<div><h2><i>${u.code}</i> <em>${u.practiceName}</em></h2><p>Practice questions for ${u.code}. Test your understanding and track your progress.</p></div></div>
           <div class="cs-overall panel"><div class="ring big" style="--p:${u.overall[0]}"><span>${u.overall[0]}%</span></div><div><b>${u.code} Overall</b><p>Correct: ${u.overall[1]}</p></div></div>
         </div>
-        <ul class="cs-rows">${u.practice.map(([c, n, d, p, i], k) => `<li class="cs-row ${k === 0 ? 'hot' : ''}">${ic(i, 'lead')}<code>${c}</code><span><b>${n}</b><em>${d}</em></span><strong>${p}%</strong><div class="ring" style="--p:${p}"></div>${ic('chev', 'sm')}</li>`).join('')}</ul>
+        <ul class="cs-rows">${u.practice.map(([c, n, d, p, i], k) => `<li class="cs-row ${k === 0 ? 'hot' : ''}">${ic(i, 'lead')}<code>${c}</code><span><b>${n}</b>${d ? `<em>${d}</em>` : ''}</span><strong>${p}%</strong><div class="ring" style="--p:${p}"></div>${ic('chev', 'sm')}</li>`).join('')}</ul>
       </section>
     </div>`; },
 
@@ -163,16 +191,16 @@ const PAGES = {
       <aside class="cs-side panel">
         <div class="cs-lbrand" data-go="home">${ic('cycle', 'lead')}<span><small>IBDP</small>Computer Science HL</span></div><div class="cs-rule thin"><i></i><b>✦</b><i></i></div>
         ${SECTIONS.map(([c, n, i]) => (c === u.code
-          ? `<button class="cs-acc on">${ic(i, 'lead')}<b>${c}</b>${ic('up', 'sm')}</button><ul class="cs-sub">${u.lessons.map(([lc, ln], k) => `<li class="${k === (c === 'A1' ? 1 : 0) ? 'on' : ''}"><i></i><code>${lc}</code><span>${ln}</span></li>`).join('')}</ul>`
+          ? `<button class="cs-acc on">${ic(i, 'lead')}<b>${c}</b>${ic('up', 'sm')}</button><ul class="cs-sub">${u.lessons.map(([lc, ln], k) => `<li class="${k === 0 ? 'on' : ''}" title="${esc(ln)}"><i></i><code>${lc || '·'}</code><span>${esc(ln)}</span></li>`).join('')}</ul>`
           : `<button class="cs-acc" ${UNITS[c] ? `data-go="lesson:${c}"` : c === 'Case Study' ? 'data-go="case"' : 'data-soon'}>${ic(i, 'lead')}<b>${c}</b>${ic('down', 'sm')}</button>`)).join('')}
       </aside>
       <section class="cs-main">
         <div class="cs-lhead">
           <div class="cs-ltitle">${sparkle}<div><h2><i>${u.code}</i> <em>${u.name}</em></h2><p>${u.tagline}</p></div></div>
           <div class="cs-quote">“ Small steps<br>&nbsp; build great understanding.”</div>
-          <div class="cs-prog panel"><button class="cs-iconbtn" data-soon aria-label="Search">${ic('search')}</button><div><small>Progress</small><div class="bar"><i></i></div></div><span>0/${u.lessons.length}</span><button class="cs-iconbtn round" data-go="home" aria-label="Account">${ic('user')}</button></div>
+          <div class="cs-prog panel"><button class="cs-iconbtn" data-soon aria-label="Search">${ic('search')}</button><div><small>Progress</small><div class="bar"><i></i></div></div><span>0/${u.topicCount}</span><button class="cs-iconbtn round" data-go="home" aria-label="Account">${ic('user')}</button></div>
         </div>
-        <ul class="cs-lessons">${u.lessons.map(([c, n, d, i, st], k) => `<li class="cs-lesson ${st}"><div class="cs-thumb">${ic(i, 'thumb')}</div><span class="num">${k + 1}</span><span class="txt"><b><code>${c}</code>${n}</b><em>${d}</em></span>${st === 'start' ? `<button class="cs-start" data-soon>Start ${ic('arrow', 'sm')}</button>` : `<button class="cs-start locked" disabled>${ic('lock', 'sm')} Locked ${ic('arrow', 'sm')}</button>`}</li>`).join('')}</ul>
+        <ul class="cs-lessons">${u.lessons.map(([c, n, d, i, st], k) => `<li class="cs-lesson ${st}"><div class="cs-thumb">${ic(i, 'thumb')}</div><span class="num">${k + 1}</span><span class="txt"><b><code>${c}</code>${n}</b>${d ? `<em>${d}</em>` : ''}</span>${st === 'start' ? `<button class="cs-start" data-soon>Start ${ic('arrow', 'sm')}</button>` : `<button class="cs-start locked" disabled>${ic('lock', 'sm')} Locked ${ic('arrow', 'sm')}</button>`}</li>`).join('')}</ul>
         <p class="cs-foot">— Knowledge turns into power —</p>
       </section>
     </div>`; },
