@@ -1,9 +1,9 @@
 // CS(ネオンのときだけ): 「IBDP Computer Science HL」の学習サイトの画面一式。背景はWebGPU(白黒のゴシックの大聖堂)で、ずっと動いている。
 // 画面: home / topics / practice / pa(Practice の一覧。A1〜A4) / lesson(A1〜A4 の学習ページ) / case(Case Study)
-import { createGpuView } from './gpu-view.js?v=58';
-import { WGSL } from './cs-bg.js?v=58';
-import { GROUPS, TERMS, FIGS } from './casestudy.js?v=58';
-import { mountQuiz, quizScore, quizTotal, QUIZ_CODES } from './quiz.js?v=58';
+import { createGpuView } from './gpu-view.js?v=59';
+import { WGSL } from './cs-bg.js?v=59';
+import { GROUPS, TERMS, FIGS } from './casestudy.js?v=59';
+import { mountQuiz, quizScore, quizTotal, QUIZ_CODES } from './quiz.js?v=59';
 
 const host = document.getElementById('cs-view');
 const stage = document.getElementById('cs-stage');
@@ -236,8 +236,13 @@ function say(msg) {
   toast.textContent = msg; toast.hidden = false; toast.classList.add('on');
   clearTimeout(toastTimer); toastTimer = setTimeout(() => { toast.classList.remove('on'); setTimeout(() => { toast.hidden = true; }, 300); }, 1600);
 }
+let current = '';          // いま開いている画面(例: 'lesson:A1')
+let quizFrom = '';         // 問題集を開く前にいた画面。Exit で、そこへ戻る
+try { quizFrom = sessionStorage.csQuizFrom || ''; } catch {}
 function show(target) {
   const [next, arg] = String(target).split(':');   // 例: 'lesson:A2'
+  if (next === 'quiz' && current && !current.startsWith('quiz')) { quizFrom = current; try { sessionStorage.csQuizFrom = quizFrom; } catch {} }
+  current = String(target);
   page = next;
   stage.innerHTML = `<div class="cs-page cs-p-${next}">${PAGES[next](arg)}</div>`;
   stage.firstElementChild.scrollTop = 0;
@@ -245,7 +250,7 @@ function show(target) {
   punch = performance.now() / 1000;
   host.dataset.page = next;
   host.dataset.unit = arg || '';
-  if (next === 'quiz') mountQuiz(stage.querySelector('.cq'), arg || 'A1.2.3', { icon: ic, back: () => show('pa:A1') });
+  if (next === 'quiz') mountQuiz(stage.querySelector('.cq'), arg || 'A1.2.3', { icon: ic, back: () => show(quizFrom && /^(lesson|pa):/.test(quizFrom) ? quizFrom : 'pa:A1') });
   try { sessionStorage.csPage = target; } catch {}
 }
 stage.addEventListener('input', e => {   // 用語の検索
