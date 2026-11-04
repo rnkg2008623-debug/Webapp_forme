@@ -194,3 +194,17 @@ body[data-view="cs"] #cs-view { display: block; animation: page-in .5s ease both
 .cs-sub li.on { font-weight: 500; }
 .cs-lesson .txt b { display: flex; align-items: baseline; } .cs-lesson .txt code { flex: none; }
 .cs-lesson .txt b:not(:has(code:not(:empty))) { display: block; }
+
+/* 学習ページ・Practice・Case Study は、画面の高さにぴったり収める。ページ全体はスクロールせず、一覧だけが枠の中でスクロールする */
+.cs-p-lesson, .cs-p-pa, .cs-p-case { overflow: hidden; padding-bottom: 1.2em; }
+.cs-p-lesson .cs-split, .cs-p-pa .cs-split, .cs-p-case .cs-split { min-height: 0; align-items: stretch; }
+.cs-p-lesson .cs-split > *, .cs-p-pa .cs-split > *, .cs-p-case .cs-split > * { min-height: 0; }
+.cs-p-lesson .cs-side, .cs-p-pa .cs-side, .cs-p-case .cs-side { position: static; max-height: none; height: 100%; overflow-y: auto; align-self: stretch; scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, .4) transparent; }
+.cs-p-lesson .cs-main, .cs-p-pa .cs-main { display: flex; flex-direction: column; min-height: 0; }
+.cs-p-lesson .cs-lhead, .cs-p-pa .cs-crumb, .cs-p-pa .cs-mhead, .cs-p-lesson .cs-foot { flex: none; }
+.cs-p-lesson .cs-lessons, .cs-p-pa .cs-rows { flex: 1; min-height: 0; overflow-y: auto; padding: 2px 8px 2px 2px; margin-right: -8px; scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, .45) transparent; }
+.cs-p-lesson .cs-lessons { margin-top: .8em; }
+.cs-p-case .cs-doc { overflow-y: auto; padding-right: 10px; scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, .45) transparent; align-self: stretch; }
+.cs-p-case .cs-index { max-height: none; height: 100%; }
+.cs-p-lesson .cs-foot { margin-top: .4em; }
+@media (max-width: 900px) { .cs-p-lesson, .cs-p-pa, .cs-p-case { overflow: auto; } .cs-p-lesson .cs-side, .cs-p-pa .cs-side, .cs-p-case .cs-side { height: auto; } .cs-p-lesson .cs-lessons, .cs-p-pa .cs-rows { overflow: visible; } }

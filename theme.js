@@ -10,7 +10,7 @@ async function apply() {
   const neon = getTheme() === 'neon';
   buttons.forEach(b => { const on = b.dataset.theme === getTheme(); b.classList.toggle('is-on', on); b.setAttribute('aria-pressed', String(on)); });
   if (!neon && document.body.dataset.view === 'cs') window.appSetView('home');
-  const gpu = await import('./neon-bg.js?v=52');
+  const gpu = await import('./neon-bg.js?v=53');
   if (!neon) { gpu.stopNeon(); root.classList.remove('neon-gpu'); if (note) note.hidden = true; return; }
   const ok = await gpu.startNeon(document.querySelector('.bg'));
   root.classList.toggle('neon-gpu', ok);
@@ -29,7 +29,7 @@ if (getTheme() === 'neon') apply(); else buttons.forEach(b => { const on = b.dat
 // CS 画面(ネオンのときだけ): 開いている間だけ、WebGPUの背景を動かす
 async function syncCs(view) {
   if (getTheme() !== 'neon') return;
-  const m = await import('./cs.js?v=52');
+  const m = await import('./cs.js?v=53');
   if (view === 'cs') m.cs.start(); else m.cs.stop();
 }
 window.addEventListener('viewchange', e => syncCs(e.detail));
