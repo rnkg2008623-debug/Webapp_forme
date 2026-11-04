@@ -1,8 +1,8 @@
 // CS(ネオンのときだけ): 「IBDP Computer Science HL」の学習サイトの画面一式。背景はWebGPU(白黒のゴシックの大聖堂)で、ずっと動いている。
 // 画面: home / topics / practice / pa(Practice の一覧。A1〜A4) / lesson(A1〜A4 の学習ページ) / case(Case Study)
-import { createGpuView } from './gpu-view.js?v=53';
-import { WGSL } from './cs-bg.js?v=53';
-import { GROUPS, TERMS, FIGS } from './casestudy.js?v=53';
+import { createGpuView } from './gpu-view.js?v=54';
+import { WGSL } from './cs-bg.js?v=54';
+import { GROUPS, TERMS, FIGS } from './casestudy.js?v=54';
 
 const host = document.getElementById('cs-view');
 const stage = document.getElementById('cs-stage');
@@ -50,6 +50,7 @@ const SECTIONS = [
 const TOPICS = {
   A1: [
     'Unit 1 Computer Fundamentals AI',
+    'A1.1.1 CPU components', 'A1.1.2 GPU', 'A1.1.3 Differences between CPU and GPU', 'A1.1.4 Types of Primary Memory',
     'A1.1.5 Fetch Decode Execute Cycle', 'A1.1.6 Pipelining HL', 'A1.1.7 Secondary memory', 'A1.1.8 Compression', 'A1.1.9 Cloud computing',
     'A1.2.1 Data representation', 'A1.2.2 Use of binary to store data', 'A1.2.3 Logic Gates', 'A1.2.4 Truth tables', 'A1.2.5 Logic Diagrams',
     'A1.3.1 Operating Systems', 'A1.3.2 Functions of an OS', 'A1.3.3 Scheduling Algorithms', 'A1.3.4 Evaluate the use of polling and interrupt ha…',
