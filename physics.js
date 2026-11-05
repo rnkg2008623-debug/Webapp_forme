@@ -1,6 +1,6 @@
 // Physics(ネオンのときだけ): IBDP Physics HL の最初のページ。背景はWebGPU(白黒のゴシックの大聖堂+浮かぶ惑星)で、ずっと動いている。
-import { createGpuView } from './gpu-view.js?v=65';
-import { WGSL } from './physics-bg.js?v=65';
+import { createGpuView } from './gpu-view.js?v=66';
+import { WGSL } from './physics-bg.js?v=66';
 
 let punch = -10;           // 最後にページを切り替えた時刻(秒)。背景の演出に使う
 const host = document.getElementById('physics-view');
@@ -58,6 +58,19 @@ Object.assign(ICONS, {
   atom: '<circle cx="12" cy="12" r="1.800"/><ellipse cx="12" cy="12" rx="10" ry="4"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)"/>',
 });
 
+// サブトピック(A1〜A5 など)の中身。いまは A5 だけ。ほかは、内容が決まったら追加する
+const SUBS = {
+  A5: { area: 'A', title: 'Galilean and special relativity', icon: 'well', sub: 'Inertial frames, the speed of light and relativistic effects.', rows: [
+    ['frames', 'Reference frames and Lorentz transformations', 'Inertial frames, Lorentz transformations and their use.'],
+    ['clock', 'Effects of relativity', 'Time dilation, length contraction and mass\u2013energy equivalence.'],
+    ['spacetime', 'Spacetime diagrams', 'Representing and analysing events in spacetime.']] },
+};
+Object.assign(ICONS, {
+  frames: '<path d="M4 20V3M4 3l-2 3M4 3l2 3M4 20h17M21 20l-3-2M21 20l-3 2"/><path d="M4 20L16 8" stroke-dasharray="2 2"/><path d="M8 17c3-1 6-4 9-5M17 12l-3.500.5M17 12l-1.500 3"/>',
+  clock: '<circle cx="15" cy="12" r="7"/><path d="M15 8v4l2.500 2M2 8h5M1 12h4M2 16h5"/>',
+  spacetime: '<path d="M5 20V4M5 4l-2 3M5 4l2 3M5 20h15M20 20l-3-2M20 20l-3 2"/><path d="M5 20L18 6M5 8l9 9" stroke-dasharray="2 2"/>',
+});
+
 const topNav = page => `
   <header class="ph-top">
     <a class="ph-brand" href="#" data-go="home" aria-label="Home">${ic('star', 'star')}<span>IBDP<br>Physics HL</span></a>
@@ -66,6 +79,24 @@ const topNav = page => `
   </header>`;
 
 const PAGES = {
+  sub: (id = 'A5') => {
+    const d = SUBS[id] || SUBS.A5, a = AREAS.find(x => x.id === d.area), code = id;
+    return `${topNav('topics')}
+    <div class="ph-split">
+      <aside class="ph-side">
+        <h3 class="ph-side-t">${ic('star', 'star sm2')}Topics</h3><div class="ph-side-rule"></div>
+        <ul>${AREAS.map(x => x.id !== a.id ? `<li><button data-go="area:${x.id}"><span>${x.id}. ${x.title}</span>${ic('chev', 'sm')}</button></li>`
+          : `<li class="grp"><button class="open" data-go="area:${x.id}"><span>${x.id}. ${x.title}</span>${ic('down', 'sm')}</button><ul class="subnav">${x.subs.map(([c, n]) => { const k = c.replace('.', ''); return `<li><button class="${k === code ? 'on' : ''}" ${SUBS[k] ? `data-go="sub:${k}"` : 'data-soon'}><code>${k}</code><span>${n}</span>${k === code ? ic('chev', 'sm') : ''}</button></li>`; }).join('')}</ul></li>`).join('')}</ul>
+      </aside>
+      <section class="ph-main">
+        <div class="ph-crumb"><a href="#" data-go="home" aria-label="Home">${ic('home')}</a><a href="#" data-go="topics">Topics</a>${ic('chev', 'sm')}<a href="#" data-go="area:${a.id}">${a.id}. ${a.title}</a>${ic('chev', 'sm')}<span>${code} ${d.title}</span></div>
+        <div class="ph-ahead ph-shead">${ic(d.icon, 'huge')}<div><h2><i>${code}</i> ${d.title}</h2><p>${d.sub}</p></div></div>
+        <div class="ph-rule slim"><i></i><b>◆</b><i></i></div>
+        <ul class="ph-subs ph-leaf">${d.rows.map(([i, t, desc]) => `<li class="ph-sub plain" data-soon tabindex="0" role="button"><span class="ico">${ic(i, 'lead')}</span><span class="txt"><b>${t}</b><em>${desc}</em></span>${ic('chev', 'sm')}</li>`).join('')}</ul>
+      </section>
+    </div>`;
+  },
+
   area: (id = 'A') => {
     const a = AREAS.find(x => x.id === id) || AREAS[0], inf = INFO[a.id];
     return `${topNav('topics')}
@@ -78,7 +109,7 @@ const PAGES = {
         <div class="ph-crumb"><a href="#" data-go="home" aria-label="Home">${ic('home')}</a><a href="#" data-go="topics">Topics</a>${ic('chev', 'sm')}<span>${a.id}. ${a.title}</span></div>
         <div class="ph-ahead">${ic(inf.icon, 'huge')}<div><h2>${a.id}. ${a.title}</h2><p>${inf.sub}</p></div></div>
         <div class="ph-rule slim"><i></i><b>◆</b><i></i></div>
-        <ul class="ph-subs">${a.subs.map(([c, n], k) => `<li class="ph-sub" data-soon tabindex="0" role="button">${ic(inf.rows[k][0], 'lead')}<i class="code">${c.replace('.', '')}</i><span class="txt"><b>${n}</b><em>${inf.rows[k][1]}</em></span>${ic('chev', 'sm')}</li>`).join('')}</ul>
+        <ul class="ph-subs">${a.subs.map(([c, n], k) => `<li class="ph-sub" ${SUBS[c.replace('.', '')] ? `data-go="sub:${c.replace('.', '')}"` : 'data-soon'} tabindex="0" role="button">${ic(inf.rows[k][0], 'lead')}<i class="code">${c.replace('.', '')}</i><span class="txt"><b>${n}</b><em>${inf.rows[k][1]}</em></span>${ic('chev', 'sm')}</li>`).join('')}</ul>
       </section>
     </div>`;
   },
@@ -106,6 +137,7 @@ const PAGES = {
 };
 Object.assign(ICONS, {
   chev: '<path d="M9 5l7 7-7 7"/>',
+  down: '<path d="M6 9l6 6 6-6"/>',
   home: '<path d="M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10"/>',
   planet: '<circle cx="12" cy="12" r="5"/><path d="M2.500 15c-1.500-3 4-7.500 11-9.500M21.500 9c1.500 3-4 7.500-11 9.500"/>',
   graph: '<path d="M3 3v18h18"/><path d="M5 19C9 18 12 14 14 8c1-3 3-4 5-4"/><circle cx="17" cy="5" r="1.200"/><path d="M17 6.500V19M5 8h12" stroke-dasharray="1.500 2"/>',

@@ -1,5 +1,5 @@
 // Practice の問題集の画面(A1.2.3 Logic Gates)。1問ずつ答えて「Submit Answer」で採点基準を表示する。進み具合は、このブラウザに保存する。
-import { SECTIONS, QUESTIONS, QUIZ_META } from './quiz-data.js?v=65';
+import { SECTIONS, QUESTIONS, QUIZ_META } from './quiz-data.js?v=66';
 
 export const QUIZ_CODES = [QUIZ_META.code];
 export const quizTotal = code => (code === QUIZ_META.code ? QUIZ_META.total : 0);

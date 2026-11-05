@@ -119,3 +119,19 @@ body[data-view="physics"] #physics-view { display: block; animation: page-in .5s
 .ph-areas > :nth-child(5), .ph-subs > :nth-child(5), .ph-side li:nth-child(5) { animation-delay: .44s; }
 .ph-title, .ph-ahead h2, .ph-t2 { animation: ph-rise .8s cubic-bezier(.2, .7, .2, 1) backwards .05s; }
 @media (prefers-reduced-motion: reduce) { .ph-body, .ph-cards .ph-card, .ph-areas .ph-area, .ph-subs .ph-sub, .ph-side li, .ph-title, .ph-ahead h2, .ph-t2 { animation: none; } }
+
+/* ---------- Physics: サブトピックのページ(例: A5 → 3つの項目) ---------- */
+.ph-stage[data-page="sub"] .ph-scene > * { display: none; }
+.ph-side li.grp { border-bottom: 1px solid rgba(255, 255, 255, .18); }
+.ph-side li.grp > button.open { padding-bottom: .5em; }
+.ph-side .subnav { margin: 0 0 .5em .9em; } .ph-side .subnav li { border: 0; }
+.ph-side .subnav button { padding: .38em .7em; font-size: 1.02em; gap: .7em; justify-content: flex-start; }
+.ph-side .subnav code { font: inherit; width: 2.2em; flex: none; opacity: .9; } .ph-side .subnav span { flex: 1; }
+.ph-side .subnav button.on { border: 1.5px solid #fff; background: rgba(255, 255, 255, .12); box-shadow: 0 0 16px rgba(255, 255, 255, .55); border-radius: .9em; }
+.ph-shead h2 { font-size: 3.3em; } .ph-shead h2 i { font-size: 1.25em; font-weight: 600; margin-right: .25em; }
+.ph-shead p { font-size: 1.3em; }
+.ph-leaf { justify-content: flex-start; gap: 1.1em; padding-top: .5em; }
+.ph-sub.plain { flex: 0 0 auto; min-height: 8.4em; max-height: none; padding: .6em 2em .6em 1.6em; gap: 2.2em; }
+.ph-sub.plain .ico { display: grid; place-items: center; width: 8em; align-self: stretch; padding-right: 1.6em; border-right: 1px solid rgba(255, 255, 255, .5); flex: none; }
+.ph-sub.plain .ico .ph-ic.lead { width: 4.4em; height: 4.4em; }
+.ph-sub.plain b { font-size: 2.2em; } .ph-sub.plain em { font-size: 1.3em; }
