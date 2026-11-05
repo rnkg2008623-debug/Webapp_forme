@@ -1,8 +1,8 @@
 // Compare: 自分と友だちの「今日」「今週(月曜〜今日)」の勉強時間を、棒グラフで比べる。
 // ヘッダーの Compare を押すと、フレンドと同じように、ページの上に画面が重なって出る。開いている間だけ、ログを読み込む。
-import { firestore } from './auth.js?v=67';
-import { onState, makeAvatar } from './friends-ui.js?v=67';
-import { t, duration } from './i18n.js?v=67';
+import { firestore } from './auth.js?v=69';
+import { onState, makeAvatar } from './friends-ui.js?v=69';
+import { t, duration } from './i18n.js?v=69';
 
 const $ = id => document.getElementById(id);
 let f, db, user;

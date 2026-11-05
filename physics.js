@@ -1,6 +1,7 @@
 // Physics(ネオンのときだけ): IBDP Physics HL の最初のページ。背景はWebGPU(白黒のゴシックの大聖堂+浮かぶ惑星)で、ずっと動いている。
-import { createGpuView } from './gpu-view.js?v=67';
-import { WGSL } from './physics-bg.js?v=67';
+import { createGpuView } from './gpu-view.js?v=69';
+import { WGSL } from './physics-bg.js?v=69';
+import { TOPICS, FIGS } from './physics-a5.js?v=69';
 
 let punch = -10;           // 最後にページを切り替えた時刻(秒)。背景の演出に使う
 const host = document.getElementById('physics-view');
@@ -78,7 +79,57 @@ const topNav = page => `
     <div class="ph-acts"><button class="ph-iconbtn" data-soon aria-label="Search">${ic('search')}</button></div>
   </header>`;
 
+const esc = x => String(x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const fmt = x => esc(x).replace(/\{([^{}|]+)\|([^{}]+)\}/g, '<span class="frac"><i>$1</i><b>$2</b></span>');
+const bi = (en, ja) => `<div class="ph-bi"><p class="en">${fmt(en)}</p>${ja ? `<p class="ja" lang="ja">${fmt(ja)}</p>` : ''}</div>`;
+function block(b) {
+  switch (b.t) {
+    case 'p': return bi(b.en, b.ja);
+    case 'h': return `<h4 class="ph-h4"><span class="en">${esc(b.text)}</span>${b.ja ? `<small class="ja" lang="ja">${esc(b.ja)}</small>` : ''}</h4>`;
+    case 'eq': return `<div class="ph-eq-block">${b.lines.map(l => `<div>${fmt(l)}</div>`).join('')}</div>`;
+    case 'key': return `<aside class="ph-note key"><b>Key point</b>${bi(b.en, b.ja)}</aside>`;
+    case 'tip': return `<aside class="ph-note tip"><b>Exam tip</b>${bi(b.en, b.ja)}</aside>`;
+    case 'tok': return `<aside class="ph-note tok"><b>Theory of knowledge</b>${bi(b.en, b.ja)}</aside>`;
+    case 'ctx': return `<aside class="ph-note ctx"><b>${esc(b.title)}</b>${bi(b.en, b.ja)}</aside>`;
+    case 'ex': return `<section class="ph-ex"><h5>${esc(b.no)}</h5><p class="q">${fmt(b.q)}</p><details><summary>Show the solution</summary><ol class="steps">${b.steps.map(x => `<li>${fmt(x)}</li>`).join('')}</ol><p class="ja" lang="ja">${fmt(b.ja)}</p></details></section>`;
+    case 'chk': return `<section class="ph-ex chk"><h5>${esc(b.no)}</h5><p class="q">${fmt(b.q)}</p><details><summary>Show the answer</summary><p class="ans">${fmt(b.a)}</p><p class="ja" lang="ja">${fmt(b.ja)}</p></details></section>`;
+    case 'fig': return `<figure class="ph-figure">${FIGS[b.id]()}<figcaption><span class="en">${esc(b.cap)}</span><span class="ja" lang="ja">${esc(b.ja)}</span></figcaption></figure>`;
+    default: return '';
+  }
+}
+const checkKey = id => `phCheck:${id}`;
+const loadChecks = id => { try { return JSON.parse(localStorage.getItem(checkKey(id))) || {}; } catch { return {}; } };
+
 const PAGES = {
+  topic: (id = 'A5-1') => {
+    const T = TOPICS[id] || TOPICS['A5-1'], tid = id in TOPICS ? id : 'A5-1', d = SUBS.A5, a = AREAS.find(x => x.id === d.area);
+    const done = loadChecks(tid);
+    return `${topNav('topics')}
+    <div class="ph-split ph-doc-split">
+      <aside class="ph-side">
+        <h3 class="ph-side-t">${ic('star', 'star sm2')}${T.code}</h3><div class="ph-side-rule"></div>
+        <ul class="ph-toc">${Object.entries(TOPICS).map(([k, x]) => `<li><button class="${k === tid ? 'on' : ''}" data-go="topic:${k}"><code>${x.code}</code><span>${x.title}</span></button></li>`).join('')}</ul>
+        <h4 class="ph-toc-h">On this page</h4>
+        <nav class="ph-toc-sec">${T.sections.map(s => `<a href="#" data-jump="phs-${tid}-${s.id}">${esc(s.title)}</a>`).join('')}<a href="#" data-jump="phs-${tid}-review">Review</a></nav>
+      </aside>
+      <section class="ph-main ph-docmain" data-mode="both">
+        <div class="ph-crumb"><a href="#" data-go="home" aria-label="Home">${ic('home')}</a><a href="#" data-go="topics">Topics</a>${ic('chev', 'sm')}<a href="#" data-go="area:A">A. Space, time and motion</a>${ic('chev', 'sm')}<a href="#" data-go="sub:A5">A5 ${d.title}</a>${ic('chev', 'sm')}<span>${T.code} ${T.title}</span></div>
+        <div class="ph-dochead">
+          <div class="ph-ahead ph-shead">${ic(T.icon, 'huge')}<div><h2><i>${T.code}</i> ${T.title}</h2><p>${esc(T.lead)}</p><p class="ja" lang="ja">${esc(T.leadJa)}</p></div></div>
+          <div class="ph-langs" role="group" aria-label="Language"><button data-mode="both" class="on">EN + 日本語</button><button data-mode="en">EN</button><button data-mode="ja">日本語</button></div>
+        </div>
+        <div class="ph-doc">
+          <section class="ph-sec goals"><h3>Learning objectives <small class="ja" lang="ja">この項目で学ぶこと</small></h3><ul>${T.goals.map(g => `<li>${esc(g)}</li>`).join('')}</ul></section>
+          ${T.sections.map(s => `<section class="ph-sec" id="phs-${tid}-${s.id}"><h3>${esc(s.title)}</h3>${s.blocks.map(block).join('')}</section>`).join('')}
+          <section class="ph-sec" id="phs-${tid}-review"><h3>Review <small class="ja" lang="ja">ふりかえり</small></h3>
+            <div class="ph-note reflect"><b>Reflection</b><ul>${T.reflect.map((r, i) => `<li><span class="en">${esc(r)}</span><span class="ja" lang="ja">${esc(T.reflectJa[i])}</span></li>`).join('')}</ul></div>
+            <div class="ph-check"><b>Self-assessment checklist <small class="ja" lang="ja">自己チェック</small></b><ul>${T.check.map((c, i) => `<li><label><input type="checkbox" data-chk="${tid}:${i}" ${done[i] ? 'checked' : ''}><span class="en">I am able to ${esc(c)}</span><span class="ja" lang="ja">${esc(T.checkJa[i])}</span></label></li>`).join('')}</ul></div>
+          </section>
+        </div>
+      </section>
+    </div>`;
+  },
+
   sub: (id = 'A5') => {
     const d = SUBS[id] || SUBS.A5, a = AREAS.find(x => x.id === d.area), code = id;
     return `${topNav('topics')}
@@ -92,7 +143,7 @@ const PAGES = {
         <div class="ph-crumb"><a href="#" data-go="home" aria-label="Home">${ic('home')}</a><a href="#" data-go="topics">Topics</a>${ic('chev', 'sm')}<a href="#" data-go="area:${a.id}">${a.id}. ${a.title}</a>${ic('chev', 'sm')}<span>${code} ${d.title}</span></div>
         <div class="ph-ahead ph-shead">${ic(d.icon, 'huge')}<div><h2><i>${code}</i> ${d.title}</h2><p>${d.sub}</p></div></div>
         <div class="ph-rule slim"><i></i><b>◆</b><i></i></div>
-        <ul class="ph-subs ph-leaf">${d.rows.map(([i, t, desc]) => `<li class="ph-sub plain" data-soon tabindex="0" role="button"><span class="ico">${ic(i, 'lead')}</span><span class="txt"><b>${t}</b><em>${desc}</em></span>${ic('chev', 'sm')}</li>`).join('')}</ul>
+        <ul class="ph-subs ph-leaf">${d.rows.map(([i, t, desc], k) => `<li class="ph-sub plain" ${TOPICS[`${code}-${k + 1}`] ? `data-go="topic:${code}-${k + 1}"` : 'data-soon'} tabindex="0" role="button"><span class="ico">${ic(i, 'lead')}</span><span class="txt"><b>${t}</b><em>${desc}</em></span>${ic('chev', 'sm')}</li>`).join('')}</ul>
       </section>
     </div>`;
   },
@@ -193,6 +244,10 @@ function say(msg) {
   clearTimeout(toastTimer); toastTimer = setTimeout(() => { toast.classList.remove('on'); setTimeout(() => { toast.hidden = true; }, 300); }, 1600);
 }
 stage.addEventListener('click', e => {
+  const jump = e.target.closest('[data-jump]');
+  if (jump) { e.preventDefault(); const t = stage.querySelector('#' + jump.dataset.jump); t?.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+  const lm = e.target.closest('.ph-langs button');
+  if (lm) { stage.querySelector('.ph-docmain').dataset.mode = lm.dataset.mode; lm.parentElement.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === lm)); return; }
   const go = e.target.closest('[data-go]');
   if (go) { e.preventDefault(); show(go.dataset.go); return; }
   if (e.target.closest('[data-soon]')) { e.preventDefault(); say('Coming soon'); }
@@ -200,6 +255,11 @@ stage.addEventListener('click', e => {
 let start0 = 'home';
 try { if (String(sessionStorage.phPage).split(':')[0] in PAGES) start0 = sessionStorage.phPage; } catch {}
 show(start0);
+stage.addEventListener('change', e => {   // 自己チェックの保存
+  const c = e.target.closest('[data-chk]'); if (!c) return;
+  const [id, i] = c.dataset.chk.split(':'); const cur = loadChecks(id); cur[i] = c.checked;
+  try { localStorage.setItem(checkKey(id), JSON.stringify(cur)); } catch {}
+});
 stage.addEventListener('keydown', e => {   // Enter で、押せる行を開く
   const row = e.target.closest('[tabindex][data-go], [tabindex][data-soon]');
   if (row && e.key === 'Enter') row.click();

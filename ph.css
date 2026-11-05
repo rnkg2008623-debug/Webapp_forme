@@ -135,3 +135,40 @@ body[data-view="physics"] #physics-view { display: block; animation: page-in .5s
 .ph-sub.plain .ico { display: grid; place-items: center; width: 8em; align-self: stretch; padding-right: 1.6em; border-right: 1px solid rgba(255, 255, 255, .5); flex: none; }
 .ph-sub.plain .ico .ph-ic.lead { width: 4.4em; height: 4.4em; }
 .ph-sub.plain b { font-size: 2.2em; } .ph-sub.plain em { font-size: 1.3em; }
+
+/* ---------- Physics: A5 の解説ページ(Reference frames / Effects of relativity / Spacetime diagrams) ---------- */
+.ph-stage[data-page="topic"] .ph-scene > * { display: none; }
+.ph-doc-split { grid-template-columns: 21em 1fr; }
+.ph-doc-split .ph-side { align-self: stretch; max-height: 100%; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, .4) transparent; }
+.ph-toc li button { align-items: flex-start; } .ph-toc code { font: inherit; opacity: .85; width: 3em; flex: none; } .ph-toc li button span { flex: 1; }
+.ph-toc-h { margin: 1.2em .4em .4em; font: 500 .95em var(--ph-serif); letter-spacing: .18em; text-transform: uppercase; opacity: .7; }
+.ph-toc-sec { display: flex; flex-direction: column; } .ph-toc-sec a { padding: .32em .7em; font-size: 1.02em; border-radius: .4em; opacity: .9; } .ph-toc-sec a:hover { background: rgba(255, 255, 255, .1); text-shadow: 0 0 8px #fff; }
+.ph-docmain { min-height: 0; }
+.ph-dochead { flex: none; display: flex; align-items: flex-start; justify-content: space-between; gap: 1.5em; }
+.ph-dochead .ph-ahead { margin: .5em 0 .3em; } .ph-dochead .ph-shead h2 { font-size: 2.7em; } .ph-dochead p { font-size: 1.15em; letter-spacing: .06em; margin-top: .3em; } .ph-dochead p.ja { font-size: 1em; opacity: .85; letter-spacing: .03em; }
+.ph-langs { display: flex; gap: .4em; flex: none; margin-top: .8em; } .ph-langs button { height: 2.2em; padding: 0 1em; border: 1px solid rgba(255, 255, 255, .45); border-radius: 2em; font-size: .95em; background: rgba(0, 0, 0, .4); } .ph-langs button.on { background: #fff; color: #08080c; box-shadow: 0 0 12px rgba(255, 255, 255, .6); }
+.ph-doc { flex: 1; min-height: 0; overflow-y: auto; padding: .4em 1em 2em .2em; scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, .45) transparent; scroll-behavior: smooth; }
+.ph-sec { margin-bottom: 1.6em; scroll-margin-top: .4em; padding: 1.1em 1.6em 1.2em; border: 1px solid rgba(255, 255, 255, .7); border-radius: 4px; background: linear-gradient(180deg, rgba(8, 8, 12, .86), rgba(2, 2, 4, .92)); box-shadow: inset 0 0 0 4px rgba(3, 3, 6, .85), inset 0 0 0 5px rgba(255, 255, 255, .3); }
+.ph-sec > h3 { font: italic 600 2.2em/1.15 var(--ph-serif); margin-bottom: .5em; text-shadow: 0 0 14px rgba(255, 255, 255, .4); } .ph-sec > h3 small { font: 400 .45em var(--ph-serif); opacity: .7; margin-left: .8em; letter-spacing: .06em; }
+.ph-sec.goals ul { margin-left: 1.3em; font-size: 1.2em; line-height: 1.6; }
+.ph-bi { margin: .6em 0; } .ph-bi p.en { font-size: 1.25em; line-height: 1.65; } .ph-bi p.ja, .ph-ex p.ja { margin-top: .5em; padding-left: 1em; border-left: 2px solid rgba(255, 255, 255, .45); font: 400 1.1em/1.85 "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", var(--ph-serif); opacity: .92; }
+.ph-h4 { margin: 1.2em 0 .3em; font: 600 1.5em var(--ph-serif); border-bottom: 1px solid rgba(255, 255, 255, .3); padding-bottom: .15em; } .ph-h4 small { font: 400 .65em var(--ph-serif); opacity: .7; margin-left: .8em; }
+.ph-eq-block { margin: .8em auto; padding: .7em 1.2em; max-width: 46em; text-align: center; font: italic 500 1.5em/1.9 "Cambria Math", "STIX Two Math", var(--ph-serif); border: 1px dashed rgba(255, 255, 255, .45); border-radius: .5em; background: rgba(255, 255, 255, .05); overflow-x: auto; white-space: normal; }
+.frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; margin: 0 .15em; line-height: 1.15; font-size: .92em; } .frac i { font-style: inherit; padding: 0 .25em; border-bottom: 1px solid currentColor; } .frac b { font-weight: inherit; padding: 0 .25em; }
+.ph-note { margin: 1em 0; padding: .7em 1.2em .8em; border-radius: .4em; border: 1px solid rgba(255, 255, 255, .5); border-left-width: 5px; background: rgba(255, 255, 255, .06); }
+.ph-note > b { display: block; font: 600 .95em var(--ph-serif); letter-spacing: .16em; text-transform: uppercase; opacity: .85; margin-bottom: .2em; }
+.ph-note.key { border-left-color: #ffb454; background: rgba(255, 180, 84, .09); } .ph-note.tip { border-left-color: #ffe14d; background: rgba(255, 225, 77, .08); } .ph-note.tok { border-left-color: #8fa8ff; background: rgba(143, 168, 255, .09); } .ph-note.ctx { border-left-color: #c9a0ff; background: rgba(201, 160, 255, .09); } .ph-note.reflect { border-left-color: #7be39b; background: rgba(123, 227, 155, .08); }
+.ph-note.reflect ul, .ph-check ul { list-style: none; } .ph-note.reflect li { padding: .25em 0; font-size: 1.15em; } .ph-note.reflect .ja, .ph-check .ja { display: block; opacity: .8; font-size: .92em; }
+.ph-ex { margin: 1.1em 0; border: 1px solid rgba(255, 255, 255, .55); border-radius: .4em; background: rgba(255, 255, 255, .05); overflow: hidden; } .ph-ex > h5 { padding: .35em 1.2em; font: 600 1.15em var(--ph-serif); letter-spacing: .06em; background: rgba(255, 255, 255, .14); }
+.ph-ex.chk > h5 { background: rgba(255, 255, 255, .08); } .ph-ex .q { padding: .7em 1.2em .3em; font-size: 1.2em; line-height: 1.6; }
+.ph-ex details { padding: 0 1.2em 1em; } .ph-ex summary { cursor: pointer; display: inline-block; margin-top: .4em; padding: .25em 1em; border: 1px solid rgba(255, 255, 255, .6); border-radius: 2em; font-size: 1em; list-style: none; } .ph-ex summary::-webkit-details-marker { display: none; } .ph-ex summary:hover { box-shadow: 0 0 14px rgba(255, 255, 255, .6); }
+.ph-ex .steps { margin: .8em 0 0 1.5em; font-size: 1.2em; line-height: 1.7; } .ph-ex .steps li { padding: .1em 0; } .ph-ex .ans { margin-top: .7em; font-size: 1.2em; }
+.ph-figure { margin: 1em auto; max-width: 40em; text-align: center; } .ph-fig { width: 100%; height: auto; background: rgba(0, 0, 0, .45); border: 1px solid rgba(255, 255, 255, .3); border-radius: .4em; filter: drop-shadow(0 0 6px rgba(255, 255, 255, .2)); }
+.ph-figure figcaption { margin-top: .5em; font-size: 1.05em; line-height: 1.55; opacity: .9; } .ph-figure figcaption .ja { display: block; margin-top: .25em; opacity: .85; }
+.ph-check { margin-top: 1em; } .ph-check > b { display: block; font: 600 1.2em var(--ph-serif); margin-bottom: .4em; } .ph-check label { display: flex; gap: .8em; align-items: flex-start; padding: .3em 0; cursor: pointer; font-size: 1.15em; } .ph-check input { width: 1.2em; height: 1.2em; margin-top: .2em; accent-color: #fff; flex: none; } .ph-check label span { display: block; }
+.ph-docmain[data-mode="en"] .ja, .ph-docmain[data-mode="ja"] .en { display: none; } .ph-docmain[data-mode="ja"] .ph-bi p.ja { margin-top: 0; font-size: 1.25em; }
+.ph-docmain[data-mode="ja"] .ph-h4 small.ja { margin-left: 0; font-size: 1em; opacity: 1; }
+.ph-sub.plain[data-go] { cursor: pointer; }
+@media (max-width: 900px) { .ph-doc-split { grid-template-columns: 1fr; } .ph-doc-split .ph-side { display: none; } .ph-dochead { flex-direction: column; } }
+.ph-eq-block > div { white-space: pre-wrap; }
+.ph-dochead > .ph-ahead { flex: 1; min-width: 0; } .ph-dochead .ph-ahead > div { min-width: 0; } .ph-langs { flex-wrap: nowrap; margin-right: .5em; }
