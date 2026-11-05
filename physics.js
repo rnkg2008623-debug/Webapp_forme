@@ -1,7 +1,7 @@
 // Physics(ネオンのときだけ): IBDP Physics HL の最初のページ。背景はWebGPU(白黒のゴシックの大聖堂+浮かぶ惑星)で、ずっと動いている。
-import { createGpuView } from './gpu-view.js?v=72';
-import { WGSL } from './physics-bg.js?v=72';
-import { TOPICS, FIGS } from './physics-a5.js?v=72';
+import { createGpuView } from './gpu-view.js?v=73';
+import { WGSL } from './physics-bg.js?v=73';
+import { TOPICS, FIGS } from './physics-a5.js?v=73';
 
 let punch = -10;           // 最後にページを切り替えた時刻(秒)。背景の演出に使う
 const host = document.getElementById('physics-view');
@@ -102,6 +102,60 @@ const SUBS = {
     ['emf', 'Voltage, power and emf', 'Electrical power and the emf of a source.'],
     ['resistors', 'Resistors in electrical circuits', 'Series and parallel combinations.'],
     ['divider', 'Terminal potential difference and the potential divider', 'Internal resistance and dividing a voltage.']] },
+  C1: { area: 'C', title: 'Simple harmonic motion', icon: 'spring', sub: 'Oscillations, restoring forces and energy in simple harmonic motion.', rows: [
+    ['spring', 'Simple harmonic oscillations', 'What makes an oscillation simple harmonic, and its basic quantities.'],
+    ['wave', 'Details of simple harmonic motion', 'Equations and graphs of displacement, velocity and acceleration.'],
+    ['ke', 'Energy in simple harmonic motion', 'Exchange between kinetic and potential energy during oscillation.'],
+    ['conserve', 'More about energy in SHM', 'Energy graphs and extended problems.']] },
+  C2: { area: 'C', title: 'Wave model', icon: 'wave', sub: 'Describing travelling waves and their properties.', rows: [
+    ['ripple', 'Mechanical pulses and waves', 'Pulses, wave speed, wavelength, frequency and period.'],
+    ['wave', 'Transverse and longitudinal waves', 'The two kinds of wave and how they differ.'],
+    ['photon', 'Electromagnetic waves', 'Light and the electromagnetic spectrum.'],
+    ['graph', 'Waves extension', 'Extended topics on wave description.']] },
+  C3: { area: 'C', title: 'Wave phenomena', icon: 'ripple', sub: 'Reflection, refraction, diffraction, interference and polarization.', rows: [
+    ['ripple', 'Reflection and refraction', 'How waves change direction at boundaries.'],
+    ['standing', 'The principle of superposition', 'How overlapping waves add together.'],
+    ['wave', 'Diffraction and interference', 'Waves spreading round obstacles and combining.'],
+    ['linegraph', 'Single-slit diffraction', 'The pattern formed by a single narrow opening.'],
+    ['particles', 'Multiple slits', 'Interference from two or more slits and gratings.']] },
+  C4: { area: 'C', title: 'Standing waves and resonance', icon: 'standing', sub: 'Standing waves, harmonics and resonance.', rows: [
+    ['standing', 'Standing waves', 'How two waves produce nodes and antinodes.'],
+    ['spring', 'Standing waves on strings', 'Harmonics on fixed strings.'],
+    ['ripple', 'Standing waves in pipes', 'Open and closed pipes and their harmonics.'],
+    ['power', 'Resonance and damping', 'Driven oscillations and how energy is lost.']] },
+  C5: { area: 'C', title: 'Doppler effect', icon: 'doppler', sub: 'Frequency changes from moving sources and observers.', rows: [
+    ['doppler', 'The Doppler effect at low speeds', 'Frequency shift when a source or observer moves slowly.'],
+    ['ripple', 'The Doppler effect for sound', 'Moving sources and observers of sound waves.']] },
+  D1: { area: 'D', title: 'Gravitational fields', icon: 'planet', sub: 'Newton\'s law of gravitation, field strength and potential.', rows: [
+    ['planet', 'Newton\'s law of gravitation', 'The force between two masses.'],
+    ['well', 'Gravitational potential and energy', 'Potential in a gravitational field and the energy of a mass.'],
+    ['circular', 'Motion in a gravitational field', 'Orbits, escape speed and motion under gravity.']] },
+  D2: { area: 'D', title: 'Electric and magnetic fields', icon: 'charge', sub: 'Coulomb\'s law, electric and magnetic fields and potential.', rows: [
+    ['charge', 'Electric charge, force and field', 'Coulomb\'s law and electric field strength.'],
+    ['magnet', 'Magnetic field and force', 'Magnetic fields and the force on moving charges and currents.'],
+    ['emf', 'Electric potential and electric potential energy', 'Potential, potential difference and electric energy.']] },
+  D3: { area: 'D', title: 'Motion in electromagnetic fields', icon: 'particle', sub: 'Charged particles moving in electric and magnetic fields.', rows: [
+    ['particle', 'Motion in an electric field', 'Charged particles accelerated and deflected by electric fields.'],
+    ['circular', 'Motion in a magnetic field', 'Circular and helical paths of charges in magnetic fields.']] },
+  D4: { area: 'D', title: 'Induction', icon: 'coil', sub: 'Electromagnetic induction, Faraday\'s law and Lenz\'s law.', rows: [
+    ['coil', 'Electromagnetic induction', 'Induced emf, Faraday\'s law and Lenz\'s law.'],
+    ['engine', 'Generators and alternating current', 'Generating AC and its properties.']] },
+  E1: { area: 'E', title: 'Structure of the atom', icon: 'atom', sub: 'Atomic models, spectra and the energy levels of atoms.', rows: [
+    ['atom', 'The structure of the atom', 'Atomic models, spectra and energy levels.'],
+    ['circular', 'Quantisation of angular momentum', 'Bohr\'s model and quantised orbits.']] },
+  E2: { area: 'E', title: 'Quantum physics', icon: 'photon', sub: 'Photons, the photoelectric effect and matter waves.', rows: [
+    ['photon', 'Photons and the photoelectric effect', 'Light as photons and electron emission from surfaces.'],
+    ['wave', 'Matter waves', 'De Broglie wavelength and wave behaviour of particles.']] },
+  E3: { area: 'E', title: 'Radioactive decay', icon: 'decay', sub: 'Nuclear stability, decay modes and half-life.', rows: [
+    ['mole', 'Mass defect and binding energy', 'Why a nucleus weighs less than its parts.'],
+    ['decay', 'Radioactivity', 'Alpha, beta and gamma decay.'],
+    ['boltz', 'Nuclear properties and the radioactive decay law', 'Nuclear size, decay constant and half-life.']] },
+  E4: { area: 'E', title: 'Fission', icon: 'split', sub: 'Nuclear fission and energy generation.', rows: [
+    ['split', 'Nuclear fission', 'Splitting heavy nuclei and releasing energy.']] },
+  E5: { area: 'E', title: 'Fusion and stars', icon: 'star', sub: 'Nuclear fusion, the Sun and stellar evolution.', rows: [
+    ['sun', 'Nuclear fusion', 'Joining light nuclei and releasing energy.'],
+    ['graph', 'Stellar properties and the Hertzsprung–Russell diagram', 'Luminosity, temperature and classifying stars.'],
+    ['star', 'Stellar evolution extension', 'How stars change over their lifetimes.']] },
   A5: { area: 'A', title: 'Galilean and special relativity', icon: 'well', sub: 'Inertial frames, the speed of light and relativistic effects.', rows: [
     ['frames', 'Reference frames and Lorentz transformations', 'Inertial frames, Lorentz transformations and their use.'],
     ['clock', 'Effects of relativity', 'Time dilation, length contraction and mass\u2013energy equivalence.'],
