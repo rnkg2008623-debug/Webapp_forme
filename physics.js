@@ -1,6 +1,6 @@
 // Physics(ネオンのときだけ): IBDP Physics HL の最初のページ。背景はWebGPU(白黒のゴシックの大聖堂+浮かぶ惑星)で、ずっと動いている。
-import { createGpuView } from './gpu-view.js?v=66';
-import { WGSL } from './physics-bg.js?v=66';
+import { createGpuView } from './gpu-view.js?v=67';
+import { WGSL } from './physics-bg.js?v=67';
 
 let punch = -10;           // 最後にページを切り替えた時刻(秒)。背景の演出に使う
 const host = document.getElementById('physics-view');
@@ -132,7 +132,7 @@ const PAGES = {
   <div class="ph-areas">${AREAS.map(a => `<article class="ph-area a-${a.id}" data-go="area:${a.id}" tabindex="0" role="button" aria-label="${a.id}. ${a.title}">
       ${ic(a.icon, 'big')}
       <span class="ph-ah"><b>${a.id}. ${a.title}</b>${ic('chev', 'chev')}</span>
-      <ul>${a.subs.map(([c, n]) => `<li data-go="area:${a.id}"><code>${c}</code><span>${n}</span></li>`).join('')}</ul>
+      <ul>${a.subs.map(([c, n]) => `<li data-go="${SUBS[c.replace('.', '')] ? `sub:${c.replace('.', '')}` : `area:${a.id}`}"><code>${c}</code><span>${n}</span></li>`).join('')}</ul>
     </article>`).join('')}</div>`,
 };
 Object.assign(ICONS, {
