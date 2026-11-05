@@ -1,8 +1,8 @@
 // お知らせ: オーナーのアカウントが出したお知らせを、全アカウントが受け取る。
 // ヘッダーの Notice を押すと、フレンドと同じように、ページの上に画面が重なって出る(ページは変わらない)。
 // オーナーのアカウントには、お知らせを「出す」タブ(タイトルと内容を入力)も出る。
-import { firestore } from './auth.js?v=60';
-import { t, getLang } from './i18n.js?v=60';
+import { firestore } from './auth.js?v=61';
+import { t, getLang } from './i18n.js?v=61';
 
 const OWNER = 'hireo559@gmail.com';   // firestore.rules の isOwner() と同じメールアドレス
 const $ = id => document.getElementById(id);

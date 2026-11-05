@@ -1,0 +1,56 @@
+/* ---------- ネオン: Physics(IBDP Physics HL の最初のページ) ---------- */
+.nav-physics { display: none; }
+html[data-theme="neon"] .nav-physics { display: flex; }
+body[data-view="physics"] #physics-view { display: block; animation: page-in .5s ease both; }
+.ph { --ph-serif: "Cormorant Garamond", "Cinzel", "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", Georgia, serif; background: #020204; font-size: clamp(11px, .96vw, 18px); color: #fff; font-family: var(--ph-serif); overflow: hidden; }
+.ph .ts-fallback { background: radial-gradient(35% 55% at 50% 75%, rgba(210, 215, 255, .3), transparent 70%), radial-gradient(25% 60% at 8% 50%, rgba(210, 215, 255, .25), transparent 70%), radial-gradient(25% 60% at 92% 50%, rgba(210, 215, 255, .25), transparent 70%), #05050a; }
+.ts.ph > .ph-stage.ph-stage { position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column; padding: 0 2.4em 1.6em; }
+.ts.ph > .ph-toast.ph-toast { position: absolute; left: 50%; bottom: 3em; transform: translate(-50%, 10px); z-index: 5; padding: .7em 1.6em; border: 1px solid #fff; border-radius: 2em; background: rgba(0, 0, 0, .8); font-size: 1.2em; opacity: 0; transition: opacity .3s, transform .3s; box-shadow: 0 0 18px rgba(255, 255, 255, .5); }
+.ph-toast.on { opacity: 1 !important; transform: translate(-50%, 0) !important; } .ph-toast[hidden] { display: none; }
+.ph button, .ph a { font-family: inherit; color: inherit; text-decoration: none; }
+.ph-ic { width: 1.5em; height: 1.5em; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.ph-ic.star { fill: #fff; stroke: none; width: 2.8em; height: 2.8em; filter: drop-shadow(0 0 8px #fff); } .ph-ic.sm { width: 1.3em; height: 1.3em; } .ph-ic.big { width: 3.6em; height: 3.6em; filter: drop-shadow(0 0 6px rgba(255, 255, 255, .6)); }
+
+/* 上のナビ */
+.ph-top { flex: none; display: flex; align-items: center; justify-content: space-between; padding: 1em 0 .6em; position: relative; z-index: 3; }
+.ph-brand { display: flex; align-items: center; gap: .8em; font-size: 1.15em; line-height: 1.15; padding-right: 1.6em; border-right: 1px solid rgba(255, 255, 255, .35); margin-right: 2.4em; }
+.ph-nav { display: flex; gap: 3em; flex: 1; font-size: 1.28em; }
+.ph-nav a { position: relative; padding: .55em .2em; opacity: .9; transition: opacity .2s, text-shadow .2s; } .ph-nav a:hover { opacity: 1; text-shadow: 0 0 12px #fff; }
+.ph-nav a.on { opacity: 1; } .ph-nav a.on::after { content: ""; position: absolute; left: -.3em; right: -.3em; bottom: -.1em; height: 2px; background: #fff; box-shadow: 0 0 10px #fff; border-radius: 2px; }
+.ph-iconbtn { width: 3.1em; height: 3.1em; display: grid; place-items: center; border: 1px solid rgba(255, 255, 255, .55); border-radius: .9em; background: rgba(0, 0, 0, .35); } .ph-iconbtn:hover { box-shadow: 0 0 18px rgba(255, 255, 255, .6); }
+
+/* 舞台: 浮かぶ数式・波・電場・渾天儀・砂時計(装飾) */
+.ph-scene { position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.ph-eq { position: absolute; font: italic 500 3em var(--ph-serif); color: rgba(225, 228, 255, .8); text-shadow: 0 0 14px rgba(190, 195, 255, .6); animation: ph-float 7s ease-in-out infinite; }
+.ph-eq sup { font-size: .6em; }
+.ph-eq.e1 { left: 9%; top: 13%; } .ph-eq.e2 { right: 7%; top: 14%; animation-delay: -2s; transform: rotate(-6deg); } .ph-eq.e3 { left: 17%; top: 28%; animation-delay: -4s; font-size: 2.4em; opacity: .8; } .ph-eq.e4 { right: 11%; top: 28%; animation-delay: -1s; font-size: 2.3em; opacity: .8; }
+@keyframes ph-float { 50% { transform: translateY(-.35em); opacity: .7; } }
+.ph-wave { position: absolute; left: 9%; top: 31%; width: 17%; fill: none; stroke: rgba(255, 255, 255, .85); stroke-width: 1.2; filter: drop-shadow(0 0 5px #fff); } .ph-wave path { stroke-dasharray: 600; animation: ph-wave 6s linear infinite; }
+@keyframes ph-wave { from { stroke-dashoffset: 600; } to { stroke-dashoffset: 0; } }
+.ph-field { position: absolute; right: 9%; top: 34%; width: 15%; fill: none; stroke: rgba(255, 255, 255, .5); stroke-width: .6; animation: ph-spin 80s linear infinite; } .ph-field .core { fill: #fff; stroke: none; filter: drop-shadow(0 0 6px #fff); }
+@keyframes ph-spin { to { transform: rotate(360deg); } }
+.ph-armil { position: absolute; left: .5%; top: 52%; width: 12%; fill: none; stroke: rgba(255, 255, 255, .75); stroke-width: 1.4; filter: drop-shadow(0 0 5px rgba(255, 255, 255, .6)); }
+.ph-armil .r1 { transform-origin: 60px 60px; animation: ph-ring 9s linear infinite; } .ph-armil .r2 { transform-origin: 60px 60px; animation: ph-ring 12s linear infinite reverse; } .ph-armil .r3 { transform-origin: 60px 60px; animation: ph-ring 15s linear infinite; }
+@keyframes ph-ring { to { transform: rotate(360deg); } }
+.ph-glass { position: absolute; right: 1.5%; bottom: 7%; width: 8%; fill: rgba(255, 255, 255, .2); stroke: rgba(255, 255, 255, .85); stroke-width: 1.6; filter: drop-shadow(0 0 6px rgba(255, 255, 255, .5)); }
+.ph-glass .fall { stroke-dasharray: 3 5; animation: ph-sand .6s linear infinite; } @keyframes ph-sand { to { stroke-dashoffset: -16; } }
+.ph-glass .top { transform-origin: 40px 16px; animation: ph-drain 14s linear infinite; } @keyframes ph-drain { from { transform: scaleY(1); } to { transform: scaleY(.15); } }
+.ph-glass .bot { transform-origin: 40px 116px; animation: ph-fill 14s linear infinite; } @keyframes ph-fill { from { transform: scaleY(.2); } to { transform: scaleY(1); } }
+
+/* 中央のタイトル */
+.ph-hero { position: relative; z-index: 2; flex: none; display: flex; flex-direction: column; align-items: center; margin-top: 1.4em; }
+.ph-eyebrow { font-size: 1.8em; letter-spacing: .5em; display: flex; gap: .8em; align-items: center; text-shadow: 0 0 12px rgba(255, 255, 255, .6); } .ph-eyebrow i { font-style: normal; font-size: .55em; letter-spacing: 0; }
+.ph-title { font: italic 500 7.4em/1.05 var(--ph-serif); letter-spacing: .005em; text-shadow: 0 0 22px rgba(255, 255, 255, .6), 0 0 60px rgba(190, 195, 255, .5); margin: .05em 0; }
+.ph-rule { display: flex; align-items: center; gap: .8em; width: min(44em, 60%); font-size: .9em; } .ph-rule i { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, #fff, transparent); } .ph-rule b { font-weight: 400; text-shadow: 0 0 8px #fff; }
+.ph-tag { margin-top: .5em; font-size: 1.6em; letter-spacing: .45em; text-shadow: 0 0 10px rgba(255, 255, 255, .5); } .ph-tag span { font-size: .55em; margin: 0 1em; vertical-align: middle; } .ph-tag em { font-style: normal; opacity: .6; margin: 0 .5em; }
+
+/* 4枚のカード */
+.ph-cards { position: relative; z-index: 2; margin: auto auto 3.2em; width: min(86%, 92em); display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.2em; }
+.ph-card { position: relative; display: flex; flex-direction: column; align-items: center; gap: .5em; padding: 2.4em 1.4em 1.8em; min-height: 15em; border: 1px solid rgba(255, 255, 255, .92); border-radius: 3px; text-align: center; color: #fff;
+  background: radial-gradient(70% 55% at 50% 22%, rgba(255, 255, 255, .1), transparent 70%), linear-gradient(180deg, rgba(8, 8, 12, .8), rgba(2, 2, 4, .88)); backdrop-filter: blur(3px);
+  box-shadow: 0 0 22px rgba(255, 255, 255, .35), inset 0 0 0 6px rgba(3, 3, 6, .82), inset 0 0 0 7px rgba(255, 255, 255, .5); transition: transform .25s, box-shadow .25s; }
+.ph-card::before, .ph-card::after { content: ""; position: absolute; width: 1.4em; height: 1.4em; border: 2px solid #fff; filter: drop-shadow(0 0 4px #fff); }
+.ph-card::before { top: -4px; left: -4px; border-right: 0; border-bottom: 0; } .ph-card::after { bottom: -4px; right: -4px; border-left: 0; border-top: 0; }
+.ph-card:hover { transform: translateY(-5px); box-shadow: 0 0 38px rgba(255, 255, 255, .7), inset 0 0 0 6px rgba(3, 3, 6, .82), inset 0 0 0 7px #fff; }
+.ph-card b { font: italic 500 2.7em/1.1 var(--ph-serif); text-shadow: 0 0 14px rgba(255, 255, 255, .5); margin-top: .3em; } .ph-card em { font: 400 1.2em var(--ph-serif); font-style: normal; opacity: .9; } .ph-card .ph-ic.sm { margin-top: auto; padding-top: .4em; }
+@media (max-width: 900px) { .ph { overflow: auto; } .ph-cards { grid-template-columns: 1fr 1fr; } .ph-title { font-size: 4em; } .ph-scene { display: none; } .ph-nav { gap: 1.4em; } }
