@@ -1,7 +1,8 @@
 // Physics(ネオンのときだけ): IBDP Physics HL の最初のページ。背景はWebGPU(白黒のゴシックの大聖堂+浮かぶ惑星)で、ずっと動いている。
-import { createGpuView } from './gpu-view.js?v=63';
-import { WGSL } from './physics-bg.js?v=63';
+import { createGpuView } from './gpu-view.js?v=65';
+import { WGSL } from './physics-bg.js?v=65';
 
+let punch = -10;           // 最後にページを切り替えた時刻(秒)。背景の演出に使う
 const host = document.getElementById('physics-view');
 const stage = document.getElementById('ph-stage');
 const toast = document.getElementById('ph-toast');
@@ -147,8 +148,10 @@ function show(target) {
   page = next;
   body.innerHTML = PAGES[next](arg);
   body.className = `ph-body ph-p-${next}`;
+  body.style.animation = 'none'; void body.offsetWidth; body.style.animation = '';   // 同じ動きを、毎回はじめからやり直す
   stage.dataset.page = next;
   host.dataset.page = next;
+  punch = performance.now() / 1000;
   try { sessionStorage.phPage = arg ? `${next}:${arg}` : next; } catch {}
 }
 
@@ -170,5 +173,10 @@ stage.addEventListener('keydown', e => {   // Enter で、押せる行を開く
   if (row && e.key === 'Enter') row.click();
 });
 
-const view = createGpuView(WGSL);
+// ページを切り替えるたびに、背景がぐっと奥へ引き込まれ、衝撃波が走る(Computer Science と同じ演出)
+const view = createGpuView(WGSL, now => {
+  const x = Math.min(1, Math.max(0, (now - punch) / 1.1));
+  const pulse = x < 1 ? Math.sin(Math.PI * x) * 0.9 : 0;
+  return [0, 0, now - punch, pulse];
+});
 export const physics = { start: () => view.start(host), stop: () => view.stop() };

@@ -108,3 +108,14 @@ body[data-view="physics"] #physics-view { display: block; animation: page-in .5s
 .ph-sub .code { font: italic 600 2.8em var(--ph-serif); width: 2em; text-align: center; padding-right: .6em; border-right: 1px solid rgba(255, 255, 255, .5); line-height: 1.1; flex: none; box-sizing: content-box; }
 .ph-sub .txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: .15em; padding-left: .4em; } .ph-sub b { font: 500 1.9em/1.15 var(--ph-serif); } .ph-sub em { font: 400 1.2em var(--ph-serif); font-style: normal; opacity: .9; }
 @media (max-width: 900px) { .ph-split { grid-template-columns: 1fr; overflow: auto; } .ph-side { display: none; } .ph-ahead h2 { font-size: 2.4em; } .ph-sub .code { font-size: 2em; } }
+
+/* ページを切り替えたときの動き: 全体がふわっと奥から現れ(上の .ph-body の動き)、カードや行が順番にせり上がる */
+@keyframes ph-rise { from { opacity: 0; transform: translateY(1.6em) scale(.97); } }
+.ph-cards .ph-card, .ph-areas .ph-area, .ph-subs .ph-sub, .ph-side li { animation: ph-rise .65s cubic-bezier(.2, .7, .2, 1) backwards; }
+.ph-cards > :nth-child(1), .ph-areas > :nth-child(1), .ph-subs > :nth-child(1), .ph-side li:nth-child(1) { animation-delay: .12s; }
+.ph-cards > :nth-child(2), .ph-areas > :nth-child(2), .ph-subs > :nth-child(2), .ph-side li:nth-child(2) { animation-delay: .2s; }
+.ph-cards > :nth-child(3), .ph-areas > :nth-child(3), .ph-subs > :nth-child(3), .ph-side li:nth-child(3) { animation-delay: .28s; }
+.ph-cards > :nth-child(4), .ph-areas > :nth-child(4), .ph-subs > :nth-child(4), .ph-side li:nth-child(4) { animation-delay: .36s; }
+.ph-areas > :nth-child(5), .ph-subs > :nth-child(5), .ph-side li:nth-child(5) { animation-delay: .44s; }
+.ph-title, .ph-ahead h2, .ph-t2 { animation: ph-rise .8s cubic-bezier(.2, .7, .2, 1) backwards .05s; }
+@media (prefers-reduced-motion: reduce) { .ph-body, .ph-cards .ph-card, .ph-areas .ph-area, .ph-subs .ph-sub, .ph-side li, .ph-title, .ph-ahead h2, .ph-t2 { animation: none; } }

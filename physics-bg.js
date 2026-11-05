@@ -30,7 +30,9 @@ fn star4(p: vec2f, r: f32) -> f32 { let a = abs(p); return exp(-(a.x * a.y) * 90
 
 @fragment fn fs(@builtin(position) fc: vec4f) -> @location(0) vec4f {
   let res = u.a.xy; let t = u.a.z; let m = u.b.xy;
-  var uv = (fc.xy - 0.5 * res) / res.y; uv.y = -uv.y;
+  var uv0 = (fc.xy - 0.5 * res) / res.y; uv0.y = -uv0.y;
+  let pulse = u.c.w;                                   // ページを切り替えた瞬間だけ大きくなる勢い(0〜1)
+  let uv = uv0 / (1.0 + 0.14 * pulse);                 // ぐっと奥へ引き込まれる
   let par = m * 0.012;
   let ice = vec3f(0.78, 0.8, 1.0);
   var col = vec3f(0.012, 0.012, 0.02);
@@ -69,7 +71,7 @@ fn star4(p: vec2f, r: f32) -> f32 { let a = abs(p); return exp(-(a.x * a.y) * 90
     let rad = 0.62 + kf * 0.09;
     let d = abs(length(q) - rad) / (2.4 + kf * 0.7);
     let theta = atan2(q.y, q.x);
-    let sweep = pow(0.5 + 0.5 * cos(theta - t * (0.35 + kf * 0.1) - kf * 2.0), 4.0);
+    let sweep = pow(0.5 + 0.5 * cos(theta - t * (0.35 + kf * 0.1) * (1.0 + pulse * 7.0) - kf * 2.0), 4.0);
     col += ice * (exp(-d * 330.0) * (0.3 + 1.6 * sweep) + exp(-d * 30.0) * (0.03 + 0.25 * sweep));
   }
 
@@ -117,6 +119,11 @@ fn star4(p: vec2f, r: f32) -> f32 { let a = abs(p); return exp(-(a.x * a.y) * 90
   }
   let g1 = uv * 70.0 + vec2f(0.0, t * 0.3); let hh = hash(floor(g1));
   col += vec3f(0.85) * step(0.985, hh) * smoothstep(0.3, 0.0, length(fract(g1) - 0.5)) * (0.4 + 0.6 * sin(t * 2.0 + hh * 50.0));
+
+  // ---- ページ切り替えの演出: 惑星の中心から衝撃波が広がり、全体が一瞬明るくなる ----
+  let shAge = u.c.z;
+  col += ice * exp(-abs(length((uv0 - mc) * vec2f(1.0, 1.0)) - shAge * 1.6) * 30.0) * exp(-shAge * 2.4) * 1.1 * step(shAge, 3.0);
+  col *= 1.0 + 0.35 * pulse;
 
   // ---- 仕上げ ----
   let vg = length(fc.xy / res - 0.5);
