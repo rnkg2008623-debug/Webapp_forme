@@ -1,7 +1,7 @@
 // Physics(ネオンのときだけ): IBDP Physics HL の最初のページ。背景はWebGPU(白黒のゴシックの大聖堂+浮かぶ惑星)で、ずっと動いている。
-import { createGpuView } from './gpu-view.js?v=71';
-import { WGSL } from './physics-bg.js?v=71';
-import { TOPICS, FIGS } from './physics-a5.js?v=71';
+import { createGpuView } from './gpu-view.js?v=72';
+import { WGSL } from './physics-bg.js?v=72';
+import { TOPICS, FIGS } from './physics-a5.js?v=72';
 
 let punch = -10;           // 最後にページを切り替えた時刻(秒)。背景の演出に使う
 const host = document.getElementById('physics-view');
@@ -81,6 +81,27 @@ const SUBS = {
     ['collide', 'Conservation of momentum', 'Total momentum of an isolated system stays constant.'],
     ['ke', 'Kinetic energy and momentum', 'Comparing the two, and elastic and inelastic collisions.'],
     ['twod', 'Two-dimensional collisions', 'Collisions analysed with momentum components.']] },
+  B1: { area: 'B', title: 'Thermal energy transfers', icon: 'thermo', sub: 'Heat, temperature, conduction, convection and radiation.', rows: [
+    ['particles', 'Particles, temperature and energy', 'How the motion of particles relates to temperature and internal energy.'],
+    ['phase', 'Specific heat capacity and change of phase', 'Energy needed to change temperature, and to melt or boil a substance.'],
+    ['heatflow', 'Thermal energy transfer', 'Conduction, convection and radiation.']] },
+  B2: { area: 'B', title: 'Greenhouse effect', icon: 'sun', sub: 'Radiation, the Earth\'s energy balance and climate.', rows: [
+    ['blackbody', 'Radiation from real bodies', 'Emission from real surfaces: emissivity, power and the Stefan\u2013Boltzmann law.'],
+    ['earth', 'Energy balance of the earth', 'Incoming and outgoing radiation, albedo and the greenhouse effect.']] },
+  B3: { area: 'B', title: 'Gas laws', icon: 'gas', sub: 'Pressure, volume, temperature and the ideal gas.', rows: [
+    ['mole', 'Moles, molar mass and the Avogadro constant', 'Counting particles and relating amount, mass and number.'],
+    ['gas', 'Ideal gases', 'Pressure, volume and temperature relations of an ideal gas.'],
+    ['boltz', 'The Boltzmann equation', 'Connecting particle motion to temperature and pressure.']] },
+  B4: { area: 'B', title: 'Thermodynamics', icon: 'cycle', sub: 'The laws of thermodynamics, entropy and heat engines.', rows: [
+    ['internal', 'Internal energy', 'The total energy of the particles in a system.'],
+    ['law1', 'The first law of thermodynamics', 'Energy conservation for heat, work and internal energy.'],
+    ['law2', 'The second law of thermodynamics', 'Entropy and the direction of natural processes.'],
+    ['engine', 'Heat engines', 'Converting heat to work, cycles and efficiency.']] },
+  B5: { area: 'B', title: 'Current and circuits', icon: 'circuit', sub: 'Charge, current, resistance and circuit analysis.', rows: [
+    ['pdcurrent', 'Potential difference, current and resistance', 'The basic electrical quantities and Ohm\'s law.'],
+    ['emf', 'Voltage, power and emf', 'Electrical power and the emf of a source.'],
+    ['resistors', 'Resistors in electrical circuits', 'Series and parallel combinations.'],
+    ['divider', 'Terminal potential difference and the potential divider', 'Internal resistance and dividing a voltage.']] },
   A5: { area: 'A', title: 'Galilean and special relativity', icon: 'well', sub: 'Inertial frames, the speed of light and relativistic effects.', rows: [
     ['frames', 'Reference frames and Lorentz transformations', 'Inertial frames, Lorentz transformations and their use.'],
     ['clock', 'Effects of relativity', 'Time dilation, length contraction and mass\u2013energy equivalence.'],
@@ -109,6 +130,24 @@ Object.assign(ICONS, {
   collide: '<circle cx="6" cy="12" r="3"/><circle cx="18" cy="12" r="3"/><path d="M1 12h1M22 12h1M9 12h2M13 12h2"/><path d="M12 5v3M12 16v3M9 7l1.500 2M15 7l-1.500 2" />',
   ke: '<circle cx="12" cy="12" r="4"/><path d="M12 8V2M12 22v-6M2 12h6M16 12h6M5 5l3 3M16 16l3 3M19 5l-3 3M8 16l-3 3"/>',
   twod: '<circle cx="5" cy="12" r="2.500"/><circle cx="12" cy="12" r="2.500"/><path d="M14.500 10.500L21 5M14.500 13.500L21 19M16 5h5v5M16 19h5v-5"/>',
+});
+
+Object.assign(ICONS, {
+  particles: '<circle cx="6" cy="7" r="2"/><circle cx="16" cy="6" r="2"/><circle cx="11" cy="14" r="2"/><circle cx="19" cy="16" r="2"/><path d="M8 7l6-1M7 8l3 5M13 14l4 2" opacity=".6"/>',
+  phase: '<path d="M3 17c2-3 3-3 5 0s3 3 5 0 3-3 5 0M4 8h5M12 8h8M10 4l2 4-2 4"/>',
+  heatflow: '<path d="M4 5h6v14H4zM14 5h6v14h-6zM10 9h4M10 15h4M12 7l2 2-2 2"/>',
+  blackbody: '<circle cx="12" cy="12" r="5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>',
+  earth: '<circle cx="12" cy="12" r="6"/><path d="M6 12h12M7 8c3 1 7 1 10 0M7 16c3-1 7-1 10 0"/><path d="M2 4l3 2M22 4l-3 2M12 1v3" />',
+  mole: '<circle cx="8" cy="8" r="2"/><circle cx="16" cy="8" r="2"/><circle cx="8" cy="16" r="2"/><circle cx="16" cy="16" r="2"/><circle cx="12" cy="12" r="2"/>',
+  boltz: '<path d="M3 20V4M3 20h18"/><path d="M5 18c3-12 6-12 9-2s4 1 6 0"/><path d="M5 18L19 8" stroke-dasharray="2 2"/>',
+  internal: '<rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="9" cy="9" r="1.500"/><circle cx="15" cy="10" r="1.500"/><circle cx="10" cy="15" r="1.500"/><circle cx="16" cy="16" r="1.500"/>',
+  law1: '<path d="M3 12h6M15 12h6M9 6h6v12H9z"/><path d="M6 9l3 3-3 3M21 12l-3-3M21 12l-3 3"/>',
+  law2: '<path d="M4 4v16h16"/><path d="M6 17l5-4 3 1 5-9"/><path d="M16 5h3v3"/>',
+  engine: '<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.500 5.500l2 2M16.500 16.500l2 2M18.500 5.500l-2 2M7.500 16.500l-2 2"/><circle cx="12" cy="12" r="8"/>',
+  pdcurrent: '<path d="M3 12h4l2-5 3 10 2-5h7"/>',
+  emf: '<path d="M12 3v18M7 8h10M9 13h6M10 18h4"/>',
+  resistors: '<path d="M2 12h3l1.500-4 3 8 3-8 3 8 1.500-4h3"/>',
+  divider: '<path d="M12 2v5l-3 1.500 6 2-6 2 6 2-3 1.500V22M15 14h6"/>',
 });
 
 const topNav = page => `

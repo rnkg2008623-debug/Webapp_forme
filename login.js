@@ -1,5 +1,5 @@
-import { signUp, logIn, withGoogle, onUser, errorMessage, isCancelled } from './auth.js?v=71';
-import { t, getLang, setLang } from './i18n.js?v=71';
+import { signUp, logIn, withGoogle, onUser, errorMessage, isCancelled } from './auth.js?v=72';
+import { t, getLang, setLang } from './i18n.js?v=72';
 
 const body = document.body;
 const loginPanel = document.querySelector('.panel-left');

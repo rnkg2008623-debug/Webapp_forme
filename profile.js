@@ -1,12 +1,12 @@
 // プロフィール画面: 自分の情報、学習の集計、日ごとの学習時間のグラフ、Log history
-import { firestore } from './auth.js?v=71';
-import { formatCode, socialMessage } from './social.js?v=71';
-import { t, logMeta } from './i18n.js?v=71';
-import { errorMessage } from './auth.js?v=71';
-import { loadImage } from './avatar-image.js?v=71';
-import { openCropper } from './crop.js?v=71';
-import { onState, editMyProfile, makeAvatar } from './friends-ui.js?v=71';
-import { computeStats, dailySeries, niceScale, relativeTime, sampleLogs } from './stats.js?v=71';
+import { firestore } from './auth.js?v=72';
+import { formatCode, socialMessage } from './social.js?v=72';
+import { t, logMeta } from './i18n.js?v=72';
+import { errorMessage } from './auth.js?v=72';
+import { loadImage } from './avatar-image.js?v=72';
+import { openCropper } from './crop.js?v=72';
+import { onState, editMyProfile, makeAvatar } from './friends-ui.js?v=72';
+import { computeStats, dailySeries, niceScale, relativeTime, sampleLogs } from './stats.js?v=72';
 
 const $ = id => document.getElementById(id);
 const el = (tag, className, text) => {
