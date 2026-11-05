@@ -172,3 +172,7 @@ body[data-view="physics"] #physics-view { display: block; animation: page-in .5s
 @media (max-width: 900px) { .ph-doc-split { grid-template-columns: 1fr; } .ph-doc-split .ph-side { display: none; } .ph-dochead { flex-direction: column; } }
 .ph-eq-block > div { white-space: pre-wrap; }
 .ph-dochead > .ph-ahead { flex: 1; min-width: 0; } .ph-dochead .ph-ahead > div { min-width: 0; } .ph-langs { flex-wrap: nowrap; margin-right: .5em; }
+/* 項目が4つ以上のときは、行を少し低くして、画面に収める */
+.ph-leaf:has(> li:nth-child(4)) { gap: .8em; }
+.ph-leaf:has(> li:nth-child(4)) .ph-sub.plain { min-height: 6.2em; padding-top: .3em; padding-bottom: .3em; }
+.ph-leaf:has(> li:nth-child(4)) .ph-sub.plain .ico .ph-ic.lead { width: 3.4em; height: 3.4em; } .ph-leaf:has(> li:nth-child(4)) .ph-sub.plain b { font-size: 1.9em; } .ph-leaf:has(> li:nth-child(4)) .ph-sub.plain em { font-size: 1.15em; }

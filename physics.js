@@ -1,7 +1,7 @@
 // Physics(ネオンのときだけ): IBDP Physics HL の最初のページ。背景はWebGPU(白黒のゴシックの大聖堂+浮かぶ惑星)で、ずっと動いている。
-import { createGpuView } from './gpu-view.js?v=69';
-import { WGSL } from './physics-bg.js?v=69';
-import { TOPICS, FIGS } from './physics-a5.js?v=69';
+import { createGpuView } from './gpu-view.js?v=71';
+import { WGSL } from './physics-bg.js?v=71';
+import { TOPICS, FIGS } from './physics-a5.js?v=71';
 
 let punch = -10;           // 最後にページを切り替えた時刻(秒)。背景の演出に使う
 const host = document.getElementById('physics-view');
@@ -61,6 +61,26 @@ Object.assign(ICONS, {
 
 // サブトピック(A1〜A5 など)の中身。いまは A5 だけ。ほかは、内容が決まったら追加する
 const SUBS = {
+  A1: { area: 'A', title: 'Kinematics', icon: 'graph', sub: 'Describing motion using equations, graphs and models.', rows: [
+    ['disp', 'Displacement, distance, speed and velocity', 'Position, path length, and how fast and in which direction an object moves.'],
+    ['accel', 'Uniformly accelerated motion: the equations of kinematics', 'The equations that link displacement, velocity, acceleration and time.'],
+    ['linegraph', 'Graphs of motion', 'Reading displacement\u2013time, velocity\u2013time and acceleration\u2013time graphs.'],
+    ['projectile', 'Projectile motion', 'Motion under gravity in two dimensions.']] },
+  A2: { area: 'A', title: 'Forces and momentum', icon: 'block', sub: 'Forces, Newton\'s laws and conservation of momentum.', rows: [
+    ['forces', 'Forces and their direction', 'Types of force, free-body diagrams and resultant force.'],
+    ['newton', 'Newton\u2019s laws of motion', 'Inertia, F = ma and action\u2013reaction pairs.'],
+    ['circular', 'Circular motion', 'Centripetal acceleration and the force that keeps an object on a circular path.']] },
+  A3: { area: 'A', title: 'Work, energy and power', icon: 'bolt', sub: 'Work, energy transfers, efficiency and power.', rows: [
+    ['work', 'Work', 'Force acting through a distance, and the energy it transfers.'],
+    ['conserve', 'Conservation of energy', 'Energy changes form but the total stays the same.'],
+    ['power', 'Power and efficiency', 'The rate of energy transfer and how much of it is useful.'],
+    ['transfer', 'Energy transfers', 'Following energy through mechanical systems.']] },
+  A4: { area: 'A', title: 'Rigid body mechanics', icon: 'cube', sub: 'Rotation, torque, angular motion and equilibrium.', rows: [
+    ['momentum', 'Newton\u2019s second law in terms of momentum', 'Force as the rate of change of momentum.'],
+    ['impulse', 'Impulse and force\u2013time graphs', 'Change in momentum from a force acting over time.'],
+    ['collide', 'Conservation of momentum', 'Total momentum of an isolated system stays constant.'],
+    ['ke', 'Kinetic energy and momentum', 'Comparing the two, and elastic and inelastic collisions.'],
+    ['twod', 'Two-dimensional collisions', 'Collisions analysed with momentum components.']] },
   A5: { area: 'A', title: 'Galilean and special relativity', icon: 'well', sub: 'Inertial frames, the speed of light and relativistic effects.', rows: [
     ['frames', 'Reference frames and Lorentz transformations', 'Inertial frames, Lorentz transformations and their use.'],
     ['clock', 'Effects of relativity', 'Time dilation, length contraction and mass\u2013energy equivalence.'],
@@ -70,6 +90,25 @@ Object.assign(ICONS, {
   frames: '<path d="M4 20V3M4 3l-2 3M4 3l2 3M4 20h17M21 20l-3-2M21 20l-3 2"/><path d="M4 20L16 8" stroke-dasharray="2 2"/><path d="M8 17c3-1 6-4 9-5M17 12l-3.500.5M17 12l-1.500 3"/>',
   clock: '<circle cx="15" cy="12" r="7"/><path d="M15 8v4l2.500 2M2 8h5M1 12h4M2 16h5"/>',
   spacetime: '<path d="M5 20V4M5 4l-2 3M5 4l2 3M5 20h15M20 20l-3-2M20 20l-3 2"/><path d="M5 20L18 6M5 8l9 9" stroke-dasharray="2 2"/>',
+});
+
+Object.assign(ICONS, {
+  disp: '<circle cx="5" cy="17" r="2"/><circle cx="19" cy="6" r="2"/><path d="M5 17C9 17 9 10 13 10s2 6 6-4" stroke-dasharray="2 2"/><path d="M6.500 15.500L17.500 7.500"/>',
+  accel: '<path d="M3 20h18M4 17l3-1 3-3 3-4 3-6"/><path d="M13 5l5 0 0 5" /><path d="M5 12h4M3 9h4" opacity=".6"/>',
+  linegraph: '<path d="M3 3v18h18"/><path d="M6 17l4-6 3 3 6-8"/>',
+  projectile: '<path d="M3 20h18"/><path d="M4 19C8 4 16 4 20 19" stroke-dasharray="2 2"/><circle cx="12" cy="6.500" r="2"/>',
+  forces: '<circle cx="12" cy="12" r="3"/><path d="M12 9V3M10 5l2-2 2 2M15 12h6M19 10l2 2-2 2M12 15v6M10 19l2 2 2-2M9 12H3M5 10l-2 2 2 2"/>',
+  newton: '<circle cx="9" cy="14" r="4"/><path d="M13 14h8M18 11l3 3-3 3M3 21h14"/>',
+  circular: '<circle cx="12" cy="12" r="8"/><circle cx="18" cy="9" r="1.800"/><path d="M12 12l6-3M12 12h0"/>',
+  work: '<rect x="3" y="10" width="7" height="7"/><path d="M10 13.500h10M17 10.500l3 3-3 3M3 20h18"/>',
+  conserve: '<path d="M4 8c0-3 6-3 8 0s8 3 8 0M4 16c0-3 6-3 8 0s8 3 8 0"/><path d="M12 3v18" stroke-dasharray="2 2"/>',
+  power: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3M5 5l2 2"/>',
+  transfer: '<circle cx="6" cy="12" r="3"/><circle cx="18" cy="12" r="3"/><path d="M9 12h6M13 9l3 3-3 3"/>',
+  momentum: '<circle cx="8" cy="12" r="4"/><path d="M12 12h9M18 9l3 3-3 3M3 20h8"/>',
+  impulse: '<path d="M3 20V4M3 20h18"/><path d="M5 18V12l4-6 4 6v6z" fill="none"/><path d="M15 18h5" /><path d="M5 18h8" />',
+  collide: '<circle cx="6" cy="12" r="3"/><circle cx="18" cy="12" r="3"/><path d="M1 12h1M22 12h1M9 12h2M13 12h2"/><path d="M12 5v3M12 16v3M9 7l1.500 2M15 7l-1.500 2" />',
+  ke: '<circle cx="12" cy="12" r="4"/><path d="M12 8V2M12 22v-6M2 12h6M16 12h6M5 5l3 3M16 16l3 3M19 5l-3 3M8 16l-3 3"/>',
+  twod: '<circle cx="5" cy="12" r="2.500"/><circle cx="12" cy="12" r="2.500"/><path d="M14.500 10.500L21 5M14.500 13.500L21 19M16 5h5v5M16 19h5v-5"/>',
 });
 
 const topNav = page => `
