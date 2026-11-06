@@ -1,7 +1,10 @@
 // Physics(ネオンのときだけ): IBDP Physics HL の最初のページ。背景はWebGPU(白黒のゴシックの大聖堂+浮かぶ惑星)で、ずっと動いている。
-import { createGpuView } from './gpu-view.js?v=73';
-import { WGSL } from './physics-bg.js?v=73';
-import { TOPICS, FIGS } from './physics-a5.js?v=73';
+import { createGpuView } from './gpu-view.js?v=74';
+import { WGSL } from './physics-bg.js?v=74';
+import { TOPICS as TOPICS5, FIGS as FIGS5 } from './physics-a5.js?v=74';
+import { TOPICS1, FIGS1 } from './physics-a1.js?v=74';
+const TOPICS = { ...TOPICS1, ...TOPICS5 };
+const FIGS = { ...FIGS5, ...FIGS1 };
 
 let punch = -10;           // 最後にページを切り替えた時刻(秒)。背景の演出に使う
 const host = document.getElementById('physics-view');
@@ -234,18 +237,18 @@ const loadChecks = id => { try { return JSON.parse(localStorage.getItem(checkKey
 
 const PAGES = {
   topic: (id = 'A5-1') => {
-    const T = TOPICS[id] || TOPICS['A5-1'], tid = id in TOPICS ? id : 'A5-1', d = SUBS.A5, a = AREAS.find(x => x.id === d.area);
+    const tid = id in TOPICS ? id : 'A5-1', T = TOPICS[tid], subKey = tid.split('-')[0], d = SUBS[subKey], a = AREAS.find(x => x.id === d.area);
     const done = loadChecks(tid);
     return `${topNav('topics')}
     <div class="ph-split ph-doc-split">
       <aside class="ph-side">
         <h3 class="ph-side-t">${ic('star', 'star sm2')}${T.code}</h3><div class="ph-side-rule"></div>
-        <ul class="ph-toc">${Object.entries(TOPICS).map(([k, x]) => `<li><button class="${k === tid ? 'on' : ''}" data-go="topic:${k}"><code>${x.code}</code><span>${x.title}</span></button></li>`).join('')}</ul>
+        <ul class="ph-toc">${Object.entries(TOPICS).filter(([k]) => k.startsWith(subKey + '-')).map(([k, x]) => `<li><button class="${k === tid ? 'on' : ''}" data-go="topic:${k}"><code>${x.code}</code><span>${x.title}</span></button></li>`).join('')}</ul>
         <h4 class="ph-toc-h">On this page</h4>
         <nav class="ph-toc-sec">${T.sections.map(s => `<a href="#" data-jump="phs-${tid}-${s.id}">${esc(s.title)}</a>`).join('')}<a href="#" data-jump="phs-${tid}-review">Review</a></nav>
       </aside>
       <section class="ph-main ph-docmain" data-mode="both">
-        <div class="ph-crumb"><a href="#" data-go="home" aria-label="Home">${ic('home')}</a><a href="#" data-go="topics">Topics</a>${ic('chev', 'sm')}<a href="#" data-go="area:A">A. Space, time and motion</a>${ic('chev', 'sm')}<a href="#" data-go="sub:A5">A5 ${d.title}</a>${ic('chev', 'sm')}<span>${T.code} ${T.title}</span></div>
+        <div class="ph-crumb"><a href="#" data-go="home" aria-label="Home">${ic('home')}</a><a href="#" data-go="topics">Topics</a>${ic('chev', 'sm')}<a href="#" data-go="area:A">A. Space, time and motion</a>${ic('chev', 'sm')}<a href="#" data-go="sub:${subKey}">${subKey} ${d.title}</a>${ic('chev', 'sm')}<span>${T.code} ${T.title}</span></div>
         <div class="ph-dochead">
           <div class="ph-ahead ph-shead">${ic(T.icon, 'huge')}<div><h2><i>${T.code}</i> ${T.title}</h2><p>${esc(T.lead)}</p><p class="ja" lang="ja">${esc(T.leadJa)}</p></div></div>
           <div class="ph-langs" role="group" aria-label="Language"><button data-mode="both" class="on">EN + 日本語</button><button data-mode="en">EN</button><button data-mode="ja">日本語</button></div>

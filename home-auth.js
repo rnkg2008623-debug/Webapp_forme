@@ -1,16 +1,16 @@
 // ホーム画面はログイン済みのユーザーだけが見られる。未ログインならログイン画面へ戻す。
-import { onUser, logOut } from './auth.js?v=73';
-import { t, getLang, setLang } from './i18n.js?v=73';
-import { mountFriends } from './friends-ui.js?v=73';
-import { mountProfile } from './profile.js?v=73';
-import { mountTimer } from './timer.js?v=73';
-import { mountPomodoro } from './pomodoro.js?v=73';
-import { startLogs } from './logs-store.js?v=73';
-import { mountRecent } from './recent.js?v=73';
-import { mountManual } from './manual.js?v=73';
-import { mountNotices } from './notices.js?v=73';
-import { mountCompare } from './compare.js?v=73';
-import './theme.js?v=73';
+import { onUser, logOut } from './auth.js?v=74';
+import { t, getLang, setLang } from './i18n.js?v=74';
+import { mountFriends } from './friends-ui.js?v=74';
+import { mountProfile } from './profile.js?v=74';
+import { mountTimer } from './timer.js?v=74';
+import { mountPomodoro } from './pomodoro.js?v=74';
+import { startLogs } from './logs-store.js?v=74';
+import { mountRecent } from './recent.js?v=74';
+import { mountManual } from './manual.js?v=74';
+import { mountNotices } from './notices.js?v=74';
+import { mountCompare } from './compare.js?v=74';
+import './theme.js?v=74';
 
 let social;
 onUser(async user => {
