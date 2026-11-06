@@ -1,8 +1,8 @@
 // Compare: 自分と友だちの「今日」「今週(月曜〜今日)」の勉強時間を、棒グラフで比べる。
 // ヘッダーの Compare を押すと、フレンドと同じように、ページの上に画面が重なって出る。開いている間だけ、ログを読み込む。
-import { firestore } from './auth.js?v=77';
-import { onState, makeAvatar } from './friends-ui.js?v=77';
-import { t, duration } from './i18n.js?v=77';
+import { firestore } from './auth.js?v=78';
+import { onState, makeAvatar } from './friends-ui.js?v=78';
+import { t, duration } from './i18n.js?v=78';
 
 const $ = id => document.getElementById(id);
 let f, db, user;
@@ -27,12 +27,15 @@ function weekStart(d = new Date()) {   // 月曜 0:00(ローカル時間)
   s.setDate(s.getDate() - ((s.getDay() + 6) % 7));
   return s;
 }
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+let mode = 'now', past = 1;   // 'now' = 今日・今週 / 'past' = 過去(1・3・7日)
+const sumRange = (list, from, to) => list.reduce((n, l) => (l.at >= from && l.at < to ? n + l.minutes : n), 0);
 const sum = (list, since) => list.reduce((n, l) => (l.at >= since ? n + l.minutes : n), 0);
 
 // ---- 読み込み(今週ぶんだけ。開いている間だけ購読) ----
 function watch(uid) {
   if (subs.has(uid)) return;
-  const q = f.query(f.collection(db, 'users', uid, 'logs'), f.where('at', '>=', weekStart()), f.orderBy('at', 'desc'), f.limit(500));
+  const q = f.query(f.collection(db, 'users', uid, 'logs'), f.where('at', '>=', addDays(dayStart(), -7)), f.orderBy('at', 'desc'), f.limit(500));
   subs.set(uid, f.onSnapshot(q,
     snap => { logs.set(uid, snap.docs.map(d => { const x = d.data(); return { at: x.at?.toDate?.(), minutes: x.minutes || 0 }; }).filter(l => l.at)); denied.delete(uid); ready.add(uid); render(); },
     err => { console.warn('ログを読み込めませんでした', err.code); if (err.code === 'permission-denied') denied.add(uid); ready.add(uid); render(); }));
@@ -95,7 +98,13 @@ function render() {
   const now = new Date(), ds = dayStart(now), ws = weekStart(now);
   const loading = ppl.some(p => !ready.has(p.uid));
   const rowsFor = since => ppl.map(p => ({ ...p, min: sum(logs.get(p.uid) || [], since), denied: denied.has(p.uid) && !p.isMe, ready: ready.has(p.uid) }));
-  const parts = [section(t('cp.today'), '', rowsFor(ds), loading), section(t('cp.week'), t('cp.weekNote'), rowsFor(ws), loading)];
+  const rowsRange = (from, to) => ppl.map(p => ({ ...p, min: sumRange(logs.get(p.uid) || [], from, to), denied: denied.has(p.uid) && !p.isMe, ready: ready.has(p.uid) }));
+  const parts = mode === 'past'
+    ? [section(t(`cp.p${past}`), t(`cp.pNote${past}`), rowsRange(addDays(ds, -past), ds), loading)]
+    : [section(t('cp.today'), '', rowsFor(ds), loading), section(t('cp.week'), t('cp.weekNote'), rowsFor(ws), loading)];
+  const btn = $('cp-past'); btn.textContent = mode === 'past' ? t('cp.now') : t('cp.past'); btn.setAttribute('aria-pressed', String(mode === 'past'));
+  const tabs = $('cp-tabs'); tabs.hidden = mode !== 'past';
+  tabs.replaceChildren(...[1, 3, 7].map(n => { const b = el('button', 'cp-tab' + (n === past ? ' on' : ''), t(`cp.p${n}`)); b.type = 'button'; b.setAttribute('role', 'tab'); b.setAttribute('aria-selected', String(n === past)); b.addEventListener('click', () => { past = n; render(); }); return b; }));
   if (ppl.length === 1) parts.push(el('p', 'cp-empty', t('cp.noFriends')));
   if (denied.size) parts.push(el('p', 'fm-msg', t('cp.denied')));
   body.replaceChildren(...parts);
@@ -105,6 +114,7 @@ function render() {
 const nav = () => document.querySelector('[data-target="compare"]');
 const overlay = () => $('compare-overlay');
 function open() {
+  mode = 'now';
   window.dispatchEvent(new CustomEvent('overlay-open', { detail: 'compare' }));
   opener = document.activeElement;
   overlay().hidden = false;
@@ -127,6 +137,7 @@ export async function mountCompare(currentUser) {
   nav().addEventListener('click', () => (overlay().hidden ? open() : close()));
   overlay().addEventListener('click', e => { if (e.target === overlay()) close(); });
   $('cp-close').addEventListener('click', close);
+  $('cp-past').addEventListener('click', () => { mode = mode === 'past' ? 'now' : 'past'; render(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !overlay().hidden && $('ed')?.hidden !== false) close(); });
   window.addEventListener('overlay-open', e => { if (e.detail !== 'compare' && !overlay().hidden) close(); });
   window.addEventListener('langchange', render);

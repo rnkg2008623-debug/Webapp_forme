@@ -806,7 +806,7 @@ html[data-theme="neon"] .lib-bg {
   display: block; position: absolute; inset: 0;
   background:
     radial-gradient(60% 50% at 50% 0%, rgba(255, 40, 180, .18), transparent 70%),
-    url("library-far.svg?v=77") calc(var(--sx, 0px) * -.3) 0 / auto 25vh repeat,
+    url("library-far.svg?v=78") calc(var(--sx, 0px) * -.3) 0 / auto 25vh repeat,
     #07021a;
   transition: opacity .45s ease-in, transform .5s cubic-bezier(.6, 0, 1, .6), filter .45s ease-in;
 }
@@ -819,7 +819,7 @@ html[data-theme="neon"] .lg-world::before {
   content: ""; position: absolute; inset: 0; pointer-events: none;
   background:
     linear-gradient(180deg, rgba(7, 2, 26, .55), transparent 30%, transparent 70%, rgba(7, 2, 26, .7)),
-    url("library-near.svg?v=77") 0 0 / auto 25vh repeat;
+    url("library-near.svg?v=78") 0 0 / auto 25vh repeat;
   transition: opacity .45s ease-in, transform .5s cubic-bezier(.6, 0, 1, .6), filter .45s ease-in;
 }
 html[data-theme="neon"] .lib-hint {
@@ -938,3 +938,9 @@ html[data-theme="neon"] .no-h, html[data-theme="neon"] .no-item-title { color: #
 .cp-msg { margin-top: 10px; font-size: clamp(14px, 1.1vw, 17px); color: var(--ink); }
 .cp-empty { color: var(--ink-sub); font-size: 15px; }
 @media (max-width: 700px) { .cp-row { grid-template-columns: 2.4em 1fr 6em; } .cp-track { grid-column: 1 / -1; grid-row: 2; } }
+
+.cp-head { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin: 22px 48px 14px 0; } .cp-head .no-h { margin: 0; }
+.cp-past { height: 36px; padding: 0 18px; border: 1.5px solid var(--accent); border-radius: 999px; color: var(--accent); font-size: 15px; transition: background .15s, color .15s; }
+.cp-past:hover, .cp-past[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.cp-tabs { display: flex; gap: 8px; margin: -4px 0 14px; flex-wrap: wrap; } .cp-tabs[hidden] { display: none; }
+.cp-tab { height: 34px; padding: 0 16px; border-radius: 999px; border: 1px solid #cfd6e4; background: #fff; font-size: 15px; color: var(--ink); } .cp-tab.on { background: #1f2740; border-color: #1f2740; color: #fff; }
