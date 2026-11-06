@@ -1,10 +1,11 @@
 // Physics(ネオンのときだけ): IBDP Physics HL の最初のページ。背景はWebGPU(白黒のゴシックの大聖堂+浮かぶ惑星)で、ずっと動いている。
-import { createGpuView } from './gpu-view.js?v=74';
-import { WGSL } from './physics-bg.js?v=74';
-import { TOPICS as TOPICS5, FIGS as FIGS5 } from './physics-a5.js?v=74';
-import { TOPICS1, FIGS1 } from './physics-a1.js?v=74';
-const TOPICS = { ...TOPICS1, ...TOPICS5 };
-const FIGS = { ...FIGS5, ...FIGS1 };
+import { createGpuView } from './gpu-view.js?v=75';
+import { WGSL } from './physics-bg.js?v=75';
+import { TOPICS as TOPICS5, FIGS as FIGS5 } from './physics-a5.js?v=75';
+import { TOPICS1, FIGS1 } from './physics-a1.js?v=75';
+import { TOPICS2, FIGS2 } from './physics-a2.js?v=75';
+const TOPICS = { ...TOPICS1, ...TOPICS2, ...TOPICS5 };
+const FIGS = { ...FIGS5, ...FIGS1, ...FIGS2 };
 
 let punch = -10;           // 最後にページを切り替えた時刻(秒)。背景の演出に使う
 const host = document.getElementById('physics-view');
