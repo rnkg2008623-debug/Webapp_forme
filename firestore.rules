@@ -105,5 +105,18 @@ service cloud.firestore {
       allow update: if false;
       allow delete: if isOwner();
     }
+
+    // みんなの今日: 読めるのはログイン中の全員。書けるのは本人の名前で(時刻はサーバーが付ける)。消せるのは書いた本人とオーナー。
+    match /dailyPosts/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['uid', 'name', 'text', 'at'])
+        && request.resource.data.uid == uid()
+        && validName(request.resource.data.name)
+        && request.resource.data.text is string && request.resource.data.text.size() >= 1 && request.resource.data.text.size() <= 500
+        && request.resource.data.at == request.time;
+      allow update: if false;
+      allow delete: if signedIn() && (resource.data.uid == uid() || isOwner());
+    }
   }
 }

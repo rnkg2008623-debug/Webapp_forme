@@ -1,8 +1,9 @@
 // お知らせ: オーナーのアカウントが出したお知らせを、全アカウントが受け取る。
 // ヘッダーの Notice を押すと、フレンドと同じように、ページの上に画面が重なって出る(ページは変わらない)。
 // オーナーのアカウントには、お知らせを「出す」タブ(タイトルと内容を入力)も出る。
-import { firestore } from './auth.js?v=78';
-import { t, getLang } from './i18n.js?v=78';
+import { firestore } from './auth.js?v=79';
+import { t, getLang } from './i18n.js?v=79';
+import { makeAvatar } from './friends-ui.js?v=79';
 
 const OWNER = 'hireo559@gmail.com';   // firestore.rules の isOwner() と同じメールアドレス
 const $ = id => document.getElementById(id);
@@ -47,9 +48,11 @@ const overlay = () => $('notice-overlay');
 // ---- 描画 ----
 function render() {
   const list = $('no-list');
-  $('no-h').textContent = view === 'compose' ? t('no.composeTitle') : t('no.title');
+  $('no-h').textContent = view === 'compose' ? t('no.composeTitle') : view === 'board' ? t('bd.title') : t('no.title');
   list.hidden = view !== 'list';
   $('no-form').hidden = view !== 'compose';
+  $('no-board').hidden = view !== 'board';
+  if (view === 'board') renderBoard();
   document.querySelectorAll('[data-nview]').forEach(b => { const on = b.dataset.nview === view; b.classList.toggle('is-on', on); b.setAttribute('aria-pressed', String(on)); });
   if (view !== 'list') return;
   if (denied) { list.replaceChildren(el('p', 'fm-msg', t('no.denied'))); return; }
@@ -91,6 +94,7 @@ function open() {
   $('no-main').focus({ preventScroll: true });
 }
 function close() {
+  stopBoard();
   overlay().hidden = true;
   nav().classList.remove('is-open');
   fresh = new Set();
@@ -123,13 +127,14 @@ function wireCompose() {
 export async function mountNotices(currentUser) {
   user = currentUser;
   isOwner = (user.email || '').toLowerCase() === OWNER;
-  $('no-rail').hidden = !isOwner;
+  document.querySelectorAll('[data-owner-only]').forEach(b => { b.hidden = !isOwner; });
+  wireBoard();
   overlay().classList.toggle('no-owner', isOwner);
   nav().addEventListener('click', () => (overlay().hidden ? open() : close()));
   overlay().addEventListener('click', e => { if (e.target === overlay()) close(); });
   $('no-close').addEventListener('click', close);
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !overlay().hidden && $('ed')?.hidden !== false) close(); });
-  document.querySelectorAll('[data-nview]').forEach(b => b.addEventListener('click', () => { view = b.dataset.nview; render(); if (view === 'compose') $('no-title').focus(); }));
+  document.querySelectorAll('[data-nview]').forEach(b => b.addEventListener('click', () => { view = b.dataset.nview; if (view === 'board') startBoard(); render(); if (view === 'compose') $('no-title').focus(); if (view === 'board') $('bd-text').focus(); }));
   window.addEventListener('overlay-open', e => { if (e.detail !== 'notice' && !overlay().hidden) close(); });
   window.addEventListener('langchange', () => { render(); });
   if (isOwner) wireCompose();
@@ -142,4 +147,57 @@ export async function mountNotices(currentUser) {
       if (!overlay().hidden) { for (const n of unread()) fresh.add(n.id); render(); markSeen(); } else badge();
     },
     err => { console.warn('お知らせを読み込めませんでした', err.code); denied = true; loaded = true; if (!overlay().hidden) render(); });
+}
+
+// ---- みんなの今日(誰でも、今日やったことを書いて、みんなに見せられる) ----
+let posts = [], postsLoaded = false, postsDenied = false, offPosts = null, myName = '';
+function startBoard() {
+  if (offPosts || !db) return;
+  postsLoaded = false; postsDenied = false;
+  offPosts = f.onSnapshot(
+    f.query(f.collection(db, 'dailyPosts'), f.orderBy('at', 'desc'), f.limit(100)),
+    snap => { posts = snap.docs.map(d => { const x = d.data({ serverTimestamps: 'estimate' }); return { id: d.id, uid: x.uid, name: x.name || '?', text: x.text || '', at: x.at?.toDate?.() }; }); postsLoaded = true; postsDenied = false; if (view === 'board' && !overlay().hidden) renderBoard(); },
+    err => { console.warn('みんなの今日を読み込めませんでした', err.code); postsDenied = true; postsLoaded = true; if (view === 'board') renderBoard(); });
+}
+function stopBoard() { if (offPosts) { offPosts(); offPosts = null; } }
+const sameDay = (a, b) => a && b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+function renderBoard() {
+  const list = $('bd-list');
+  if (postsDenied) { list.replaceChildren(el('p', 'fm-msg', t('bd.denied'))); return; }
+  if (!postsLoaded) { list.replaceChildren(el('p', 'no-empty', t('no.loading'))); return; }
+  if (!posts.length) { list.replaceChildren(el('p', 'no-empty', t('bd.empty'))); return; }
+  const now = new Date();
+  list.replaceChildren(...posts.map(pst => {
+    const mine = pst.uid === user.uid;
+    const card = el('article', 'bd-post' + (mine ? ' mine' : ''));
+    const av = makeAvatar(pst.uid, pst.name, '', ''); av.classList.add('bd-av');
+    const head = el('div', 'bd-head'), who = el('b', 'bd-name', mine ? `${pst.name} (${t('bd.you')})` : pst.name);
+    const time = el('time', 'bd-time', fmt(pst.at)); if (pst.at) time.dateTime = pst.at.toISOString();
+    head.append(who, time);
+    if (sameDay(pst.at, now)) head.append(el('span', 'bd-today', t('bd.today')));
+    const body = el('div', 'bd-body'); body.append(head, el('p', 'bd-text', pst.text));
+    card.append(av, body);
+    if (mine || isOwner) {
+      const del = el('button', 'no-del', t('bd.del')); del.type = 'button';
+      del.addEventListener('click', async () => { if (!confirm(t('bd.confirmDel'))) return; del.disabled = true; try { await f.deleteDoc(f.doc(db, 'dailyPosts', pst.id)); } catch (e) { console.error(e); del.disabled = false; alert(t('bd.delFail')); } });
+      card.append(del);
+    }
+    return card;
+  }));
+}
+function wireBoard() {
+  const text = $('bd-text'), msg = $('bd-msg');
+  const say2 = s => { msg.textContent = s; msg.hidden = !s; };
+  text.addEventListener('input', () => { $('bd-count').textContent = `${text.value.length} / 500`; say2(''); });
+  $('bd-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const body = text.value.trim();
+    if (!body) { say2(t('bd.needText')); text.focus(); return; }
+    const send = $('bd-send'); send.disabled = true;
+    try {
+      if (!myName) { const s = await f.getDoc(f.doc(db, 'users', user.uid)); myName = s.data()?.displayName || user.displayName || 'User'; }
+      await f.addDoc(f.collection(db, 'dailyPosts'), { uid: user.uid, name: myName, text: body, at: f.serverTimestamp() });
+      text.value = ''; $('bd-count').textContent = '0 / 500'; say2('');
+    } catch (err) { console.error(err); say2(t('bd.fail')); } finally { send.disabled = false; }
+  });
 }
