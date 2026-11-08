@@ -806,7 +806,7 @@ html[data-theme="neon"] .lib-bg {
   display: block; position: absolute; inset: 0;
   background:
     radial-gradient(60% 50% at 50% 0%, rgba(255, 40, 180, .18), transparent 70%),
-    url("library-far.svg?v=79") calc(var(--sx, 0px) * -.3) 0 / auto 25vh repeat,
+    url("library-far.svg?v=80") calc(var(--sx, 0px) * -.3) 0 / auto 25vh repeat,
     #07021a;
   transition: opacity .45s ease-in, transform .5s cubic-bezier(.6, 0, 1, .6), filter .45s ease-in;
 }
@@ -819,7 +819,7 @@ html[data-theme="neon"] .lg-world::before {
   content: ""; position: absolute; inset: 0; pointer-events: none;
   background:
     linear-gradient(180deg, rgba(7, 2, 26, .55), transparent 30%, transparent 70%, rgba(7, 2, 26, .7)),
-    url("library-near.svg?v=79") 0 0 / auto 25vh repeat;
+    url("library-near.svg?v=80") 0 0 / auto 25vh repeat;
   transition: opacity .45s ease-in, transform .5s cubic-bezier(.6, 0, 1, .6), filter .45s ease-in;
 }
 html[data-theme="neon"] .lib-hint {
@@ -956,3 +956,16 @@ html[data-theme="neon"] .no-h, html[data-theme="neon"] .no-item-title { color: #
 .bd-name { font-size: clamp(15px, 1.2vw, 18px); color: #141a33; } .bd-time { font-size: 13px; color: var(--ink-sub); font-variant-numeric: tabular-nums; }
 .bd-today { padding: 0 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-size: 11px; line-height: 18px; }
 .bd-text { margin-top: 6px; font-size: clamp(15px, 1.2vw, 18px); line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; color: #2b3144; }
+
+/* 背景動画(標準スタイルのみ) */
+.bg-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.bg-video[hidden] { display: none; }
+html.has-bgvideo .bg-fallback { visibility: hidden; }
+.bgv { margin-top: 14px; }
+.bgv-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.bgv-btn, .bgv-reset { padding: 8px 14px; border-radius: 9px; border: 1px solid var(--line); background: rgba(255,255,255,.7); font-size: 13px; }
+.bgv-btn { background: var(--accent-soft); color: var(--accent); border-color: transparent; font-weight: 600; }
+.bgv-btn:hover, .bgv-reset:hover { filter: brightness(.96); }
+.bgv-reset[hidden] { display: none; }
+.bgv-hint { margin-top: 8px; font-size: 11.5px; line-height: 1.5; color: var(--ink-sub); }
+html[data-theme="neon"] .bgv { display: none; }

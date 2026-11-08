@@ -7,9 +7,9 @@
 <script>try{if(localStorage.theme==="neon")document.documentElement.dataset.theme="neon"}catch(e){}document.documentElement.classList.add("auth-pending", "i18n-pending"); setTimeout(function () { document.documentElement.classList.remove("i18n-pending"); }, 3000);</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap">
-<link rel="stylesheet" href="style.css?v=79">
-<link rel="stylesheet" href="cs.css?v=79">
-<link rel="stylesheet" href="ph.css?v=79">
+<link rel="stylesheet" href="style.css?v=80">
+<link rel="stylesheet" href="cs.css?v=80">
+<link rel="stylesheet" href="ph.css?v=80">
 </head>
 <body data-view="home">
 
@@ -281,6 +281,12 @@
   <section class="panel" id="statistic">
     <h2 class="title">Statistic</h2>
     <svg class="chart" id="chart" viewBox="0 0 230 120" role="img" data-i18n-attr="aria-label:h.statAria" aria-label="週間の統計"></svg>
+    <div class="bgv" id="bgv">
+      <input type="file" id="bgv-file" accept="video/mp4,.mp4" hidden>
+      <div class="bgv-row"><button type="button" class="bgv-btn" id="bgv-btn" data-i18n="bgv.btn">背景を変更</button><button type="button" class="bgv-reset" id="bgv-reset" data-i18n="bgv.reset" hidden>元に戻す</button></div>
+      <p class="bgv-hint" data-i18n="bgv.hint"></p>
+      <p class="fm-msg" id="bgv-msg" role="status" hidden></p>
+    </div>
   </section>
 </aside>
 
@@ -365,8 +371,8 @@
   </form>
 </div>
 
-<script src="script.js?v=79"></script>
-<script src="logpage.js?v=79"></script>
-<script type="module" src="home-auth.js?v=79"></script>
+<script src="script.js?v=80"></script>
+<script src="logpage.js?v=80"></script>
+<script type="module" src="home-auth.js?v=80"></script>
 </body>
 </html>
