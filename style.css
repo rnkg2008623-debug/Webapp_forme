@@ -806,7 +806,7 @@ html[data-theme="neon"] .lib-bg {
   display: block; position: absolute; inset: 0;
   background:
     radial-gradient(60% 50% at 50% 0%, rgba(255, 40, 180, .18), transparent 70%),
-    url("library-far.svg?v=80") calc(var(--sx, 0px) * -.3) 0 / auto 25vh repeat,
+    url("library-far.svg?v=81") calc(var(--sx, 0px) * -.3) 0 / auto 25vh repeat,
     #07021a;
   transition: opacity .45s ease-in, transform .5s cubic-bezier(.6, 0, 1, .6), filter .45s ease-in;
 }
@@ -819,7 +819,7 @@ html[data-theme="neon"] .lg-world::before {
   content: ""; position: absolute; inset: 0; pointer-events: none;
   background:
     linear-gradient(180deg, rgba(7, 2, 26, .55), transparent 30%, transparent 70%, rgba(7, 2, 26, .7)),
-    url("library-near.svg?v=80") 0 0 / auto 25vh repeat;
+    url("library-near.svg?v=81") 0 0 / auto 25vh repeat;
   transition: opacity .45s ease-in, transform .5s cubic-bezier(.6, 0, 1, .6), filter .45s ease-in;
 }
 html[data-theme="neon"] .lib-hint {
@@ -969,3 +969,8 @@ html.has-bgvideo .bg-fallback { visibility: hidden; }
 .bgv-reset[hidden] { display: none; }
 .bgv-hint { margin-top: 8px; font-size: 11.5px; line-height: 1.5; color: var(--ink-sub); }
 html[data-theme="neon"] .bgv { display: none; }
+
+/* 背景動画のとき: 上のバーと右のバーを、もっと透けさせる */
+html.has-bgvideo .topbar { background: rgba(255, 255, 255, .34); backdrop-filter: blur(18px) saturate(1.2); box-shadow: 0 1px 12px rgba(0, 0, 0, .12); }
+html.has-bgvideo .side { background: rgba(255, 255, 255, .3); backdrop-filter: blur(20px) saturate(1.2); box-shadow: -2px 0 16px rgba(0, 0, 0, .12); }
+html.has-bgvideo .topbar, html.has-bgvideo .side { transition: background .3s; }
