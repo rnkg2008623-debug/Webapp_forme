@@ -1,8 +1,8 @@
 // フレンド機能の画面: 右サイドバーの一覧と、ページの上に重ねて表示するフレンドUI
 //   左のレール: 人のマーク = フレンド一覧 / 人+のマーク = フレンド申請
-import { startSocial, formatCode, socialMessage, LIMITS } from './social.js?v=83';
-import { t } from './i18n.js?v=83';
-import { errorMessage } from './auth.js?v=83';
+import { startSocial, formatCode, socialMessage, LIMITS } from './social.js?v=85';
+import { t } from './i18n.js?v=85';
+import { errorMessage } from './auth.js?v=85';
 
 const $ = id => document.getElementById(id);
 const LABELS = { online: 'Online', busy: 'Busy', offline: 'Offline' };
@@ -47,7 +47,7 @@ function textButton(label, className, onClick) {
   b.addEventListener('click', onClick);
   return b;
 }
-import { PHOTO_PATTERN } from './avatar-image.js?v=83';
+import { PHOTO_PATTERN } from './avatar-image.js?v=85';
 function avatar(id, name, status, photo) {
   let h = 0;
   for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) % 360;

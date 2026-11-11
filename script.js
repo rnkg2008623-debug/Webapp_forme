@@ -34,10 +34,10 @@ const stats = [
 
 // nav: 画面の切り替え(ヘッダーは固定。その下だけが入れ替わる)
 //   home: ホーム / log: Log data / timer, pomodoro, manual: Log data の中のページ / profile: Profile
-const VIEWS = { home: null, log: 'log', timer: 'log', pomodoro: 'log', manual: 'log', profile: 'profile', settings: 'settings', cs: 'cs', physics: 'physics' };
+const VIEWS = { home: null, log: 'log', timer: 'log', pomodoro: 'log', manual: 'log', profile: 'profile', settings: 'settings', cs: 'cs', physics: 'physics', notes: 'notes' };
 const navButtons = [...document.querySelectorAll('.nav-item[data-target]')];
 function setView(name) {
-  if (!(name in VIEWS) || ((name === 'cs' || name === 'physics') && document.documentElement.dataset.theme !== 'neon')) name = 'home';   // CS はネオンのときだけ
+  if (!(name in VIEWS) || ((name === 'cs' || name === 'physics') && document.documentElement.dataset.theme !== 'neon') || (name === 'notes' && document.documentElement.dataset.theme === 'neon')) name = 'home';   // CS はネオンのときだけ
   document.body.dataset.view = name;
   navButtons.forEach(b => b.classList.toggle('is-active', b.dataset.target === VIEWS[name]));
   try { history.replaceState(null, '', name === 'home' ? location.pathname + location.search : `#${name}`); } catch (_) { /* 無視 */ }

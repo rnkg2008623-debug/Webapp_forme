@@ -1,17 +1,18 @@
 // ホーム画面はログイン済みのユーザーだけが見られる。未ログインならログイン画面へ戻す。
-import { onUser, logOut } from './auth.js?v=83';
-import { t, getLang, setLang } from './i18n.js?v=83';
-import { mountFriends } from './friends-ui.js?v=83';
-import { mountProfile } from './profile.js?v=83';
-import { mountTimer } from './timer.js?v=83';
-import { mountPomodoro } from './pomodoro.js?v=83';
-import { startLogs } from './logs-store.js?v=83';
-import { mountRecent } from './recent.js?v=83';
-import { mountManual } from './manual.js?v=83';
-import { mountNotices } from './notices.js?v=83';
-import { mountCompare } from './compare.js?v=83';
-import './theme.js?v=83';
-import { mountBgVideo } from './bgvideo.js?v=83';
+import { onUser, logOut } from './auth.js?v=85';
+import { t, getLang, setLang } from './i18n.js?v=85';
+import { mountFriends } from './friends-ui.js?v=85';
+import { mountProfile } from './profile.js?v=85';
+import { mountTimer } from './timer.js?v=85';
+import { mountPomodoro } from './pomodoro.js?v=85';
+import { startLogs } from './logs-store.js?v=85';
+import { mountRecent } from './recent.js?v=85';
+import { mountManual } from './manual.js?v=85';
+import { mountNotices } from './notices.js?v=85';
+import { mountCompare } from './compare.js?v=85';
+import './theme.js?v=85';
+import { mountNotes } from './notes.js?v=85';
+import { mountBgVideo } from './bgvideo.js?v=85';
 
 let social;
 onUser(async user => {
@@ -19,6 +20,7 @@ onUser(async user => {
   document.documentElement.classList.remove('auth-pending');
   if (social) return;
   mountCompare(user).catch(e => console.error('Compareを開始できませんでした', e));
+  try { mountNotes(user); } catch (e) { console.error('Notesを開始できませんでした', e); }
   mountBgVideo().catch(e => console.error('背景動画を開始できませんでした', e));
   mountNotices(user).catch(e => console.error('お知らせを開始できませんでした', e));
   try { social = await mountFriends(user); mountProfile(user, social).catch(e => console.error('プロフィールを開始できませんでした', e)); startLogs(user).catch(e => console.error('学習ログを読み込めませんでした', e)); mountRecent(); mountManual(user); mountTimer(user).catch(e => console.error('タイマーを開始できませんでした', e)); mountPomodoro(user).catch(e => console.error('Pomodoroを開始できませんでした', e)); }

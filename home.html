@@ -7,9 +7,10 @@
 <script>try{if(localStorage.theme==="neon")document.documentElement.dataset.theme="neon"}catch(e){}document.documentElement.classList.add("auth-pending", "i18n-pending"); setTimeout(function () { document.documentElement.classList.remove("i18n-pending"); }, 3000);</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap">
-<link rel="stylesheet" href="style.css?v=83">
-<link rel="stylesheet" href="cs.css?v=83">
-<link rel="stylesheet" href="ph.css?v=83">
+<link rel="stylesheet" href="style.css?v=85">
+<link rel="stylesheet" href="cs.css?v=85">
+<link rel="stylesheet" href="ph.css?v=85">
+<link rel="stylesheet" href="notes.css?v=85">
 </head>
 <body data-view="home">
 
@@ -42,6 +43,10 @@
     <button class="nav-item is-active" data-target="log">
       <svg viewBox="0 0 24 24" class="filled"><path d="M6 2.5h8l5 5V20a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 5 20V4A1.5 1.5 0 0 1 6 2.5z"/><path class="cut" d="M8.5 12h7M8.5 15h7M8.5 18h4"/></svg>
       <span>Log data</span>
+    </button>
+    <button class="nav-item nav-notes" data-target="notes">
+      <svg viewBox="0 0 24 24"><path d="M6 3h11a1.500 1.500 0 0 1 1.500 1.500v15A1.500 1.500 0 0 1 17 21H6z"/><path d="M6 3v18M3.500 7H6M3.500 12H6M3.500 17H6M10 8h5M10 12h5"/></svg>
+      <span data-i18n="nt.nav">Notes</span>
     </button>
     <button class="nav-item" data-target="friend">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
@@ -157,6 +162,45 @@
   <div class="ts-fallback" aria-hidden="true"></div>
   <div class="cs-stage" id="cs-stage"></div>
   <p class="cs-toast" id="cs-toast" hidden></p>
+</main>
+
+<!-- Notes(標準スタイルのみ): ノートに書き出すメモ帳。カテゴリーのタブ、ページ送り(WebGPUでめくる)、保存、Export -->
+<main class="nt" id="notes-view" data-i18n-attr="aria-label:nt.title" aria-label="Notes">
+  <div class="nt-book" id="nt-book">
+    <div class="nt-tabs" id="nt-tabs" role="tablist"></div>
+    <div class="nt-paper">
+      <div class="nt-rings"></div>
+      <div class="nt-bar">
+        <button type="button" class="nt-btn pri" id="nt-save" data-i18n="nt.save">保存</button>
+        <span id="nt-status" role="status"></span>
+        <span class="nt-spacer"></span>
+        <button type="button" class="nt-btn" id="nt-newpage" data-i18n="nt.newPage">+ ページ</button>
+        <button type="button" class="nt-btn danger" id="nt-delpage" data-i18n="nt.delPage">ページを削除</button>
+        <button type="button" class="nt-btn danger" id="nt-delcat" data-i18n="nt.delCat">カテゴリーを削除</button>
+        <div class="nt-exwrap">
+          <button type="button" class="nt-btn" id="nt-export" aria-haspopup="menu" aria-expanded="false" data-i18n="nt.export">Export</button>
+          <div class="nt-exmenu" id="nt-exmenu" role="menu" hidden>
+            <button type="button" role="menuitem" data-ex="page" data-i18n="nt.exPage"></button>
+            <button type="button" role="menuitem" data-ex="cat" data-i18n="nt.exCat"></button>
+            <button type="button" role="menuitem" data-ex="all" data-i18n="nt.exAll"></button>
+            <hr>
+            <button type="button" role="menuitem" data-ex="import" data-i18n="nt.import"></button>
+          </div>
+        </div>
+        <input type="file" id="nt-file" accept="application/json,.json" hidden>
+      </div>
+      <div class="nt-sheet" id="nt-sheet">
+        <textarea class="nt-text" id="nt-text" spellcheck="false" maxlength="20000" data-i18n-attr="placeholder:nt.ph;aria-label:nt.ph" placeholder="ここに書こう…"></textarea>
+        <span class="nt-pageno" id="nt-pageno">1</span>
+      </div>
+      <div class="nt-foot">
+        <button type="button" class="nt-btn" id="nt-prev" data-i18n-attr="aria-label:nt.prev" aria-label="前のページ">‹</button>
+        <span class="nt-count" id="nt-count">1 / 1</span>
+        <div class="nt-dots" id="nt-dots" aria-hidden="true"></div>
+        <button type="button" class="nt-btn" id="nt-next" data-i18n-attr="aria-label:nt.next" aria-label="次のページ">›</button>
+      </div>
+    </div>
+  </div>
 </main>
 
 <!-- Settings(ナビの Settings): 言語の切り替え -->
@@ -376,8 +420,8 @@
   </form>
 </div>
 
-<script src="script.js?v=83"></script>
-<script src="logpage.js?v=83"></script>
-<script type="module" src="home-auth.js?v=83"></script>
+<script src="script.js?v=85"></script>
+<script src="logpage.js?v=85"></script>
+<script type="module" src="home-auth.js?v=85"></script>
 </body>
 </html>
