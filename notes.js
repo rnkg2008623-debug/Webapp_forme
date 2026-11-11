@@ -1,7 +1,7 @@
 // Notes(標準スタイルのとき): ノートに書き出すようなメモ帳。カテゴリーごとのタブ、ページ送り(WebGPUでめくる)、保存、Export / Import。
 // データは、このブラウザに、アカウントごとに保存する(書くたびに自動保存。Save ボタンでも保存)。
-import { t } from './i18n.js?v=85';
-import { playFlip, warmFlip } from './notes-flip.js?v=85';
+import { t } from './i18n.js?v=87';
+import { playFlip, warmFlip } from './notes-flip.js?v=87';
 
 const $ = id => document.getElementById(id);
 const rid = () => Math.random().toString(36).slice(2, 9);
@@ -13,19 +13,28 @@ const key = () => `notes:v1:${uid}`;
 
 const newPage = (text = '') => ({ id: rid(), text, at: Date.now() });
 const newCat = name => ({ id: rid(), name, pages: [newPage()], pi: 0 });
+const newFolder = (name, cats) => { const cs = cats || [newCat(t('nt.cat1'))]; return { id: rid(), name, cats: cs, cur: cs[0].id }; };
 function fresh() {
-  const d = { v: 1, cats: [newCat(t('nt.cat1')), newCat(t('nt.cat2')), newCat(t('nt.cat3'))], cur: '' };
-  d.cur = d.cats[0].id; return d;
+  const f = newFolder(t('nt.folder1'), [newCat(t('nt.cat1')), newCat(t('nt.cat2')), newCat(t('nt.cat3'))]);
+  return { v: 2, folders: [f], fcur: f.id };
 }
 function load() {
-  try { const d = JSON.parse(localStorage.getItem(key())); if (d && Array.isArray(d.cats) && d.cats.length) return d; } catch { /* 無視 */ }
+  try {
+    const d = JSON.parse(localStorage.getItem(key()));
+    if (d && Array.isArray(d.folders) && d.folders.length) return d;
+    if (d && Array.isArray(d.cats) && d.cats.length) {      // 前の形(フォルダなし)→ フォルダ1つに入れる
+      const f = { id: rid(), name: t('nt.folder1'), cats: d.cats, cur: d.cur || d.cats[0].id };
+      return { v: 2, folders: [f], fcur: f.id };
+    }
+  } catch { /* 無視 */ }
   return fresh();
 }
 function persist() {
   clearTimeout(saveTimer); dirty = false;
   try { localStorage.setItem(key(), JSON.stringify(data)); return true; } catch { return false; }
 }
-const cat = () => data.cats.find(c => c.id === data.cur) || data.cats[0];
+const F = () => data.folders.find(f => f.id === data.fcur) || data.folders[0];
+const cat = () => F().cats.find(c => c.id === F().cur) || F().cats[0];
 const page = () => cat().pages[cat().pi];
 function status(msg, bad) { const s = $('nt-status'); s.textContent = msg; s.classList.toggle('bad', !!bad); }
 const clock = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -38,10 +47,10 @@ function queueSave() {
 // ---- 描画 ----
 function renderTabs() {
   const box = $('nt-tabs');
-  box.replaceChildren(...data.cats.map((c, i) => {
+  box.replaceChildren(...F().cats.map((c, i) => {
     const b = document.createElement('button');
-    b.type = 'button'; b.className = 'nt-tab' + (c.id === data.cur ? ' on' : ''); b.role = 'tab';
-    b.setAttribute('aria-selected', String(c.id === data.cur));
+    b.type = 'button'; b.className = 'nt-tab' + (c.id === F().cur ? ' on' : ''); b.role = 'tab';
+    b.setAttribute('aria-selected', String(c.id === F().cur));
     b.style.setProperty('--h', HUES[i % HUES.length]);
     b.dataset.id = c.id; b.title = t('nt.renameHint');
     const name = document.createElement('span'); name.textContent = c.name; b.append(name);
@@ -50,7 +59,7 @@ function renderTabs() {
   const add = document.createElement('button');
   add.type = 'button'; add.className = 'nt-tab nt-add'; add.id = 'nt-addcat'; add.textContent = '+'; add.setAttribute('aria-label', t('nt.addCat'));
   box.append(add);
-  const idx = Math.max(0, data.cats.findIndex(c => c.id === data.cur));
+  const idx = Math.max(0, F().cats.findIndex(c => c.id === F().cur));
   $('nt-book').style.setProperty('--h', HUES[idx % HUES.length]);
 }
 function renderPage() {
@@ -61,11 +70,26 @@ function renderPage() {
   $('nt-pageno').textContent = String(c.pi + 1);
   $('nt-prev').disabled = c.pi === 0;
   $('nt-next').disabled = c.pi >= c.pages.length - 1;
-  $('nt-delcat').hidden = data.cats.length <= 1;
+  $('nt-delcat').hidden = F().cats.length <= 1;
   const dots = $('nt-dots');
   dots.replaceChildren(...c.pages.slice(0, 12).map((_, i) => { const d = document.createElement('i'); d.className = i === c.pi ? 'on' : ''; return d; }));
 }
-function renderAll() { renderTabs(); renderPage(); }
+function renderFolders() {
+  const box = $('nt-folders');
+  box.replaceChildren(...data.folders.map(f => {
+    const on = f.id === data.fcur;
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'nt-folder' + (on ? ' on' : ''); b.dataset.id = f.id; b.title = t('nt.renameFolderHint');
+    b.setAttribute('aria-pressed', String(on));
+    b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.500A1.500 1.500 0 0 1 4.500 5h4.200l2 2.300h8.800A1.500 1.500 0 0 1 21 8.800v8.700a1.500 1.500 0 0 1-1.500 1.500h-15A1.500 1.500 0 0 1 3 17.500z"/></svg>';
+    const name = document.createElement('span'); name.textContent = f.name; b.append(name);
+    return b;
+  }));
+  $('nt-renamefolder').hidden = false;
+  $('nt-delfolder').hidden = data.folders.length <= 1;
+  box.querySelector('.on')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+}
+function renderAll() { renderFolders(); renderTabs(); renderPage(); }
 
 // ---- ページめくりの絵(紙・罫線・赤い線・文字を、textarea と同じ見た目で2D canvasに描く) ----
 function wrap(ctx, text, maxW) {
@@ -125,9 +149,9 @@ async function goPage(to, add) {
   $('nt-text').focus({ preventScroll: true });
 }
 function selectCat(id) {
-  if (flipping || id === data.cur) return;
+  if (flipping || id === F().cur) return;
   page().text = $('nt-text').value; persist();
-  data.cur = id; renderAll();
+  F().cur = id; renderAll();
   const s = $('nt-sheet'); s.classList.remove('turn-next', 'turn-prev', 'swap'); void s.offsetWidth; s.classList.add('swap');
 }
 
@@ -152,12 +176,15 @@ function importFile(file) {
   r.onload = () => {
     try {
       const d = JSON.parse(String(r.result));
-      if (!d || !Array.isArray(d.cats) || !d.cats.length) throw new Error('bad');
-      const clean = d.cats.slice(0, 30).map(c => ({
+      const cleanCats = cs => (Array.isArray(cs) ? cs : []).slice(0, 30).map(c => ({
         id: rid(), name: String(c.name || '').slice(0, 20) || t('nt.untitled'),
         pages: (Array.isArray(c.pages) && c.pages.length ? c.pages.slice(0, 200) : [{}]).map(p => newPage(String(p.text || '').slice(0, 20000))), pi: 0,
       }));
-      data.cats.push(...clean); data.cur = clean[0].id; persist(); renderAll(); status(t('nt.imported'));
+      let add;
+      if (Array.isArray(d && d.folders) && d.folders.length) add = d.folders.slice(0, 30).map(f => newFolder(String(f.name || '').slice(0, 20) || t('nt.untitled'), cleanCats(f.cats).length ? cleanCats(f.cats) : null));
+      else if (Array.isArray(d && d.cats) && d.cats.length) add = [newFolder(t('nt.imported1'), cleanCats(d.cats))];
+      else throw new Error('bad');
+      data.folders.push(...add); data.fcur = add[0].id; persist(); renderAll(); status(t('nt.imported'));
     } catch { status(t('nt.importBad'), true); }
   };
   r.readAsText(file);
@@ -183,19 +210,44 @@ export function mountNotes(user) {
     if (e.target.closest('#nt-addcat')) {
       const name = (prompt(t('nt.newCatName'), '') || '').trim().slice(0, 20);
       if (!name || flipping) return;
-      page().text = ta.value; const c = newCat(name); data.cats.push(c); data.cur = c.id; persist(); renderAll(); return;
+      page().text = ta.value; const c = newCat(name); F().cats.push(c); F().cur = c.id; persist(); renderAll(); return;
     }
     const b = e.target.closest('.nt-tab[data-id]'); if (b) selectCat(b.dataset.id);
   });
   $('nt-tabs').addEventListener('dblclick', e => {
     const b = e.target.closest('.nt-tab[data-id]'); if (!b) return;
-    const c = data.cats.find(x => x.id === b.dataset.id);
+    const c = F().cats.find(x => x.id === b.dataset.id);
     const name = (prompt(t('nt.renameCat'), c.name) || '').trim().slice(0, 20);
     if (name) { c.name = name; persist(); renderTabs(); }
   });
   $('nt-delcat').addEventListener('click', () => {
     if (!confirm(t('nt.confirmDelCat'))) return;
-    const i = data.cats.findIndex(c => c.id === data.cur); data.cats.splice(i, 1); data.cur = data.cats[Math.max(0, i - 1)].id; persist(); renderAll();
+    const i = F().cats.findIndex(c => c.id === F().cur); F().cats.splice(i, 1); F().cur = F().cats[Math.max(0, i - 1)].id; persist(); renderAll();
+  });
+  const folders = $('nt-folders');
+  const swap = () => { const s = $('nt-sheet'); s.classList.remove('turn-next', 'turn-prev', 'swap'); void s.offsetWidth; s.classList.add('swap'); };
+  $('nt-newfolder').addEventListener('click', () => {
+    if (flipping) return;
+    const name = (prompt(t('nt.newFolderName'), `${t('nt.folder')} ${data.folders.length + 1}`) || '').trim().slice(0, 20);
+    if (!name) return;
+    page().text = ta.value; const f = newFolder(name); data.folders.push(f); data.fcur = f.id; persist(); renderAll(); swap();
+    folders.scrollTo({ left: folders.scrollWidth, behavior: 'smooth' }); ta.focus();
+  });
+  folders.addEventListener('click', e => {
+    const b = e.target.closest('.nt-folder'); if (!b || flipping || b.dataset.id === data.fcur) return;
+    page().text = ta.value; persist(); data.fcur = b.dataset.id; renderAll(); swap();
+  });
+  folders.addEventListener('dblclick', e => { if (e.target.closest('.nt-folder')) renameFolder(e.target.closest('.nt-folder').dataset.id); });
+  folders.addEventListener('wheel', e => { if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { folders.scrollLeft += e.deltaY; e.preventDefault(); } }, { passive: false });   // 縦のホイールで、横にスクロール
+  function renameFolder(id) {
+    const f = data.folders.find(x => x.id === id); if (!f) return;
+    const name = (prompt(t('nt.renameFolder'), f.name) || '').trim().slice(0, 20);
+    if (name) { f.name = name; persist(); renderFolders(); }
+  }
+  $('nt-renamefolder').addEventListener('click', () => renameFolder(data.fcur));
+  $('nt-delfolder').addEventListener('click', () => {
+    if (!confirm(t('nt.confirmDelFolder'))) return;
+    const i = data.folders.findIndex(f => f.id === data.fcur); data.folders.splice(i, 1); data.fcur = data.folders[Math.max(0, i - 1)].id; persist(); renderAll(); swap();
   });
   const menu = $('nt-exmenu');
   $('nt-export').addEventListener('click', e => { e.stopPropagation(); menu.hidden = !menu.hidden; $('nt-export').setAttribute('aria-expanded', String(!menu.hidden)); });

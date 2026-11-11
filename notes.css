@@ -42,3 +42,17 @@ body[data-view="notes"] .nt { display: flex; justify-content: center; align-item
 .nt-dots { display: flex; gap: 5px; } .nt-dots i { width: 7px; height: 7px; border-radius: 50%; background: hsl(var(--h) 30% 78%); } .nt-dots i.on { background: hsl(var(--h) 70% 50%); }
 @media (max-width: 700px) { .nt-paper { padding-left: 30px; } .nt-paper::before { width: 30px; } .nt-rings { left: 0; width: 30px; } .nt-text { padding-left: 62px; font-size: 18px; } .nt-sheet::after { left: 45.5px; } }
 @media (prefers-reduced-motion: reduce) { body[data-view="notes"] .nt, .nt-sheet .nt-text { animation: none !important; } }
+
+/* フォルダ(横にスクロール) */
+.nt-folderbar { display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: hsl(var(--h) 45% 97%); border-bottom: 1px solid hsl(var(--h) 35% 85%); position: relative; z-index: 2; }
+.nt-folders { flex: 1; min-width: 0; display: flex; gap: 8px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; padding: 3px 2px 6px; scrollbar-width: thin; scrollbar-color: hsl(var(--h) 30% 70%) transparent; }
+.nt-folder { flex: none; scroll-snap-align: start; display: inline-flex; align-items: center; gap: 7px; max-width: 220px; padding: 7px 14px 7px 11px; border-radius: 10px; background: #fff; border: 1.5px solid rgba(60, 80, 130, .2); font-size: 14px; color: #2b3144; transition: background .15s, border-color .15s, box-shadow .15s; }
+.nt-folder svg { width: 18px; height: 18px; flex: none; fill: hsl(var(--h) 80% 88%); stroke: hsl(var(--h) 45% 40%); stroke-width: 1.6; stroke-linejoin: round; }
+.nt-folder span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nt-folder:hover { border-color: hsl(var(--h) 45% 60%); }
+.nt-folder.on { background: hsl(var(--h) 70% 92%); border-color: hsl(var(--h) 60% 50%); font-weight: 700; box-shadow: 0 2px 8px hsl(var(--h) 60% 50% / .25); }
+.nt-folder.on svg { fill: hsl(var(--h) 80% 75%); }
+.nt-mini { flex: none; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 8px; border: 1px solid rgba(60, 80, 130, .25); background: #fff; }
+.nt-mini svg { width: 17px; height: 17px; fill: none; stroke: #4a5570; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; } .nt-mini.danger svg { stroke: #b3362b; }
+.nt-mini:hover { box-shadow: 0 2px 8px rgba(40, 60, 120, .2); } .nt-mini[hidden] { display: none; }
+.nt-bar { z-index: 6; }

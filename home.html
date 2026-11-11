@@ -7,10 +7,10 @@
 <script>try{if(localStorage.theme==="neon")document.documentElement.dataset.theme="neon"}catch(e){}document.documentElement.classList.add("auth-pending", "i18n-pending"); setTimeout(function () { document.documentElement.classList.remove("i18n-pending"); }, 3000);</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap">
-<link rel="stylesheet" href="style.css?v=85">
-<link rel="stylesheet" href="cs.css?v=85">
-<link rel="stylesheet" href="ph.css?v=85">
-<link rel="stylesheet" href="notes.css?v=85">
+<link rel="stylesheet" href="style.css?v=87">
+<link rel="stylesheet" href="cs.css?v=87">
+<link rel="stylesheet" href="ph.css?v=87">
+<link rel="stylesheet" href="notes.css?v=87">
 </head>
 <body data-view="home">
 
@@ -173,6 +173,7 @@
       <div class="nt-bar">
         <button type="button" class="nt-btn pri" id="nt-save" data-i18n="nt.save">保存</button>
         <span id="nt-status" role="status"></span>
+        <button type="button" class="nt-btn" id="nt-newfolder" data-i18n="nt.newFolder">+ フォルダ</button>
         <span class="nt-spacer"></span>
         <button type="button" class="nt-btn" id="nt-newpage" data-i18n="nt.newPage">+ ページ</button>
         <button type="button" class="nt-btn danger" id="nt-delpage" data-i18n="nt.delPage">ページを削除</button>
@@ -188,6 +189,11 @@
           </div>
         </div>
         <input type="file" id="nt-file" accept="application/json,.json" hidden>
+      </div>
+      <div class="nt-folderbar">
+        <div class="nt-folders" id="nt-folders" data-i18n-attr="aria-label:nt.folders" aria-label="フォルダ"></div>
+        <button type="button" class="nt-mini" id="nt-renamefolder" data-i18n-attr="aria-label:nt.renameFolder;title:nt.renameFolder" aria-label="フォルダの名前を変える"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM13.500 6.500l4 4"/></svg></button>
+        <button type="button" class="nt-mini danger" id="nt-delfolder" data-i18n-attr="aria-label:nt.delFolder;title:nt.delFolder" aria-label="フォルダを削除"><svg viewBox="0 0 24 24"><path d="M5 7h14M10 7V4.500h4V7M7 7l1 13h8l1-13"/></svg></button>
       </div>
       <div class="nt-sheet" id="nt-sheet">
         <textarea class="nt-text" id="nt-text" spellcheck="false" maxlength="20000" data-i18n-attr="placeholder:nt.ph;aria-label:nt.ph" placeholder="ここに書こう…"></textarea>
@@ -420,8 +426,8 @@
   </form>
 </div>
 
-<script src="script.js?v=85"></script>
-<script src="logpage.js?v=85"></script>
-<script type="module" src="home-auth.js?v=85"></script>
+<script src="script.js?v=87"></script>
+<script src="logpage.js?v=87"></script>
+<script type="module" src="home-auth.js?v=87"></script>
 </body>
 </html>
