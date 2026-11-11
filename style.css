@@ -806,7 +806,7 @@ html[data-theme="neon"] .lib-bg {
   display: block; position: absolute; inset: 0;
   background:
     radial-gradient(60% 50% at 50% 0%, rgba(255, 40, 180, .18), transparent 70%),
-    url("library-far.svg?v=81") calc(var(--sx, 0px) * -.3) 0 / auto 25vh repeat,
+    url("library-far.svg?v=83") calc(var(--sx, 0px) * -.3) 0 / auto 25vh repeat,
     #07021a;
   transition: opacity .45s ease-in, transform .5s cubic-bezier(.6, 0, 1, .6), filter .45s ease-in;
 }
@@ -819,7 +819,7 @@ html[data-theme="neon"] .lg-world::before {
   content: ""; position: absolute; inset: 0; pointer-events: none;
   background:
     linear-gradient(180deg, rgba(7, 2, 26, .55), transparent 30%, transparent 70%, rgba(7, 2, 26, .7)),
-    url("library-near.svg?v=81") 0 0 / auto 25vh repeat;
+    url("library-near.svg?v=83") 0 0 / auto 25vh repeat;
   transition: opacity .45s ease-in, transform .5s cubic-bezier(.6, 0, 1, .6), filter .45s ease-in;
 }
 html[data-theme="neon"] .lib-hint {
@@ -974,3 +974,12 @@ html[data-theme="neon"] .bgv { display: none; }
 html.has-bgvideo .topbar { background: rgba(255, 255, 255, .34); backdrop-filter: blur(18px) saturate(1.2); box-shadow: 0 1px 12px rgba(0, 0, 0, .12); }
 html.has-bgvideo .side { background: rgba(255, 255, 255, .3); backdrop-filter: blur(20px) saturate(1.2); box-shadow: -2px 0 16px rgba(0, 0, 0, .12); }
 html.has-bgvideo .topbar, html.has-bgvideo .side { transition: background .3s; }
+
+/* 設定: 復習済みの色(Computer Science のときだけ) */
+.st-done { display: none; }
+html[data-theme="neon"] .st-done { display: block; }
+.st-colors { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
+.cs-swatch { width: 38px; height: 38px; border-radius: 50%; background: var(--c); border: 2px solid rgba(255, 255, 255, .35); box-shadow: 0 0 10px color-mix(in srgb, var(--c) 55%, transparent); transition: transform .15s; }
+.cs-swatch:hover { transform: scale(1.1); } .cs-swatch.is-on { border-color: #fff; box-shadow: 0 0 0 3px rgba(255, 255, 255, .25), 0 0 14px var(--c); }
+.cs-custom { display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px 4px 6px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .35); color: #fff; font-size: 14px; cursor: pointer; }
+.cs-custom input { width: 30px; height: 30px; padding: 0; border: 0; background: none; cursor: pointer; }

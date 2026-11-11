@@ -1,9 +1,10 @@
 // CS(ネオンのときだけ): 「IBDP Computer Science HL」の学習サイトの画面一式。背景はWebGPU(白黒のゴシックの大聖堂)で、ずっと動いている。
 // 画面: home / topics / practice / pa(Practice の一覧。A1〜A4) / lesson(A1〜A4 の学習ページ) / case(Case Study)
-import { createGpuView } from './gpu-view.js?v=81';
-import { WGSL } from './cs-bg.js?v=81';
-import { GROUPS, TERMS, FIGS } from './casestudy.js?v=81';
-import { mountQuiz, quizScore, quizTotal, QUIZ_CODES } from './quiz.js?v=81';
+import { createGpuView } from './gpu-view.js?v=83';
+import { WGSL } from './cs-bg.js?v=83';
+import { GROUPS, TERMS, FIGS } from './casestudy.js?v=83';
+import { isDone, toggleDone, countDone } from './cs-progress.js?v=83';
+import { mountQuiz, quizScore, quizTotal, QUIZ_CODES } from './quiz.js?v=83';
 
 const host = document.getElementById('cs-view');
 const stage = document.getElementById('cs-stage');
@@ -26,6 +27,7 @@ const ICONS = {
   ram: '<rect x="2" y="7.500" width="20" height="9" rx="1"/><path d="M5 10.500v3M9 10.500v3M13 10.500v3M17 10.500v3M5 16.500v2M9 16.500v2M13 16.500v2M17 16.500v2"/>',
   pipe: '<rect x="1.500" y="8" width="5.500" height="8" rx="1"/><rect x="9.200" y="8" width="5.500" height="8" rx="1"/><rect x="17" y="8" width="5.500" height="8" rx="1"/>',
   cycle: '<path d="M20 12a8 8 0 1 1-2.500-5.800M20 4v4h-4M9 12l2 2 4-4"/>',
+  tick: '<path d="M5 12.500l4.500 4.500L19 7"/>',
   search: '<circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/>',
   home: '<path d="M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10"/>',
   lock: '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
@@ -90,6 +92,9 @@ const TOPICS = {
     'A4.4.1 Discuss the ethical implications of machine …', 'A4.4.2 Discuss ethical aspects of the increasing in…',
   ],
 };
+const codesOf = u => u.lessons.map(l => l[0]).filter(Boolean);
+const doneN = u => countDone(codesOf(u));
+const pct = u => (u.topicCount ? Math.round(doneN(u) / u.topicCount * 100) : 0);
 const parseTopic = line => { const m = /^(A\d\.\d+\.\d+)\s+(.*)$/.exec(line); return m ? { code: m[1], title: m[2] } : { code: '', title: line }; };
 const unit = (code, name, icon, tagline) => {
   const rows = TOPICS[code].map(parseTopic);
@@ -200,16 +205,16 @@ const PAGES = {
       <aside class="cs-side panel">
         <div class="cs-lbrand" data-go="home">${ic('cycle', 'lead')}<span><small>IBDP</small>Computer Science HL</span></div><div class="cs-rule thin"><i></i><b>✦</b><i></i></div>
         ${SECTIONS.map(([c, n, i]) => (c === u.code
-          ? `<button class="cs-acc on">${ic(i, 'lead')}<b>${c}</b>${ic('up', 'sm')}</button><ul class="cs-sub">${u.lessons.map(([lc, ln], k) => `<li class="${k === 0 ? 'on' : ''}" title="${esc(ln)}"><i></i><code>${lc || '·'}</code><span>${esc(ln)}</span></li>`).join('')}</ul>`
+          ? `<button class="cs-acc on">${ic(i, 'lead')}<b>${c}</b>${ic('up', 'sm')}</button><ul class="cs-sub">${u.lessons.map(([lc, ln], k) => `<li class="${k === 0 ? 'on' : ''} ${lc && isDone(lc) ? 'done' : ''}" ${lc ? `data-code="${lc}"` : ''} title="${esc(ln)}"><i></i><code>${lc || '·'}</code><span>${esc(ln)}</span></li>`).join('')}</ul>`
           : `<button class="cs-acc" ${UNITS[c] ? `data-go="lesson:${c}"` : c === 'Case Study' ? 'data-go="case"' : 'data-soon'}>${ic(i, 'lead')}<b>${c}</b>${ic('down', 'sm')}</button>`)).join('')}
       </aside>
       <section class="cs-main">
         <div class="cs-lhead">
           <div class="cs-ltitle">${sparkle}<div><h2><i>${u.code}</i> <em>${u.name}</em></h2><p>${u.tagline}</p></div></div>
           <div class="cs-quote">“ Small steps<br>&nbsp; build great understanding.”</div>
-          <div class="cs-prog panel"><button class="cs-iconbtn" data-soon aria-label="Search">${ic('search')}</button><div><small>Progress</small><div class="bar"><i></i></div></div><span>0/${u.topicCount}</span><button class="cs-iconbtn round" data-go="home" aria-label="Account">${ic('user')}</button></div>
+          <div class="cs-prog panel"><button class="cs-iconbtn" data-soon aria-label="Search">${ic('search')}</button><div><small>Progress</small><div class="bar"><i style="width:${pct(u)}%"></i></div></div><span class="cs-count">${doneN(u)}/${u.topicCount}</span><button class="cs-iconbtn round" data-go="home" aria-label="Account">${ic('user')}</button></div>
         </div>
-        <ul class="cs-lessons">${u.lessons.map(([c, n, d, i, st], k) => `<li class="cs-lesson ${st} ${QUIZ_CODES.includes(c) ? 'link' : ''}" ${QUIZ_CODES.includes(c) ? `data-go="quiz:${c}" tabindex="0" role="link"` : ''}><div class="cs-thumb">${ic(i, 'thumb')}</div><span class="num">${k + 1}</span><span class="txt"><b><code>${c}</code>${n}</b>${d ? `<em>${d}</em>` : ''}</span>${st === 'start' ? `<button class="cs-start" ${QUIZ_CODES.includes(c) ? `data-go="quiz:${c}"` : 'data-soon'}>Start ${ic('arrow', 'sm')}</button>` : `<button class="cs-start locked" disabled>${ic('lock', 'sm')} Locked ${ic('arrow', 'sm')}</button>`}</li>`).join('')}</ul>
+        <ul class="cs-lessons">${u.lessons.map(([c, n, d, i, st], k) => `<li class="cs-lesson ${st} ${QUIZ_CODES.includes(c) ? 'link' : ''} ${c && isDone(c) ? 'done' : ''}" ${c ? `data-code="${c}"` : ''} ${QUIZ_CODES.includes(c) ? `data-go="quiz:${c}" tabindex="0" role="link"` : ''}><div class="cs-thumb">${ic(i, 'thumb')}</div><span class="num">${k + 1}</span><span class="txt"><b><code>${c}</code>${n}</b>${d ? `<em>${d}</em>` : ''}</span>${c ? `<button type="button" class="cs-check" role="checkbox" aria-checked="${isDone(c)}" aria-label="${esc(c)} reviewed" title="Reviewed">${ic('tick', 'sm')}</button>` : ''}${st === 'start' ? `<button class="cs-start" ${QUIZ_CODES.includes(c) ? `data-go="quiz:${c}"` : 'data-soon'}>Start ${ic('arrow', 'sm')}</button>` : `<button class="cs-start locked" disabled>${ic('lock', 'sm')} Locked ${ic('arrow', 'sm')}</button>`}</li>`).join('')}</ul>
         <p class="cs-foot">— Knowledge turns into power —</p>
       </section>
     </div>`; },
@@ -263,7 +268,18 @@ stage.addEventListener('input', e => {   // 用語の検索
   stage.querySelectorAll('.cs-ig').forEach(g => { g.hidden = !g.querySelector('a:not([hidden])'); });
   const none = stage.querySelector('.cs-none'); if (none) none.hidden = n > 0;
 });
+function refreshProgress() {
+  const u = UNITS[host.dataset.unit]; if (!u || page !== 'lesson') return;
+  stage.querySelectorAll('[data-code]').forEach(n => {
+    const d = isDone(n.dataset.code); n.classList.toggle('done', d);
+    n.querySelector('.cs-check')?.setAttribute('aria-checked', String(d));
+  });
+  const bar = stage.querySelector('.cs-prog .bar i'); if (bar) bar.style.width = pct(u) + '%';
+  const cnt = stage.querySelector('.cs-count'); if (cnt) cnt.textContent = `${doneN(u)}/${u.topicCount}`;
+}
 stage.addEventListener('click', e => {
+  const chk = e.target.closest('.cs-check');
+  if (chk) { e.preventDefault(); e.stopPropagation(); toggleDone(chk.closest('[data-code]').dataset.code); refreshProgress(); return; }
   const jump = e.target.closest('[data-jump]');
   if (jump) { e.preventDefault(); const t = stage.querySelector('#' + jump.dataset.jump); t?.scrollIntoView({ behavior: 'smooth', block: 'start' }); t?.classList.add('flash'); setTimeout(() => t?.classList.remove('flash'), 1400); return; }
   const lm = e.target.closest('.cs-langs button');
@@ -275,6 +291,7 @@ stage.addEventListener('click', e => {
   if (dots) { dots.parentElement.querySelectorAll('i').forEach(i => i.classList.toggle('on', i === dots)); }
 });
 stage.addEventListener('keydown', e => {   // Enter で、リンクの行を開く
+  if (e.target.closest('.cs-check')) return;
   const row = e.target.closest('[data-go][tabindex]');
   if (row && e.key === 'Enter') { e.preventDefault(); show(row.dataset.go); }
 });

@@ -7,9 +7,9 @@
 <script>try{if(localStorage.theme==="neon")document.documentElement.dataset.theme="neon"}catch(e){}document.documentElement.classList.add("auth-pending", "i18n-pending"); setTimeout(function () { document.documentElement.classList.remove("i18n-pending"); }, 3000);</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap">
-<link rel="stylesheet" href="style.css?v=81">
-<link rel="stylesheet" href="cs.css?v=81">
-<link rel="stylesheet" href="ph.css?v=81">
+<link rel="stylesheet" href="style.css?v=83">
+<link rel="stylesheet" href="cs.css?v=83">
+<link rel="stylesheet" href="ph.css?v=83">
 </head>
 <body data-view="home">
 
@@ -173,6 +173,11 @@
     <div class="st-langs st-themes" role="group" data-i18n-attr="aria-label:set.themeAria" aria-label="表示スタイルを選ぶ">
       <button type="button" class="st-lang st-theme" data-theme="standard" aria-pressed="false"><span class="st-name" data-i18n="set.std">標準</span><span class="st-sample" data-i18n="set.stdSub">明るく爽やか</span><svg class="st-check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg></button>
       <button type="button" class="st-lang st-theme" data-theme="neon" aria-pressed="false"><span class="st-name" data-i18n="set.neon">ネオン</span><span class="st-sample" data-i18n="set.neonSub">3Dの光る背景</span><svg class="st-check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg></button>
+    </div>
+    <div class="st-done" id="st-done">
+      <h3 class="st-sub" data-i18n="set.done">復習済みの色</h3>
+      <div class="st-colors" id="cs-done-colors" role="group" data-i18n-attr="aria-label:set.done"><label class="cs-custom"><input type="color" id="cs-done-pick" value="#6ee7a0"><span data-i18n="set.doneCustom">好きな色</span></label></div>
+      <p class="st-note" data-i18n="set.doneNote">Computer Science の学習ページで、復習済みにチェックしたセクションが、この色になります。</p>
     </div>
     <p class="st-note st-gpu-note" data-i18n="set.noGpu" hidden>x</p>
     <p class="st-note" data-i18n="set.note">この設定は、このブラウザに保存されます。</p>
@@ -371,8 +376,8 @@
   </form>
 </div>
 
-<script src="script.js?v=81"></script>
-<script src="logpage.js?v=81"></script>
-<script type="module" src="home-auth.js?v=81"></script>
+<script src="script.js?v=83"></script>
+<script src="logpage.js?v=83"></script>
+<script type="module" src="home-auth.js?v=83"></script>
 </body>
 </html>
