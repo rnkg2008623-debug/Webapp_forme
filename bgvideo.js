@@ -1,6 +1,6 @@
 // 背景動画(標準スタイルのときだけ): 好きなmp4(500MBまで・3分まで)を、音なしで背景にループ再生する。
 // 動画はこのブラウザの IndexedDB に保存する(サーバーには送らない)。なので、端末ごとに選ぶ。
-import { t } from './i18n.js?v=87';
+import { t } from './i18n.js?v=88';
 
 const MAX_BYTES = 500 * 1024 * 1024, MAX_SEC = 180;
 const DB = 'bgvideo', STORE = 'v', KEY = 'bg';
