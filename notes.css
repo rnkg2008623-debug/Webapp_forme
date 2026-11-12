@@ -56,3 +56,10 @@ body[data-view="notes"] .nt { display: flex; justify-content: center; align-item
 .nt-mini svg { width: 17px; height: 17px; fill: none; stroke: #4a5570; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; } .nt-mini.danger svg { stroke: #b3362b; }
 .nt-mini:hover { box-shadow: 0 2px 8px rgba(40, 60, 120, .2); } .nt-mini[hidden] { display: none; }
 .nt-bar { z-index: 6; }
+
+/* このタブに、フォルダがまだないとき */
+.nt-folderbar.none .nt-folders { min-height: 38px; }
+.nt-folderbar.none .nt-folders::before { content: attr(data-none); align-self: center; font-size: 13px; color: #8b909b; padding-left: 4px; }
+.nt-empty { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: var(--paper); text-align: center; padding: 24px; color: #4a5570; font-size: 17px; line-height: 1.7; }
+.nt-empty[hidden] { display: none; }
+.nt-sheet.empty .nt-text, .nt-sheet.empty .nt-pageno { visibility: hidden; }

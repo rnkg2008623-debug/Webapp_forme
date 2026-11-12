@@ -1,7 +1,7 @@
 // Notes(標準スタイルのとき): ノートに書き出すようなメモ帳。カテゴリーごとのタブ、ページ送り(WebGPUでめくる)、保存、Export / Import。
 // データは、このブラウザに、アカウントごとに保存する(書くたびに自動保存。Save ボタンでも保存)。
-import { t } from './i18n.js?v=88';
-import { playFlip, warmFlip } from './notes-flip.js?v=88';
+import { t } from './i18n.js?v=89';
+import { playFlip, warmFlip } from './notes-flip.js?v=89';
 
 const $ = id => document.getElementById(id);
 const rid = () => Math.random().toString(36).slice(2, 9);
@@ -14,10 +14,10 @@ const key = () => `notes:v1:${uid}`;
 // 構造: カテゴリー(上のタブ) → フォルダ(タブごとに独立) → ページ
 const newPage = (text = '') => ({ id: rid(), text, at: Date.now() });
 const newFolder = name => ({ id: rid(), name, pages: [newPage()], pi: 0 });
-const newCat = (name, folders) => { const fs = folders && folders.length ? folders : [newFolder(t('nt.folder1'))]; return { id: rid(), name, folders: fs, fcur: fs[0].id }; };
+const newCat = (name, folders) => { const fs = folders || []; return { id: rid(), name, folders: fs, fcur: fs[0] ? fs[0].id : '' }; };   // フォルダは、作るまでは0個
 function fresh() {
   const cats = [newCat(t('nt.cat1')), newCat(t('nt.cat2')), newCat(t('nt.cat3'))];
-  return { v: 3, cats, cur: cats[0].id };
+  return { v: 4, cats, cur: cats[0].id };
 }
 // 前の形のデータ(v1: タブだけ / v2: フォルダの中にタブ)も、今の形に直す
 function migrate(d) {
@@ -39,12 +39,24 @@ function migrate(d) {
     cats = d.cats.slice(0, 30).map(c => newCat(cl(c.name, 20) || t('nt.untitled'), [fol(t('nt.folder1'), c)]));
   }
   if (!cats.length) return null;
-  return { v: 3, cats, cur: cats[0].id };
+  return tidy({ v: 4, cats, cur: cats[0].id });
+}
+const blank = f => f.pages.every(p => !String(p.text || '').trim());
+const DEFAULT_NAMES = new Set(['フォルダ1', 'Folder 1', '文件夹1', 'マイノート', 'My notes', '我的笔记']);
+// 作った覚えのない空のフォルダ(昔のバージョンが自動で作ったもの)を片づける: 空で、初期の名前のもの / 別のタブに同じ名前のフォルダがあるもの
+function tidy(d) {
+  for (const c of d.cats) {
+    c.folders = c.folders.filter(f => !(blank(f) && (DEFAULT_NAMES.has(f.name) || d.cats.some(o => o !== c && o.folders.some(x => x.name === f.name && !blank(x))))));
+    if (!c.folders.some(f => f.id === c.fcur)) c.fcur = c.folders[0] ? c.folders[0].id : '';
+  }
+  if (!d.cats.some(c => c.id === d.cur)) d.cur = d.cats[0].id;
+  d.v = 4; return d;
 }
 function load() {
   try {
     const raw = JSON.parse(localStorage.getItem(key()));
-    if (raw && raw.v === 3 && Array.isArray(raw.cats) && raw.cats.length && raw.cats.every(c => Array.isArray(c.folders) && c.folders.length)) {
+    if (raw && (raw.v === 3 || raw.v === 4) && Array.isArray(raw.cats) && raw.cats.length && raw.cats.every(c => Array.isArray(c.folders))) {
+      if (raw.v === 3) { const d = tidy(raw); try { localStorage.setItem(key(), JSON.stringify(d)); } catch { /* 無視 */ } return d; }
       if (!raw.cats.some(c => c.id === raw.cur)) raw.cur = raw.cats[0].id;
       return raw;
     }
@@ -57,8 +69,9 @@ function persist() {
   try { localStorage.setItem(key(), JSON.stringify(data)); return true; } catch { return false; }
 }
 const C = () => data.cats.find(c => c.id === data.cur) || data.cats[0];          // いまのタブ(カテゴリー)
-const fol = () => C().folders.find(f => f.id === C().fcur) || C().folders[0];    // その中の、いまのフォルダ
-const cat = fol;                                                                  // ページを持つのは、フォルダ
+const fol = () => C().folders.find(f => f.id === C().fcur) || C().folders[0] || null;    // その中の、いまのフォルダ
+const cat = fol;                                                                  // ページを持つのは、フォルダ(タブにフォルダがないときは null)
+const savePage = () => { if (fol()) fol().pages[fol().pi].text = $('nt-text').value; };
 const page = () => cat().pages[cat().pi];
 function status(msg, bad) { const s = $('nt-status'); s.textContent = msg; s.classList.toggle('bad', !!bad); }
 const clock = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -87,7 +100,16 @@ function renderTabs() {
   $('nt-book').style.setProperty('--h', HUES[idx % HUES.length]);
 }
 function renderPage() {
-  const c = cat(), ta = $('nt-text');
+  const c = cat(), ta = $('nt-text'), has = !!c;
+  $('nt-sheet').classList.toggle('empty', !has);
+  $('nt-empty').hidden = has;
+  ['nt-newpage', 'nt-delpage'].forEach(id => { $(id).disabled = !has; });
+  if (!has) {
+    ta.value = ''; $('nt-count').textContent = '–'; $('nt-pageno').textContent = '';
+    $('nt-prev').disabled = true; $('nt-next').disabled = true; $('nt-dots').replaceChildren();
+    $('nt-delcat').hidden = data.cats.length <= 1;
+    return;
+  }
   ta.value = page().text;
   ta.scrollTop = 0;
   $('nt-count').textContent = `${c.pi + 1} / ${c.pages.length}`;
@@ -109,8 +131,11 @@ function renderFolders() {
     const name = document.createElement('span'); name.textContent = f.name; b.append(name);
     return b;
   }));
-  $('nt-renamefolder').hidden = false;
-  $('nt-delfolder').hidden = C().folders.length <= 1;
+  const none = C().folders.length === 0;
+  box.dataset.none = t('nt.noFolders');
+  $('nt-renamefolder').hidden = none;
+  $('nt-delfolder').hidden = none;
+  $('nt-folderbar').classList.toggle('none', none);
   box.querySelector('.on')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
 }
 function renderAll() { renderFolders(); renderTabs(); renderPage(); }
@@ -154,11 +179,11 @@ function sheetImage(text, no) {
 
 // ---- ページ移動 ----
 async function goPage(to, add) {
-  if (flipping) return;
+  if (flipping || !cat()) return;
   const c = cat(); const from = c.pi;
   if (add) { c.pages.splice(from + 1, 0, newPage()); to = from + 1; }
   if (to < 0 || to >= c.pages.length || to === from) return;
-  page().text = $('nt-text').value;
+  savePage();
   const fromImg = sheetImage(c.pages[from].text, from + 1), toImg = sheetImage(c.pages[to].text, to + 1);
   flipping = true; $('nt-sheet').classList.add('flipping');
   const dir = to > from ? 1 : -1;
@@ -174,7 +199,7 @@ async function goPage(to, add) {
 }
 function selectCat(id) {
   if (flipping || id === data.cur) return;
-  page().text = $('nt-text').value; persist();
+  savePage(); persist();
   data.cur = id; renderAll();
   const s = $('nt-sheet'); s.classList.remove('turn-next', 'turn-prev', 'swap'); void s.offsetWidth; s.classList.add('swap');
 }
@@ -189,8 +214,9 @@ const safe = s => String(s).replace(/[\\/:*?"<>|]+/g, '_').trim().slice(0, 40) |
 const stamp = () => new Date().toISOString().slice(0, 10);
 const folderMd = (f, h = '#') => `${h} ${f.name}\n\n` + f.pages.map((p, i) => `${h}# ${t('nt.page')} ${i + 1}\n\n${p.text}\n`).join('\n');
 function exportNow(kind) {
-  page().text = $('nt-text').value; persist();
+  savePage(); persist();
   const c = C(), f = fol();
+  if (!f && (kind === 'page' || kind === 'folder')) { status(t('nt.emptyTab')); return; }
   if (kind === 'page') download(`${safe(c.name)}-${safe(f.name)}-p${f.pi + 1}-${stamp()}.txt`, page().text, 'text/plain;charset=utf-8');
   else if (kind === 'folder') download(`${safe(c.name)}-${safe(f.name)}-${stamp()}.md`, `# ${c.name}\n\n` + folderMd(f, '##'), 'text/markdown;charset=utf-8');
   else if (kind === 'cat') download(`${safe(c.name)}-${stamp()}.md`, `# ${c.name}\n\n` + c.folders.map(x => folderMd(x, '##')).join('\n'), 'text/markdown;charset=utf-8');
@@ -214,22 +240,22 @@ export function mountNotes(user) {
   uid = user.uid; data = load();
   const ta = $('nt-text');
   renderAll();
-  ta.addEventListener('input', () => { page().text = ta.value; page().at = Date.now(); queueSave(); });
+  ta.addEventListener('input', () => { if (!cat()) return; savePage(); page().at = Date.now(); queueSave(); });
   $('nt-prev').addEventListener('click', () => goPage(cat().pi - 1));
   $('nt-next').addEventListener('click', () => goPage(cat().pi + 1));
   $('nt-newpage').addEventListener('click', () => goPage(0, true));
   $('nt-delpage').addEventListener('click', () => {
-    if (!confirm(t('nt.confirmDelPage'))) return;
+    if (!cat() || !confirm(t('nt.confirmDelPage'))) return;
     const c = cat();
     if (c.pages.length === 1) c.pages[0] = newPage(); else { c.pages.splice(c.pi, 1); c.pi = Math.min(c.pi, c.pages.length - 1); }
     persist(); renderPage(); status(`${t('nt.saved')} ${clock()}`);
   });
-  $('nt-save').addEventListener('click', () => { page().text = ta.value; status(persist() ? `${t('nt.saved')} ${clock()}` : t('nt.saveFail'), false); });
+  $('nt-save').addEventListener('click', () => { savePage(); status(persist() ? `${t('nt.saved')} ${clock()}` : t('nt.saveFail'), false); });
   $('nt-tabs').addEventListener('click', e => {
     if (e.target.closest('#nt-addcat')) {
       const name = (prompt(t('nt.newCatName'), '') || '').trim().slice(0, 20);
       if (!name || flipping) return;
-      page().text = ta.value; const c = newCat(name); data.cats.push(c); data.cur = c.id; persist(); renderAll(); return;
+      savePage(); const c = newCat(name); data.cats.push(c); data.cur = c.id; persist(); renderAll(); return;
     }
     const b = e.target.closest('.nt-tab[data-id]'); if (b) selectCat(b.dataset.id);
   });
@@ -245,16 +271,17 @@ export function mountNotes(user) {
   });
   const folders = $('nt-folders');
   const swap = () => { const s = $('nt-sheet'); s.classList.remove('turn-next', 'turn-prev', 'swap'); void s.offsetWidth; s.classList.add('swap'); };
+  $('nt-emptynew').addEventListener('click', () => $('nt-newfolder').click());
   $('nt-newfolder').addEventListener('click', () => {
     if (flipping) return;
     const name = (prompt(t('nt.newFolderName'), `${t('nt.folder')} ${C().folders.length + 1}`) || '').trim().slice(0, 20);
     if (!name) return;
-    page().text = ta.value; const f = newFolder(name); C().folders.push(f); C().fcur = f.id; persist(); renderAll(); swap();
+    savePage(); const f = newFolder(name); C().folders.push(f); C().fcur = f.id; persist(); renderAll(); swap();
     folders.scrollTo({ left: folders.scrollWidth, behavior: 'smooth' }); ta.focus();
   });
   folders.addEventListener('click', e => {
     const b = e.target.closest('.nt-folder'); if (!b || flipping || b.dataset.id === C().fcur) return;
-    page().text = ta.value; persist(); C().fcur = b.dataset.id; renderAll(); swap();
+    savePage(); persist(); C().fcur = b.dataset.id; renderAll(); swap();
   });
   folders.addEventListener('dblclick', e => { if (e.target.closest('.nt-folder')) renameFolder(e.target.closest('.nt-folder').dataset.id); });
   folders.addEventListener('wheel', e => { if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { folders.scrollLeft += e.deltaY; e.preventDefault(); } }, { passive: false });   // 縦のホイールで、横にスクロール
@@ -273,8 +300,8 @@ export function mountNotes(user) {
   document.addEventListener('click', e => { if (!e.target.closest('.nt-exwrap')) { menu.hidden = true; $('nt-export').setAttribute('aria-expanded', 'false'); } });
   menu.addEventListener('click', e => { const b = e.target.closest('[data-ex]'); if (!b) return; menu.hidden = true; if (b.dataset.ex === 'import') $('nt-file').click(); else exportNow(b.dataset.ex); });
   $('nt-file').addEventListener('change', e => { const f = e.target.files[0]; if (f) importFile(f); e.target.value = ''; });
-  window.addEventListener('beforeunload', () => { if (dirty) { page().text = ta.value; persist(); } });
-  window.addEventListener('viewchange', e => { if (e.detail === 'notes') warmFlip(); if (e.detail !== 'notes' && dirty) { page().text = ta.value; persist(); } });
+  window.addEventListener('beforeunload', () => { if (dirty) { savePage(); persist(); } });
+  window.addEventListener('viewchange', e => { if (e.detail === 'notes') warmFlip(); if (e.detail !== 'notes' && dirty) { savePage(); persist(); } });
   window.addEventListener('langchange', () => { renderTabs(); renderFolders(); renderPage(); });
   status(t('nt.ready'));
 }
