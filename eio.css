@@ -52,3 +52,22 @@ body[data-view="eio"] #eio-view { display: block; animation: page-in .5s ease bo
 .eio-count strong { color: var(--c); transition: color .6s; } .eio-pop { color: var(--c); text-shadow: 0 0 10px var(--c); }
 .eio-num:focus { border-color: var(--c); box-shadow: 0 0 14px color-mix(in srgb, var(--c) 55%, transparent); }
 @media (max-width: 900px) { .eio-row { grid-template-columns: 1fr auto; } }
+
+/* ミニセクション(大きな行を開くと出る) */
+.eio-list > .eio-item { display: block; }
+.eio-namebox { display: flex; align-items: center; gap: .5em; min-width: 0; }
+.eio-namebox .eio-name { min-width: 0; cursor: text; } .eio-name[data-act="rename"] { cursor: text; }
+.eio-tg { flex: none; width: 1.9em; height: 1.9em; display: grid; place-items: center; border: 1px solid rgba(255, 255, 255, .45); border-radius: .6em; background: rgba(0, 0, 0, .4); }
+.eio-tg svg { width: 1.1em; height: 1.1em; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: transform .25s; }
+.eio-tg[aria-expanded="true"] svg { transform: rotate(90deg); } .eio-tg:hover { box-shadow: 0 0 12px rgba(255, 255, 255, .6); }
+.eio-badge { flex: none; min-width: 1.6em; padding: 0 .45em; border: 1px solid rgba(255, 255, 255, .55); border-radius: 1em; font-size: .85em; line-height: 1.5; text-align: center; opacity: .85; }
+.eio-subs { margin: .55em 0 .2em 2.6em; padding-left: 1.2em; border-left: 1px solid rgba(255, 255, 255, .35); animation: eio-open .35s cubic-bezier(.2, .7, .2, 1) both; }
+@keyframes eio-open { from { opacity: 0; transform: translateY(-6px); } }
+.eio-subs > ul { list-style: none; display: flex; flex-direction: column; gap: .5em; margin-bottom: .6em; }
+.eio-mini { padding: .55em 1em; font-size: .88em; }
+.eio-mini .eio-name { font-size: 1.45em; }
+.eio-newsub { display: flex; gap: .7em; }
+.eio-newsub input { flex: 1; min-width: 0; height: 2.6em; padding: 0 1em; font-size: 1.1em; background: rgba(0, 0, 0, .6); border: 1px solid rgba(255, 255, 255, .5); border-radius: 4px; outline: 0; }
+.eio-newsub input:focus { border-color: #fff; box-shadow: 0 0 12px rgba(255, 255, 255, .5); } .eio-newsub input::placeholder { color: rgba(255, 255, 255, .45); }
+.eio-newsub .eio-pill { height: 2.4em; font-size: 1em; }
+@media (max-width: 900px) { .eio-subs { margin-left: .6em; } }

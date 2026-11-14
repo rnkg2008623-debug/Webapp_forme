@@ -1,13 +1,15 @@
 // English IO(ネオンのときだけ): Intro など、好きな欄を作って、その回数を書いていく。数字を入れて Enter を押すと、横のメーターがその分上がる。
 // 背景はWebGPU(白黒のゴシックの大聖堂)。データは、このブラウザに、アカウントごとに保存する。
-import { createGpuView } from './gpu-view.js?v=91';
-import { WGSL } from './physics-bg.js?v=91';
-import { t } from './i18n.js?v=91';
+import { createGpuView } from './gpu-view.js?v=92';
+import { WGSL } from './physics-bg.js?v=92';
+import { t } from './i18n.js?v=92';
 
 const host = document.getElementById('eio-view');
 const stage = document.getElementById('eio-stage');
 const rid = () => Math.random().toString(36).slice(2, 9);
-const MAX_ITEMS = 40, MAX_TOTAL = 99999, DEFAULT_GOAL = 10;
+const clampTotal = v => Math.max(0, Math.min(99999, Math.floor(Number(v)) || 0));
+const clampGoal = v => Math.max(1, Math.min(999, Math.floor(Number(v)) || 10));
+const MAX_SUBS = 40, MAX_ITEMS = 40, MAX_TOTAL = 99999, DEFAULT_GOAL = 10;
 
 let uid = '', items = [];
 const key = () => `eio:v1:${uid}`;
@@ -16,7 +18,8 @@ function load() {
     const d = JSON.parse(localStorage.getItem(key()));
     if (d && Array.isArray(d.items)) return d.items.slice(0, MAX_ITEMS).map(i => ({
       id: String(i.id || rid()), name: String(i.name || '').slice(0, 30) || '?',
-      total: Math.max(0, Math.min(MAX_TOTAL, Math.floor(Number(i.total)) || 0)), goal: Math.max(1, Math.min(999, Math.floor(Number(i.goal)) || DEFAULT_GOAL)),
+      total: clampTotal(i.total), goal: clampGoal(i.goal), open: !!i.open,
+      subs: (Array.isArray(i.subs) ? i.subs : []).slice(0, MAX_SUBS).map(s => ({ id: String(s.id || rid()), name: String(s.name || '').slice(0, 30) || '?', total: clampTotal(s.total), goal: clampGoal(s.goal) })),
     }));
   } catch { /* 無視 */ }
   return [];
@@ -29,30 +32,45 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;',
 const PAL = ['#ffffff', '#6ee7a0', '#5ac8ff', '#ffd166', '#ff7ab8', '#b794ff', '#ff9a5c'];
 const colorOf = n => PAL[Math.floor(n / 3) % PAL.length];
 const pct = i => Math.min(100, Math.round(i.total / i.goal * 100));
+const sum = () => items.reduce((s, i) => s + i.total + (i.subs || []).reduce((q, x) => q + x.total, 0), 0);
 
-function rowHtml(i) {
-  return `<li class="eio-row ${i.total >= i.goal ? 'done' : ''}" data-id="${i.id}" style="--c:${colorOf(i.total)}">
-    <span class="eio-name" title="${esc(i.name)}">${esc(i.name)}</span>
-    <label class="eio-add"><input class="eio-num" type="number" inputmode="numeric" min="-999" max="999" step="1" placeholder="${esc(t('eio.times'))}" aria-label="${esc(i.name)}: ${esc(t('eio.times'))}"><kbd>Enter</kbd></label>
-    <div class="eio-meter" role="meter" aria-valuemin="0" aria-valuemax="${i.goal}" aria-valuenow="${Math.min(i.total, i.goal)}" aria-label="${esc(i.name)}"><i style="width:${pct(i)}%"></i><b class="eio-pop" aria-hidden="true"></b></div>
+// 大きな行(sid なし)も、ミニ行(sid あり)も、同じ作り: 名前 / 回数の入力 / メーター / 回数と目標
+function rowHtml(i, parent) {
+  const sid = parent ? ` data-sid="${i.id}"` : '', pid = parent ? parent.id : i.id;
+  const nm = esc(i.name);
+  const name = parent
+    ? `<span class="eio-name" data-act="rename" title="${esc(t('eio.renameHint'))}">${nm}</span>`
+    : `<span class="eio-namebox"><button type="button" class="eio-tg" data-act="toggle" aria-expanded="${!!i.open}" aria-label="${esc(t('eio.mini'))}: ${nm}"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button><span class="eio-name" data-act="rename" title="${esc(t('eio.renameHint'))}">${nm}</span>${i.subs.length ? `<small class="eio-badge">${i.subs.length}</small>` : ''}</span>`;
+  return `<div class="eio-row ${parent ? 'eio-mini' : ''} ${i.total >= i.goal ? 'done' : ''}" data-id="${pid}"${sid} style="--c:${colorOf(i.total)}">
+    ${name}
+    <label class="eio-add"><input class="eio-num" type="number" inputmode="numeric" min="-999" max="999" step="1" placeholder="${esc(t('eio.times'))}" aria-label="${nm}: ${esc(t('eio.times'))}"><kbd>Enter</kbd></label>
+    <div class="eio-meter" role="meter" aria-valuemin="0" aria-valuemax="${i.goal}" aria-valuenow="${Math.min(i.total, i.goal)}" aria-label="${nm}"><i style="width:${pct(i)}%"></i><b class="eio-pop" aria-hidden="true"></b></div>
     <button type="button" class="eio-count" data-act="goal" title="${esc(t('eio.editGoal'))}"><strong>${i.total}</strong> / ${i.goal}</button>
-  </li>`;
+  </div>`;
+}
+function itemHtml(i) {
+  const subs = i.open ? `<div class="eio-subs">
+      ${i.subs.length ? `<ul>${i.subs.map(s => `<li>${rowHtml(s, i)}</li>`).join('')}</ul>` : ''}
+      <form class="eio-newsub" data-id="${i.id}" autocomplete="off"><input class="eio-subname" maxlength="30" placeholder="${esc(t('eio.newSubPh'))}" aria-label="${esc(t('eio.newSubPh'))}"><button type="submit" class="eio-pill">${esc(t('eio.addMini'))}</button></form>
+    </div>` : '';
+  return `<li class="eio-item ${i.open ? 'open' : ''}" data-item="${i.id}">${rowHtml(i)}${subs}</li>`;
 }
 function render() {
   stage.innerHTML = `<div class="eio-page">
     <header class="eio-head">${sparkle}<div><h2>English <em>IO</em></h2><p>${esc(t('eio.sub'))}</p></div>
-      <div class="eio-total"><small>${esc(t('eio.total'))}</small><strong>${items.reduce((s, i) => s + i.total, 0)}</strong></div></header>
+      <div class="eio-total"><small>${esc(t('eio.total'))}</small><strong>${sum()}</strong></div></header>
     <form class="eio-new" id="eio-new" autocomplete="off"><input id="eio-newname" maxlength="30" placeholder="${esc(t('eio.newPh'))}" aria-label="${esc(t('eio.newPh'))}"><button type="submit" class="eio-pill">${esc(t('eio.add'))}</button></form>
-    ${items.length ? `<ul class="eio-list" id="eio-list">${items.map(rowHtml).join('')}</ul>` : `<div class="eio-empty"><p>${esc(t('eio.empty'))}</p><div class="eio-chips">${['Intro', 'Body', 'Conclusion'].map(n => `<button type="button" class="eio-pill" data-chip="${n}">${n}</button>`).join('')}</div></div>`}
+    ${items.length ? `<ul class="eio-list" id="eio-list">${items.map(itemHtml).join('')}</ul>` : `<div class="eio-empty"><p>${esc(t('eio.empty'))}</p><div class="eio-chips">${['Intro', 'Body', 'Conclusion'].map(n => `<button type="button" class="eio-pill" data-chip="${n}">${n}</button>`).join('')}</div></div>`}
     <p class="eio-hint">${esc(t('eio.hint'))}</p></div>`;
 }
 
-function bump(row, n, item) {   // メーターの上に「+3」を一瞬出す
+const find = row => { const it = items.find(x => x.id === row.dataset.id); return it ? (row.dataset.sid ? it.subs.find(s => s.id === row.dataset.sid) : it) : null; };
+function bump(row, n) {   // メーターの上に「+3」を一瞬出す
   const pop = row.querySelector('.eio-pop'); if (!pop) return;
   pop.textContent = (n > 0 ? '+' : '') + n; pop.classList.remove('go'); void pop.offsetWidth; pop.classList.add('go');
 }
-function addTo(row, id, n) {
-  const it = items.find(x => x.id === id); if (!it || !n) return;
+function addTo(row, n) {
+  const it = find(row); if (!it || !n) return;
   const before = it.total;
   it.total = Math.max(0, Math.min(MAX_TOTAL, it.total + n)); save();
   row.querySelector('.eio-meter i').style.width = pct(it) + '%';
@@ -60,37 +78,50 @@ function addTo(row, id, n) {
   row.querySelector('.eio-count strong').textContent = it.total;
   row.classList.toggle('done', it.total >= it.goal);
   row.style.setProperty('--c', colorOf(it.total));
-  bump(row, it.total - before, it);
-  stage.querySelector('.eio-total strong').textContent = items.reduce((s, i) => s + i.total, 0);
+  bump(row, it.total - before);
+  stage.querySelector('.eio-total strong').textContent = sum();
 }
 function create(name) {
   name = String(name || '').trim().slice(0, 30);
   if (!name || items.length >= MAX_ITEMS) return;
-  items.push({ id: rid(), name, total: 0, goal: DEFAULT_GOAL }); save(); render();
-  stage.querySelector(`.eio-row:last-child .eio-num`)?.focus();
+  items.push({ id: rid(), name, total: 0, goal: DEFAULT_GOAL, open: false, subs: [] }); save(); render();
+  stage.querySelector(`.eio-item:last-child .eio-num`)?.focus();
+}
+function createSub(parentId, name) {
+  const it = items.find(x => x.id === parentId); name = String(name || '').trim().slice(0, 30);
+  if (!it || !name || it.subs.length >= MAX_SUBS) return;
+  const s = { id: rid(), name, total: 0, goal: DEFAULT_GOAL }; it.subs.push(s); it.open = true; save(); render();
+  stage.querySelector(`.eio-row[data-sid="${s.id}"] .eio-num`)?.focus();
 }
 
 function wire() {
   stage.addEventListener('submit', e => {
-    if (e.target.id !== 'eio-new') return;
-    e.preventDefault(); const inp = $('eio-newname'); const v = inp.value; create(v);
+    e.preventDefault();
+    if (e.target.id === 'eio-new') create($('eio-newname').value);
+    else if (e.target.classList.contains('eio-newsub')) createSub(e.target.dataset.id, e.target.querySelector('.eio-subname').value);
   });
   stage.addEventListener('keydown', e => {
     if (e.key !== 'Enter' || !e.target.matches('.eio-num')) return;
     e.preventDefault();
     const row = e.target.closest('.eio-row'), n = Math.trunc(Number(e.target.value));
     if (!e.target.value.trim() || !Number.isFinite(n) || n === 0) { e.target.classList.add('bad'); setTimeout(() => e.target.classList.remove('bad'), 500); return; }
-    addTo(row, row.dataset.id, Math.max(-999, Math.min(999, n)));
+    addTo(row, Math.max(-999, Math.min(999, n)));
     e.target.value = '';
   });
+  function rename(row) {
+    const it = find(row); if (!it) return;
+    const name = (prompt(t('eio.renamePrompt'), it.name) || '').trim().slice(0, 30);
+    if (name) { it.name = name; save(); render(); }
+  }
+  stage.addEventListener('dblclick', e => { const r = e.target.closest('[data-act="rename"]'); if (r) rename(r.closest('.eio-row')); });
   stage.addEventListener('click', e => {
     const chip = e.target.closest('[data-chip]'); if (chip) { create(chip.dataset.chip); return; }
     const b = e.target.closest('[data-act]'); if (!b) return;
-    const row = b.closest('.eio-row'), it = items.find(x => x.id === row.dataset.id); if (!it) return;
+    const row = b.closest('.eio-row'), it = find(row); if (!it) return;
     if (b.dataset.act === 'goal') {
       const v = Math.trunc(Number(prompt(t('eio.goalPrompt'), String(it.goal))));
       if (Number.isFinite(v) && v >= 1 && v <= 999) { it.goal = v; save(); render(); }
-    }
+    } else if (b.dataset.act === 'toggle') { it.open = !it.open; save(); render(); if (it.open) stage.querySelector(`.eio-item[data-item="${it.id}"] .eio-subname`)?.focus(); }
   });
 }
 const $ = id => document.getElementById(id);
