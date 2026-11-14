@@ -1,8 +1,8 @@
 // English IO(ネオンのときだけ): Intro など、好きな欄を作って、その回数を書いていく。数字を入れて Enter を押すと、横のメーターがその分上がる。
 // 背景はWebGPU(白黒のゴシックの大聖堂)。データは、このブラウザに、アカウントごとに保存する。
-import { createGpuView } from './gpu-view.js?v=92';
-import { WGSL } from './physics-bg.js?v=92';
-import { t } from './i18n.js?v=92';
+import { createGpuView } from './gpu-view.js?v=94';
+import { WGSL } from './physics-bg.js?v=94';
+import { t } from './i18n.js?v=94';
 
 const host = document.getElementById('eio-view');
 const stage = document.getElementById('eio-stage');
@@ -43,7 +43,7 @@ function rowHtml(i, parent) {
     : `<span class="eio-namebox"><button type="button" class="eio-tg" data-act="toggle" aria-expanded="${!!i.open}" aria-label="${esc(t('eio.mini'))}: ${nm}"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button><span class="eio-name" data-act="rename" title="${esc(t('eio.renameHint'))}">${nm}</span>${i.subs.length ? `<small class="eio-badge">${i.subs.length}</small>` : ''}</span>`;
   return `<div class="eio-row ${parent ? 'eio-mini' : ''} ${i.total >= i.goal ? 'done' : ''}" data-id="${pid}"${sid} style="--c:${colorOf(i.total)}">
     ${name}
-    <label class="eio-add"><input class="eio-num" type="number" inputmode="numeric" min="-999" max="999" step="1" placeholder="${esc(t('eio.times'))}" aria-label="${nm}: ${esc(t('eio.times'))}"><kbd>Enter</kbd></label>
+    <div class="eio-addwrap"><label class="eio-add"><input class="eio-num" type="number" inputmode="numeric" min="-999" max="999" step="1" placeholder="${esc(t('eio.times'))}" aria-label="${nm}: ${esc(t('eio.times'))}"><kbd>Enter</kbd></label><button type="button" class="eio-minus" data-act="minus" ${i.total ? '' : 'disabled'} aria-label="${esc(t('eio.minus'))}" title="${esc(t('eio.minus'))}">−</button></div>
     <div class="eio-meter" role="meter" aria-valuemin="0" aria-valuemax="${i.goal}" aria-valuenow="${Math.min(i.total, i.goal)}" aria-label="${nm}"><i style="width:${pct(i)}%"></i><b class="eio-pop" aria-hidden="true"></b></div>
     <button type="button" class="eio-count" data-act="goal" title="${esc(t('eio.editGoal'))}"><strong>${i.total}</strong> / ${i.goal}</button>
   </div>`;
@@ -77,6 +77,7 @@ function addTo(row, n) {
   row.querySelector('.eio-meter').setAttribute('aria-valuenow', String(Math.min(it.total, it.goal)));
   row.querySelector('.eio-count strong').textContent = it.total;
   row.classList.toggle('done', it.total >= it.goal);
+  row.querySelector('.eio-minus').disabled = it.total === 0;
   row.style.setProperty('--c', colorOf(it.total));
   bump(row, it.total - before);
   stage.querySelector('.eio-total strong').textContent = sum();
@@ -121,6 +122,9 @@ function wire() {
     if (b.dataset.act === 'goal') {
       const v = Math.trunc(Number(prompt(t('eio.goalPrompt'), String(it.goal))));
       if (Number.isFinite(v) && v >= 1 && v <= 999) { it.goal = v; save(); render(); }
+    } else if (b.dataset.act === 'minus') {   // 間違えて足したとき: 数字を入れて押すと、その分だけ減らす。空なら1回減らす
+      const inp = row.querySelector('.eio-num'), n = Math.abs(Math.trunc(Number(inp.value))) || 1;
+      addTo(row, -Math.min(n, 999)); inp.value = '';
     } else if (b.dataset.act === 'toggle') { it.open = !it.open; save(); render(); if (it.open) stage.querySelector(`.eio-item[data-item="${it.id}"] .eio-subname`)?.focus(); }
   });
 }
