@@ -1,5 +1,5 @@
 // 表示スタイル(標準 / ネオン)の切り替え。ネオンはWebGPUの3D背景(非対応のブラウザでは、CSSの簡易ネオン)。
-import './cs-progress.js?v=89';
+import './cs-progress.js?v=90';
 const KEY = 'theme';
 const root = document.documentElement;
 const buttons = [...document.querySelectorAll('.st-theme')];
@@ -10,9 +10,9 @@ export const getTheme = () => (root.dataset.theme === 'neon' ? 'neon' : 'standar
 async function apply() {
   const neon = getTheme() === 'neon';
   buttons.forEach(b => { const on = b.dataset.theme === getTheme(); b.classList.toggle('is-on', on); b.setAttribute('aria-pressed', String(on)); });
-  if (!neon && /^(cs|physics)$/.test(document.body.dataset.view)) window.appSetView('home');
+  if (!neon && /^(cs|physics|eio)$/.test(document.body.dataset.view)) window.appSetView('home');
   if (neon && document.body.dataset.view === 'notes') window.appSetView('home');
-  const gpu = await import('./neon-bg.js?v=89');
+  const gpu = await import('./neon-bg.js?v=90');
   if (!neon) { gpu.stopNeon(); root.classList.remove('neon-gpu'); if (note) note.hidden = true; return; }
   const ok = await gpu.startNeon(document.querySelector('.bg'));
   root.classList.toggle('neon-gpu', ok);
@@ -31,9 +31,10 @@ if (getTheme() === 'neon') apply(); else buttons.forEach(b => { const on = b.dat
 // CS / Physics 画面(ネオンのときだけ): 開いている間だけ、WebGPUの背景を動かす
 async function syncGpuViews(view) {
   if (getTheme() !== 'neon') return;
-  const [cs, ph] = await Promise.all([import('./cs.js?v=89'), import('./physics.js?v=89')]);
+  const [cs, ph, io] = await Promise.all([import('./cs.js?v=90'), import('./physics.js?v=90'), import('./eio.js?v=90')]);
   if (view === 'cs') cs.cs.start(); else cs.cs.stop();
   if (view === 'physics') ph.physics.start(); else ph.physics.stop();
+  if (view === 'eio') io.eio.start(); else io.eio.stop();
 }
 window.addEventListener('viewchange', e => syncGpuViews(e.detail));
-if (/^(cs|physics)$/.test(document.body.dataset.view)) syncGpuViews(document.body.dataset.view);
+if (/^(cs|physics|eio)$/.test(document.body.dataset.view)) syncGpuViews(document.body.dataset.view);
