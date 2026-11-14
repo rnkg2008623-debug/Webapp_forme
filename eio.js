@@ -1,8 +1,8 @@
 // English IO(ネオンのときだけ): Intro など、好きな欄を作って、その回数を書いていく。数字を入れて Enter を押すと、横のメーターがその分上がる。
 // 背景はWebGPU(白黒のゴシックの大聖堂)。データは、このブラウザに、アカウントごとに保存する。
-import { createGpuView } from './gpu-view.js?v=90';
-import { WGSL } from './physics-bg.js?v=90';
-import { t } from './i18n.js?v=90';
+import { createGpuView } from './gpu-view.js?v=91';
+import { WGSL } from './physics-bg.js?v=91';
+import { t } from './i18n.js?v=91';
 
 const host = document.getElementById('eio-view');
 const stage = document.getElementById('eio-stage');
@@ -25,16 +25,17 @@ const save = () => { try { localStorage.setItem(key(), JSON.stringify({ v: 1, it
 
 const sparkle = '<svg class="eio-spark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0l2.2 8.800L24 12l-9.800 3.200L12 24l-2.200-8.800L0 12l9.800-3.200z"/></svg>';
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+// 3回ごとに、その行の色が変わっていく(0〜2回: 白 → 3〜5回: 緑 → 6〜8回: 青 …、一巡したら白に戻る)
+const PAL = ['#ffffff', '#6ee7a0', '#5ac8ff', '#ffd166', '#ff7ab8', '#b794ff', '#ff9a5c'];
+const colorOf = n => PAL[Math.floor(n / 3) % PAL.length];
 const pct = i => Math.min(100, Math.round(i.total / i.goal * 100));
 
 function rowHtml(i) {
-  return `<li class="eio-row ${i.total >= i.goal ? 'done' : ''}" data-id="${i.id}">
+  return `<li class="eio-row ${i.total >= i.goal ? 'done' : ''}" data-id="${i.id}" style="--c:${colorOf(i.total)}">
     <span class="eio-name" title="${esc(i.name)}">${esc(i.name)}</span>
     <label class="eio-add"><input class="eio-num" type="number" inputmode="numeric" min="-999" max="999" step="1" placeholder="${esc(t('eio.times'))}" aria-label="${esc(i.name)}: ${esc(t('eio.times'))}"><kbd>Enter</kbd></label>
     <div class="eio-meter" role="meter" aria-valuemin="0" aria-valuemax="${i.goal}" aria-valuenow="${Math.min(i.total, i.goal)}" aria-label="${esc(i.name)}"><i style="width:${pct(i)}%"></i><b class="eio-pop" aria-hidden="true"></b></div>
     <button type="button" class="eio-count" data-act="goal" title="${esc(t('eio.editGoal'))}"><strong>${i.total}</strong> / ${i.goal}</button>
-    <button type="button" class="eio-ic" data-act="reset" aria-label="${esc(t('eio.reset'))}" title="${esc(t('eio.reset'))}"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.500-5.800M4 4v4h4"/></svg></button>
-    <button type="button" class="eio-ic" data-act="del" aria-label="${esc(t('eio.delete'))}" title="${esc(t('eio.delete'))}"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
   </li>`;
 }
 function render() {
@@ -58,6 +59,7 @@ function addTo(row, id, n) {
   row.querySelector('.eio-meter').setAttribute('aria-valuenow', String(Math.min(it.total, it.goal)));
   row.querySelector('.eio-count strong').textContent = it.total;
   row.classList.toggle('done', it.total >= it.goal);
+  row.style.setProperty('--c', colorOf(it.total));
   bump(row, it.total - before, it);
   stage.querySelector('.eio-total strong').textContent = items.reduce((s, i) => s + i.total, 0);
 }
@@ -88,8 +90,7 @@ function wire() {
     if (b.dataset.act === 'goal') {
       const v = Math.trunc(Number(prompt(t('eio.goalPrompt'), String(it.goal))));
       if (Number.isFinite(v) && v >= 1 && v <= 999) { it.goal = v; save(); render(); }
-    } else if (b.dataset.act === 'reset') { if (confirm(t('eio.confirmReset'))) { it.total = 0; save(); render(); } }
-    else if (b.dataset.act === 'del') { if (confirm(t('eio.confirmDel'))) { items = items.filter(x => x !== it); save(); render(); } }
+    }
   });
 }
 const $ = id => document.getElementById(id);
