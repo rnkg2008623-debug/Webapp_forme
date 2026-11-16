@@ -7,11 +7,12 @@
 <script>try{if(localStorage.theme==="neon")document.documentElement.dataset.theme="neon"}catch(e){}document.documentElement.classList.add("auth-pending", "i18n-pending"); setTimeout(function () { document.documentElement.classList.remove("i18n-pending"); }, 3000);</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap">
-<link rel="stylesheet" href="style.css?v=94">
-<link rel="stylesheet" href="cs.css?v=94">
-<link rel="stylesheet" href="ph.css?v=94">
-<link rel="stylesheet" href="eio.css?v=94">
-<link rel="stylesheet" href="notes.css?v=94">
+<link rel="stylesheet" href="style.css?v=97">
+<link rel="stylesheet" href="cs.css?v=97">
+<link rel="stylesheet" href="ph.css?v=97">
+<link rel="stylesheet" href="eio.css?v=97">
+<link rel="stylesheet" href="mock.css?v=97">
+<link rel="stylesheet" href="notes.css?v=97">
 </head>
 <body data-view="home">
 
@@ -52,6 +53,10 @@
     <button class="nav-item nav-notes" data-target="notes">
       <svg viewBox="0 0 24 24"><path d="M6 3h11a1.500 1.500 0 0 1 1.500 1.500v15A1.500 1.500 0 0 1 17 21H6z"/><path d="M6 3v18M3.500 7H6M3.500 12H6M3.500 17H6M10 8h5M10 12h5"/></svg>
       <span data-i18n="nt.nav">Notes</span>
+    </button>
+    <button class="nav-item nav-mock" data-target="mock">
+      <svg viewBox="0 0 24 24"><path d="M4 5h9M4 10h14M4 15h7M4 20h12"/><rect x="9" y="3" width="7" height="4" rx="1" fill="none"/><rect x="3" y="8" width="2" height="4" rx=".5" fill="none" stroke="none"/></svg>
+      <span>Mock</span>
     </button>
     <button class="nav-item" data-target="friend">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
@@ -166,6 +171,12 @@
 <main class="ts eio" id="eio-view" aria-label="English IO">
   <div class="ts-fallback" aria-hidden="true"></div>
   <div class="eio-stage" id="eio-stage"></div>
+</main>
+
+<!-- Mock(ネオンのときだけ): 科目を入力して、その科目のガントチャートを作る(WebGPUの背景) -->
+<main class="ts mock" id="mock-view" aria-label="Mock">
+  <div class="ts-fallback" aria-hidden="true"></div>
+  <div class="mock-stage" id="mock-stage"></div>
 </main>
 
 <!-- CS(ネオンのときだけ): IBDP Computer Science HL の学習サイト(WebGPUの背景) -->
@@ -439,8 +450,8 @@
   </form>
 </div>
 
-<script src="script.js?v=94"></script>
-<script src="logpage.js?v=94"></script>
-<script type="module" src="home-auth.js?v=94"></script>
+<script src="script.js?v=97"></script>
+<script src="logpage.js?v=97"></script>
+<script type="module" src="home-auth.js?v=97"></script>
 </body>
 </html>
