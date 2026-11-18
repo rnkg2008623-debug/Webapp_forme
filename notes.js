@@ -1,7 +1,7 @@
 // Notes(標準スタイルのとき): ノートに書き出すようなメモ帳。カテゴリーごとのタブ、ページ送り(WebGPUでめくる)、保存、Export / Import。
 // データは、このブラウザに、アカウントごとに保存する(書くたびに自動保存。Save ボタンでも保存)。
-import { t } from './i18n.js?v=97';
-import { playFlip, warmFlip } from './notes-flip.js?v=97';
+import { t } from './i18n.js?v=98';
+import { playFlip, warmFlip } from './notes-flip.js?v=98';
 
 const $ = id => document.getElementById(id);
 const rid = () => Math.random().toString(36).slice(2, 9);

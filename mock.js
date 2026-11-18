@@ -1,8 +1,8 @@
 // Mock(ネオンのときだけ): 科目を入力して、その科目のガントチャートを作る。タスク(名前・開始日・終了日・進み具合)を並べて、
 // 今日の線と、模試の日の線も出る。背景はWebGPU(白黒のゴシックの大聖堂)。データは、このブラウザに、アカウントごとに保存する。
-import { createGpuView } from './gpu-view.js?v=97';
-import { WGSL } from './physics-bg.js?v=97';
-import { t, getLang } from './i18n.js?v=97';
+import { createGpuView } from './gpu-view.js?v=98';
+import { WGSL } from './physics-bg.js?v=98';
+import { t, getLang } from './i18n.js?v=98';
 
 const host = document.getElementById('mock-view');
 const stage = document.getElementById('mock-stage');
@@ -43,11 +43,6 @@ const chart = () => data.charts.find(c => c.id === data.cur) || null;
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const sparkle = '<svg class="mk-spark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0l2.2 8.800L24 12l-9.800 3.200L12 24l-2.200-8.800L0 12l9.800-3.200z"/></svg>';
-
-function starter() {   // 新しいチャートには、見本のタスクを入れる(自由に直せる)
-  const a = todayN(), mk = (name, s, e) => ({ id: rid(), name: t(name), start: n2s(a + s), end: n2s(a + e), pct: 0 });
-  return [mk('mk.t1', 0, 6), mk('mk.t2', 7, 13), mk('mk.t3', 14, 20), mk('mk.t4', 21, 21)];
-}
 
 // ---- 描画 ----
 function range(c) {
@@ -122,7 +117,7 @@ function wire() {
     if (e.target.id === 'mk-new') {
       const name = $('mk-newsubject').value.trim().slice(0, 40);
       if (!name || data.charts.length >= MAX_CHARTS) return;
-      const c = { id: rid(), subject: name, mock: '', tasks: starter() }; data.charts.push(c); data.cur = c.id; sel = ''; save(); render();
+      const c = { id: rid(), subject: name, mock: '', tasks: [] }; data.charts.push(c); data.cur = c.id; sel = ''; save(); render();
     } else if (e.target.id === 'mk-form') {
       const c = chart(); if (!c) return;
       const name = $('mk-tname').value.trim().slice(0, 40), s = $('mk-tstart').value, en = $('mk-tend').value, pct = clampPct($('mk-tpct').value);
