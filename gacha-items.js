@@ -9,7 +9,7 @@ export const RATES_PCT = {
 };
 export const RARITY_LABEL = Object.fromEntries(RARITIES.map(r => [r, r.toUpperCase()]));
 // 表示用の色(CSS の --rc にも同じ色)
-export const RARITY_COLOR = { common: '#cfd3e8', uncommon: '#6ee7a0', rare: '#6aa8ff', epic: '#b794ff', legendary: '#f5c24c', mythic: '#ff5c8a', exalted: '#d9ccff', divine: '#ffe27a', celestial: '#7defff', transcendent: '#5cf0c6', eternal: '#8a8cff', singularity: '#e55cff', primordial: '#ffffff' };
+export const RARITY_COLOR = { common: '#cfd3e8', uncommon: '#6ee7a0', rare: '#6aa8ff', epic: '#b794ff', legendary: '#f5c24c', mythic: '#ff5c8a', exalted: '#d9ccff', divine: '#ffe9a8', celestial: '#7d8cff', transcendent: '#c08cff', eternal: '#9fd8ff', singularity: '#f0e6ff', primordial: '#ffffff' };
 export const ID_PATTERN = /^[a-z0-9-]{1,32}$/;
 
 // イラスト素材(img/gacha/)。題材ごとに、リング・背景カード・名札の3つ(COMMON 〜 EXALTED)
@@ -61,6 +61,46 @@ const TITLES_EXALTED = [
   ['sovereign-of-order', ['Sovereign of Order', '秩序の君主', '秩序之主']],
   ['the-perfect-being', ['The Perfect Being', '完全なる存在', '完美存在']],
 ];
+const TITLES_DIVINE = [
+  ['god-of-wisdom', ['God of Wisdom', '知恵の神', '智慧之神']],
+  ['god-of-creation', ['God of Creation', '創造の神', '创造之神']],
+  ['god-of-destruction', ['God of Destruction', '破壊の神', '毁灭之神']],
+  ['god-of-judgment', ['God of Judgment', '審判の神', '审判之神']],
+  ['god-of-dreams', ['God of Dreams', '夢の神', '梦之神']],
+  ['god-of-harmony', ['God of Harmony', '調和の神', '和谐之神']],
+];
+const TITLES_CELESTIAL = [
+  ['ruler-of-the-stars', ['Ruler of the Stars', '星々の統治者', '群星统治者']],
+  ['monarch-of-the-cosmos', ['Monarch of the Cosmos', '宇宙の君主', '宇宙君主']],
+  ['keeper-of-the-heavens', ['Keeper of the Heavens', '天界の番人', '天界守护者']],
+  ['architect-of-galaxies', ['Architect of Galaxies', '銀河の設計者', '星系建筑师']],
+  ['sovereign-of-the-moon', ['Sovereign of the Moon', '月の君主', '月之君主']],
+  ['the-astral-emperor', ['The Astral Emperor', '星界の皇帝', '星界皇帝']],
+];
+const TITLES_TRANSCENDENT = [
+  ['the-unbound', ['The Unbound', '解き放たれし者', '无拘者']],
+  ['the-omniscient', ['The Omniscient', '全知なる者', '全知者']],
+  ['the-omnipresent', ['The Omnipresent', '遍在する者', '无所不在者']],
+  ['weaver-of-reality', ['Weaver of Reality', '現実を紡ぐ者', '现实编织者']],
+  ['architect-of-dimensions', ['Architect of Dimensions', '次元の設計者', '维度建筑师']],
+  ['the-one-beyond', ['The One Beyond', '彼方なる者', '彼岸之人']],
+];
+const TITLES_ETERNAL = [
+  ['the-everlasting', ['The Everlasting', '永遠なる者', '永恒者']],
+  ['the-timeless', ['The Timeless', '時を超えし者', '超越时间者']],
+  ['the-immutable', ['The Immutable', '不変なる者', '不变者']],
+  ['the-endless-sovereign', ['The Endless Sovereign', '終わりなき君主', '无尽君主']],
+  ['the-undying-monarch', ['The Undying Monarch', '不滅の王', '不死君主']],
+  ['the-infinite-one', ['The Infinite One', '無限なる者', '无限者']],
+];
+const TITLES_SINGULARITY = [
+  ['the-absolute', ['The Absolute', '絶対者', '绝对者']],
+  ['the-nameless', ['The Nameless', '名もなき者', '无名者']],
+  ['the-undefined', ['The Undefined', '未定義なる者', '未定义者']],
+  ['the-one-and-only', ['The One and Only', '唯一無二', '独一无二']],
+  ['the-final-observer', ['The Final Observer', '最後の観測者', '最终观测者']],
+  ['the-origin-of-all', ['The Origin of All', '万物の起源', '万物之源']],
+];
 const TITLES = [
   ['shadow-walker', ['Shadow Walker', 'シャドウウォーカー', '暗影行者']],
   ['flame-keeper', ['Flame Keeper', 'フレイムキーパー', '炎之守护者']],
@@ -77,6 +117,7 @@ const setOf = (rarity, titles) => titles.flatMap(([slug, names]) => [
 ]);
 const COMMON_SET = setOf('common', TITLES_COMMON), UNCOMMON_SET = setOf('uncommon', TITLES_UNCOMMON), RARE_SET = setOf('rare', TITLES);
 const EPIC_SET = setOf('epic', TITLES_EPIC), LEGENDARY_SET = setOf('legendary', TITLES_LEGENDARY), MYTHIC_SET = setOf('mythic', TITLES_MYTHIC), EXALTED_SET = setOf('exalted', TITLES_EXALTED);
+const DIVINE_SET = setOf('divine', TITLES_DIVINE), CELESTIAL_SET = setOf('celestial', TITLES_CELESTIAL), TRANSCENDENT_SET = setOf('transcendent', TITLES_TRANSCENDENT), ETERNAL_SET = setOf('eternal', TITLES_ETERNAL), SINGULARITY_SET = setOf('singularity', TITLES_SINGULARITY);
 export const ITEMS = [
   // ---- COMMON(イラスト・淡い色): リング・背景カード・名札 ----
   ...COMMON_SET,
@@ -86,6 +127,8 @@ export const ITEMS = [
   ...RARE_SET,
   // ---- EPIC(紫) / LEGENDARY(金) / MYTHIC(深紅と紫) / EXALTED(白と紫と金) ----
   ...EPIC_SET, ...LEGENDARY_SET, ...MYTHIC_SET, ...EXALTED_SET,
+  // ---- DIVINE(白と金) / CELESTIAL(宇宙の紺) / TRANSCENDENT(紫の光) / ETERNAL(白い花と時) / SINGULARITY(黒と白の光) ----
+  ...DIVINE_SET, ...CELESTIAL_SET, ...TRANSCENDENT_SET, ...ETERNAL_SET, ...SINGULARITY_SET,
 ];
 export const BY_ID = Object.fromEntries(ITEMS.map(i => [i.id, i]));
 export const itemName = (item, lang) => item.names[{ en: 0, ja: 1, zh: 2 }[lang] ?? 0];
@@ -125,7 +168,7 @@ export function applyFrame(node, item) {
   node.querySelector(':scope > .gx-ring')?.remove();
   if (!item || item.type !== 'icon') return;
   node.classList.add('gx-frame', 'gx-ringimg'); node.dataset.fr = item.rarity;
-  const im = document.createElement('img'); im.className = 'gx-ring'; im.src = item.img; im.alt = ''; im.decoding = 'async'; im.draggable = false;
+  const im = document.createElement('img'); im.className = 'gx-ring'; im.src = item.img; im.alt = ''; im.decoding = 'async'; im.loading = 'lazy'; im.draggable = false;
   node.append(im);
 }
 // 図鑑・結果に出す見本: 丸いアバターに、リングを付けたもの
@@ -137,7 +180,7 @@ export function frameSample(item, extraClass = '') {
 export function applyPlate(node, item) {
   node.querySelectorAll(':scope > .gx-plate').forEach(n => n.remove());
   if (!item || item.type !== 'plate') return;
-  const im = document.createElement('img'); im.className = 'gx-plate'; im.src = item.img; im.alt = item.names[0]; im.decoding = 'async'; im.draggable = false;
+  const im = document.createElement('img'); im.className = 'gx-plate'; im.src = item.img; im.alt = item.names[0]; im.decoding = 'async'; im.loading = 'lazy'; im.draggable = false;
   node.append(im);
 }
-export const plateImg = item => { const im = document.createElement('img'); im.className = 'gx-plate flat'; im.src = item.img; im.alt = item.names[0]; im.decoding = 'async'; im.draggable = false; return im; };
+export const plateImg = item => { const im = document.createElement('img'); im.className = 'gx-plate flat'; im.src = item.img; im.alt = item.names[0]; im.decoding = 'async'; im.loading = 'lazy'; im.draggable = false; return im; };

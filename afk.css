@@ -135,11 +135,11 @@ html[data-theme="neon"] .gx-deco.gx-img .fo-desc, html[data-theme="neon"] .gx-de
 [data-r="legendary"] { --rc: #f5c24c; }
 [data-r="mythic"] { --rc: #ff5c8a; }
 [data-r="exalted"] { --rc: #d9ccff; }
-[data-r="divine"] { --rc: #ffe27a; }
-[data-r="celestial"] { --rc: #7defff; }
-[data-r="transcendent"] { --rc: #5cf0c6; }
-[data-r="eternal"] { --rc: #8a8cff; }
-[data-r="singularity"] { --rc: #e55cff; }
+[data-r="divine"] { --rc: #ffe9a8; }
+[data-r="celestial"] { --rc: #7d8cff; }
+[data-r="transcendent"] { --rc: #c08cff; }
+[data-r="eternal"] { --rc: #9fd8ff; }
+[data-r="singularity"] { --rc: #f0e6ff; }
 [data-r="primordial"] { --rc: #ffffff; }
 .afk-last[data-r] { border-color: color-mix(in srgb, var(--rc, #fff) 75%, transparent); box-shadow: 0 0 16px color-mix(in srgb, var(--rc, #fff) 35%, transparent), inset 0 0 14px color-mix(in srgb, var(--rc, #fff) 12%, transparent); }
 .afk-last[data-r="common"] { box-shadow: none; }
