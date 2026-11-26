@@ -1,13 +1,13 @@
 // プロフィール画面: 自分の情報、学習の集計、日ごとの学習時間のグラフ、Log history
-import { firestore } from './auth.js?v=105';
-import { formatCode, socialMessage } from './social.js?v=105';
-import { t, logMeta } from './i18n.js?v=105';
-import { errorMessage } from './auth.js?v=105';
-import { loadImage } from './avatar-image.js?v=105';
-import { openCropper } from './crop.js?v=105';
-import { onState, editMyProfile, makeAvatar } from './friends-ui.js?v=105';
-import { BY_ID, applyDeco, applyPlate } from './gacha-items.js?v=105';
-import { computeStats, dailySeries, niceScale, relativeTime, sampleLogs } from './stats.js?v=105';
+import { firestore } from './auth.js?v=106';
+import { formatCode, socialMessage } from './social.js?v=106';
+import { t, logMeta } from './i18n.js?v=106';
+import { errorMessage } from './auth.js?v=106';
+import { loadImage } from './avatar-image.js?v=106';
+import { openCropper } from './crop.js?v=106';
+import { onState, editMyProfile, makeAvatar } from './friends-ui.js?v=106';
+import { BY_ID, applyDeco, applyPlate } from './gacha-items.js?v=106';
+import { computeStats, dailySeries, niceScale, relativeTime, sampleLogs } from './stats.js?v=106';
 
 const $ = id => document.getElementById(id);
 const el = (tag, className, text) => {
