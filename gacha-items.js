@@ -20,7 +20,15 @@ const GLYPHS = {
 // [id, 種類, レア度, 色1, 色2(グラデーション・光), 形, [English, 日本語, 中文]]
 const I = (id, r, c1, c2, glyph, names) => ({ id, type: 'icon', rarity: r, c1, c2, glyph, names });
 const D = (id, r, c1, c2, c3, names) => ({ id, type: 'deco', rarity: r, c1, c2, c3, names });
-// RARE のイラスト素材(img/gacha/)。題材ごとに、リング・背景カード・名札の3つ
+// イラスト素材(img/gacha/)。題材ごとに、リング・背景カード・名札の3つ(COMMON と RARE)。UNCOMMON は、まだ CSS のグラデーション
+const TITLES_COMMON = [
+  ['newcomer', ['Newcomer', 'ニューカマー', '新人']],
+  ['wanderer', ['Wanderer', 'ワンダラー', '流浪者']],
+  ['apprentice', ['Apprentice', 'アプレンティス', '学徒']],
+  ['traveler', ['Traveler', 'トラベラー', '旅行者']],
+  ['explorer', ['Explorer', 'エクスプローラー', '探险家']],
+  ['dreamer', ['Dreamer', 'ドリーマー', '梦想者']],
+];
 const TITLES = [
   ['shadow-walker', ['Shadow Walker', 'シャドウウォーカー', '暗影行者']],
   ['flame-keeper', ['Flame Keeper', 'フレイムキーパー', '炎之守护者']],
@@ -30,31 +38,20 @@ const TITLES = [
   ['the-fearless', ['The Fearless', 'ザ・フィアレス', '无畏者']],
 ];
 const IMG = 'img/gacha/';
-const RARE_SET = TITLES.flatMap(([slug, names]) => [
-  { id: `i-${slug}`, type: 'icon', rarity: 'rare', img: `${IMG}ring-${slug}.webp`, names },
-  { id: `d-${slug}`, type: 'deco', rarity: 'rare', img: `${IMG}bg-${slug}.webp`, names },
-  { id: `p-${slug}`, type: 'plate', rarity: 'rare', img: `${IMG}plate-${slug}.webp`, names },
+const setOf = (rarity, titles) => titles.flatMap(([slug, names]) => [
+  { id: `i-${slug}`, type: 'icon', rarity, img: `${IMG}ring-${slug}.webp`, names },
+  { id: `d-${slug}`, type: 'deco', rarity, img: `${IMG}bg-${slug}.webp`, names },
+  { id: `p-${slug}`, type: 'plate', rarity, img: `${IMG}plate-${slug}.webp`, names },
 ]);
+const COMMON_SET = setOf('common', TITLES_COMMON), RARE_SET = setOf('rare', TITLES);
 export const ITEMS = [
-  // ---- アイコン: COMMON(単色) ----
-  I('i-red-star', 'common', '#e5534b', '#e5534b', 'star', ['Red Ring', '赤いリング', '红色圆环']),
-  I('i-pink-heart', 'common', '#e86aa6', '#e86aa6', 'heart', ['Pink Ring', 'ピンクのリング', '粉色圆环']),
-  I('i-slate-moon', 'common', '#5b6b8c', '#5b6b8c', 'moon', ['Slate Ring', 'くすんだ青のリング', '灰蓝圆环']),
-  I('i-amber-bolt', 'common', '#e0a526', '#e0a526', 'bolt', ['Amber Ring', '琥珀色のリング', '琥珀圆环']),
-  I('i-green-leaf', 'common', '#3fa66b', '#3fa66b', 'leaf', ['Green Ring', '緑のリング', '绿色圆环']),
-  I('i-blue-drop', 'common', '#3b82d6', '#3b82d6', 'drop', ['Blue Ring', '青いリング', '蓝色圆环']),
+  // ---- COMMON(イラスト・淡い色): リング・背景カード・名札 ----
+  ...COMMON_SET,
   // ---- アイコン: UNCOMMON(グラデーション) ----
   I('i-ember-flame', 'uncommon', '#ff9a3c', '#ff3d6e', 'flame', ['Ember Ring', '燃えるリング', '余烬圆环']),
   I('i-sun-crown', 'uncommon', '#ffd45a', '#ff9f43', 'crown', ['Sun Ring', '太陽のリング', '太阳圆环']),
   I('i-frost-diamond', 'uncommon', '#4fd1ff', '#7b5bff', 'diamond', ['Frost Ring', '氷のリング', '冰晶圆环']),
   I('i-meadow-leaf', 'uncommon', '#7ee08a', '#1fa39a', 'leaf', ['Meadow Ring', '草原のリング', '草地圆环']),
-  // ---- 背景の飾り: COMMON(単色) ----
-  D('d-sky', 'common', '#cfe3ff', '#cfe3ff', '', ['Sky', '空色', '天空蓝']),
-  D('d-mint', 'common', '#cdeedd', '#cdeedd', '', ['Mint', 'ミント', '薄荷绿']),
-  D('d-peach', 'common', '#ffdcc8', '#ffdcc8', '', ['Peach', 'もも色', '蜜桃色']),
-  D('d-lilac', 'common', '#e1d5f7', '#e1d5f7', '', ['Lilac', 'ライラック', '丁香紫']),
-  D('d-lemon', 'common', '#fff2b3', '#fff2b3', '', ['Lemon', 'レモン', '柠檬黄']),
-  D('d-rose', 'common', '#ffd3df', '#ffd3df', '', ['Rose', 'ローズ', '玫瑰粉']),
   // ---- 背景の飾り: UNCOMMON(グラデーション) ----
   D('d-sunset', 'uncommon', '#ffd1a8', '#ffa6c9', '', ['Sunset', '夕焼け', '日落']),
   D('d-ocean', 'uncommon', '#a8e6ff', '#9aa8ff', '', ['Ocean', '海', '海洋']),
