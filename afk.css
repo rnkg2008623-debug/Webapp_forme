@@ -140,7 +140,7 @@ html[data-theme="neon"] .gx-deco.gx-img .fo-desc, html[data-theme="neon"] .gx-de
 [data-r="transcendent"] { --rc: #c08cff; }
 [data-r="eternal"] { --rc: #9fd8ff; }
 [data-r="singularity"] { --rc: #f0e6ff; }
-[data-r="primordial"] { --rc: #ffffff; }
+[data-r="primordial"] { --rc: #ffd98a; }
 .afk-last[data-r] { border-color: color-mix(in srgb, var(--rc, #fff) 75%, transparent); box-shadow: 0 0 16px color-mix(in srgb, var(--rc, #fff) 35%, transparent), inset 0 0 14px color-mix(in srgb, var(--rc, #fff) 12%, transparent); }
 .afk-last[data-r="common"] { box-shadow: none; }
 .afk-last[data-r] .afk-lrar { color: var(--rc, inherit); }

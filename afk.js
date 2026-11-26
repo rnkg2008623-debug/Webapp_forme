@@ -1,13 +1,13 @@
 // AFK(ネオンのときだけ): タイマーを動かしている間、一定の間隔(初期設定10秒)で、自動でガチャを引く。
 // 景品は、プロフィールで使えるアイコンと、プロフィールの背景の飾り。図鑑で、どれを何個持っているか見られて、そこから使うものを選べる。
 // 回数や持ち物は、このブラウザに、アカウントごとに保存する。使うものに選んだ景品は、Firestore(プロフィール)に入るので、他の人にも見える。
-import { createGpuView } from './gpu-view.js?v=112';
-import { WGSL } from './physics-bg.js?v=112';
-import { firestore } from './auth.js?v=112';
-import { onState } from './friends-ui.js?v=112';
-import { unlockAudio, beep } from './sound.js?v=112';
-import { t, getLang } from './i18n.js?v=112';
-import { ITEMS, BY_ID, RATES_PCT, RARITIES, RARITY_LABEL, RARITY_COLOR, availableRarities, itemName, pull, frameSample, applyDeco, plateImg } from './gacha-items.js?v=112';
+import { createGpuView } from './gpu-view.js?v=113';
+import { WGSL } from './physics-bg.js?v=113';
+import { firestore } from './auth.js?v=113';
+import { onState } from './friends-ui.js?v=113';
+import { unlockAudio, beep } from './sound.js?v=113';
+import { t, getLang } from './i18n.js?v=113';
+import { ITEMS, BY_ID, RATES_PCT, RARITIES, RARITY_LABEL, RARITY_COLOR, availableRarities, itemName, pull, frameSample, applyDeco, plateImg } from './gacha-items.js?v=113';
 
 const host = document.getElementById('afk-view');
 const stage = document.getElementById('afk-stage');
@@ -181,7 +181,7 @@ const sparkle = '<svg class="afk-spark" viewBox="0 0 24 24" aria-hidden="true"><
 function build() {
   const have = new Set(availableRarities());
   const pct = v => `${+v.toFixed(6)}%`;
-  const rates = `<details class="afk-ratelist"><summary>${t('afk.rates')}</summary><ul>${RARITIES.map(r => `<li data-r="${r}"${have.has(r) ? '' : ' class="pending"'}><b>${RARITY_LABEL[r]}</b><span>${pct(RATES_PCT[r])}</span>${have.has(r) ? '' : `<em>${t('afk.soon')}</em>`}</li>`).join('')}</ul><p>${t('afk.ratesNote')}</p></details>`;
+  const rates = `<details class="afk-ratelist"><summary>${t('afk.rates')}</summary><ul>${RARITIES.map(r => `<li data-r="${r}"${have.has(r) ? '' : ' class="pending"'}><b>${RARITY_LABEL[r]}</b><span>${pct(RATES_PCT[r])}</span>${have.has(r) ? '' : `<em>${t('afk.soon')}</em>`}</li>`).join('')}</ul>${have.size < RARITIES.length ? `<p>${t('afk.ratesNote')}</p>` : ''}</details>`;
   stage.innerHTML = `<div class="afk-page">
     <header class="afk-head">${sparkle}<div><h2>AFK <em>Gacha</em></h2><p>${t('afk.sub')}</p></div>
       <div class="afk-tabs" role="tablist"><button type="button" class="on" data-tab="gacha" role="tab">${t('afk.tabGacha')}</button><button type="button" data-tab="dex" role="tab">${t('afk.tabDex')} <small id="afk-dexcount">0/${ITEMS.length}</small></button></div></header>

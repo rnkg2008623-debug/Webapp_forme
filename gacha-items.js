@@ -9,7 +9,7 @@ export const RATES_PCT = {
 };
 export const RARITY_LABEL = Object.fromEntries(RARITIES.map(r => [r, r.toUpperCase()]));
 // 表示用の色(CSS の --rc にも同じ色)
-export const RARITY_COLOR = { common: '#cfd3e8', uncommon: '#6ee7a0', rare: '#6aa8ff', epic: '#b794ff', legendary: '#f5c24c', mythic: '#ff5c8a', exalted: '#d9ccff', divine: '#ffe9a8', celestial: '#7d8cff', transcendent: '#c08cff', eternal: '#9fd8ff', singularity: '#f0e6ff', primordial: '#ffffff' };
+export const RARITY_COLOR = { common: '#cfd3e8', uncommon: '#6ee7a0', rare: '#6aa8ff', epic: '#b794ff', legendary: '#f5c24c', mythic: '#ff5c8a', exalted: '#d9ccff', divine: '#ffe9a8', celestial: '#7d8cff', transcendent: '#c08cff', eternal: '#9fd8ff', singularity: '#f0e6ff', primordial: '#ffd98a' };
 export const ID_PATTERN = /^[a-z0-9-]{1,32}$/;
 
 // イラスト素材(img/gacha/)。題材ごとに、リング・背景カード・名札の3つ(COMMON 〜 EXALTED)
@@ -101,6 +101,12 @@ const TITLES_SINGULARITY = [
   ['the-final-observer', ['The Final Observer', '最後の観測者', '最终观测者']],
   ['the-origin-of-all', ['The Origin of All', '万物の起源', '万物之源']],
 ];
+const TITLES_PRIMORDIAL = [
+  ['ruler-of-time', ['Ruler of Time', '時の支配者', '时间主宰']],
+  ['ruler-of-death', ['Ruler of Death', '死の支配者', '死亡主宰']],
+  ['ruler-of-life', ['Ruler of Life', '生命の支配者', '生命主宰']],
+  ['ruler-of-space', ['Ruler of Space', '空間の支配者', '空间主宰']],
+];
 const TITLES = [
   ['shadow-walker', ['Shadow Walker', 'シャドウウォーカー', '暗影行者']],
   ['flame-keeper', ['Flame Keeper', 'フレイムキーパー', '炎之守护者']],
@@ -117,7 +123,7 @@ const setOf = (rarity, titles) => titles.flatMap(([slug, names]) => [
 ]);
 const COMMON_SET = setOf('common', TITLES_COMMON), UNCOMMON_SET = setOf('uncommon', TITLES_UNCOMMON), RARE_SET = setOf('rare', TITLES);
 const EPIC_SET = setOf('epic', TITLES_EPIC), LEGENDARY_SET = setOf('legendary', TITLES_LEGENDARY), MYTHIC_SET = setOf('mythic', TITLES_MYTHIC), EXALTED_SET = setOf('exalted', TITLES_EXALTED);
-const DIVINE_SET = setOf('divine', TITLES_DIVINE), CELESTIAL_SET = setOf('celestial', TITLES_CELESTIAL), TRANSCENDENT_SET = setOf('transcendent', TITLES_TRANSCENDENT), ETERNAL_SET = setOf('eternal', TITLES_ETERNAL), SINGULARITY_SET = setOf('singularity', TITLES_SINGULARITY);
+const DIVINE_SET = setOf('divine', TITLES_DIVINE), CELESTIAL_SET = setOf('celestial', TITLES_CELESTIAL), TRANSCENDENT_SET = setOf('transcendent', TITLES_TRANSCENDENT), ETERNAL_SET = setOf('eternal', TITLES_ETERNAL), SINGULARITY_SET = setOf('singularity', TITLES_SINGULARITY), PRIMORDIAL_SET = setOf('primordial', TITLES_PRIMORDIAL);
 export const ITEMS = [
   // ---- COMMON(イラスト・淡い色): リング・背景カード・名札 ----
   ...COMMON_SET,
@@ -129,6 +135,8 @@ export const ITEMS = [
   ...EPIC_SET, ...LEGENDARY_SET, ...MYTHIC_SET, ...EXALTED_SET,
   // ---- DIVINE(白と金) / CELESTIAL(宇宙の紺) / TRANSCENDENT(紫の光) / ETERNAL(白い花と時) / SINGULARITY(黒と白の光) ----
   ...DIVINE_SET, ...CELESTIAL_SET, ...TRANSCENDENT_SET, ...ETERNAL_SET, ...SINGULARITY_SET,
+  // ---- PRIMORDIAL(最高): 時・死・生命・空間の4題材(リング・背景カード・名札) ----
+  ...PRIMORDIAL_SET,
 ];
 export const BY_ID = Object.fromEntries(ITEMS.map(i => [i.id, i]));
 export const itemName = (item, lang) => item.names[{ en: 0, ja: 1, zh: 2 }[lang] ?? 0];
