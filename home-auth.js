@@ -1,21 +1,21 @@
 // ホーム画面はログイン済みのユーザーだけが見られる。未ログインならログイン画面へ戻す。
-import { onUser, logOut } from './auth.js?v=113';
-import { t, getLang, setLang } from './i18n.js?v=113';
-import { mountFriends } from './friends-ui.js?v=113';
-import { mountProfile } from './profile.js?v=113';
-import { mountTimer } from './timer.js?v=113';
-import { mountPomodoro } from './pomodoro.js?v=113';
-import { startLogs } from './logs-store.js?v=113';
-import { mountRecent } from './recent.js?v=113';
-import { mountManual } from './manual.js?v=113';
-import { mountNotices } from './notices.js?v=113';
-import { mountCompare } from './compare.js?v=113';
-import './theme.js?v=113';
-import { mountAfk } from './afk.js?v=113';
-import { mountMock } from './mock.js?v=113';
-import { mountEio } from './eio.js?v=113';
-import { mountNotes } from './notes.js?v=113';
-import { mountBgVideo } from './bgvideo.js?v=113';
+import { onUser, logOut } from './auth.js?v=115';
+import { t, getLang, setLang } from './i18n.js?v=115';
+import { mountFriends } from './friends-ui.js?v=115';
+import { mountProfile } from './profile.js?v=115';
+import { mountTimer } from './timer.js?v=115';
+import { mountPomodoro } from './pomodoro.js?v=115';
+import { startLogs } from './logs-store.js?v=115';
+import { mountRecent } from './recent.js?v=115';
+import { mountManual } from './manual.js?v=115';
+import { mountNotices } from './notices.js?v=115';
+import { mountCompare } from './compare.js?v=115';
+import './theme.js?v=115';
+import { mountAfk } from './afk.js?v=115';
+import { mountMock } from './mock.js?v=115';
+import { mountEio } from './eio.js?v=115';
+import { mountNotes } from './notes.js?v=115';
+import { mountBgVideo } from './bgvideo.js?v=115';
 
 let social;
 onUser(async user => {

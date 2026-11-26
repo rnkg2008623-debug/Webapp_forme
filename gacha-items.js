@@ -142,7 +142,7 @@ export const BY_ID = Object.fromEntries(ITEMS.map(i => [i.id, i]));
 export const itemName = (item, lang) => item.names[{ en: 0, ja: 1, zh: 2 }[lang] ?? 0];
 
 // ---- ガチャを1回引く(乱数は crypto から。レア度 → そのレア度の中から均等に) ----
-const rand = () => crypto.getRandomValues(new Uint32Array(1))[0] / 4294967296;
+export const rand = () => crypto.getRandomValues(new Uint32Array(1))[0] / 4294967296;
 // 景品があるレア度だけが、対象。素材がまだないレア度の分は、あるレア度の中で、確率に応じて按分される(例: いまは COMMON / UNCOMMON / RARE だけ)
 export const availableRarities = () => RARITIES.filter(r => ITEMS.some(i => i.rarity === r));
 export function effectiveRates() {
@@ -153,6 +153,16 @@ export function pickRarity(x = rand()) {
   const rates = effectiveRates(); let acc = 0, last = 'common';
   for (const r of RARITIES) { if (!(r in rates)) continue; acc += rates[r]; last = r; if (x < acc) return r; }
   return last;
+}
+// 指定のレア度の中から、均等に1つ(ランクアップ後のレア度で引くときに使う)
+export function pullFrom(rarity, r2 = rand()) {
+  const pool = ITEMS.filter(i => i.rarity === rarity);
+  return pool[Math.min(pool.length - 1, Math.floor(r2 * pool.length))];
+}
+// 1段階上のレア度(景品があるものだけ)。いちばん上なら、そのまま
+export function higherRarity(rarity) {
+  const av = availableRarities(), i = RARITIES.indexOf(rarity);
+  return RARITIES.slice(i + 1).find(r => av.includes(r)) || rarity;
 }
 export function pull(r1 = rand(), r2 = rand()) {
   const pool = ITEMS.filter(i => i.rarity === pickRarity(r1));
