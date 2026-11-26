@@ -109,7 +109,7 @@ body[data-view="afk"] #afk-view { display: block; animation: page-in .5s ease bo
 
 /* ---------- イラスト素材(RARE): リング・背景カード・名札 ---------- */
 .gx-ringimg::before { display: none; }
-.gx-ring { position: absolute; width: 145%; height: 145%; left: -22.5%; top: -22.5%; max-width: none; z-index: 3; pointer-events: none; user-select: none; filter: drop-shadow(0 0 4px rgba(120, 140, 255, .55)); animation: gx-ringglow 3.4s ease-in-out infinite; }
+.gx-ring { position: absolute; width: 170%; height: 170%; left: -35%; top: -35%; max-width: none; z-index: 3; pointer-events: none; user-select: none; filter: drop-shadow(0 0 4px rgba(120, 140, 255, .55)); animation: gx-ringglow 3.4s ease-in-out infinite; }
 @keyframes gx-ringglow { 50% { filter: drop-shadow(0 0 9px rgba(150, 170, 255, .95)); } }
 .gx-sample .gx-ring { z-index: 1; }
 html .gx-deco.gx-img { --ovg: linear-gradient(90deg, rgba(255, 255, 255, .66), rgba(255, 255, 255, .4) 42%, rgba(255, 255, 255, .55)); background: var(--ovg), var(--g); }
@@ -132,9 +132,9 @@ html[data-theme="neon"] .gx-deco.gx-img .fo-desc, html[data-theme="neon"] .gx-de
 [data-r="uncommon"] { --rc: #6ee7a0; }
 [data-r="rare"] { --rc: #6aa8ff; }
 [data-r="epic"] { --rc: #b794ff; }
-[data-r="legendary"] { --rc: #ff9a5c; }
-[data-r="mythic"] { --rc: #ff5c6c; }
-[data-r="exalted"] { --rc: #ff7ab8; }
+[data-r="legendary"] { --rc: #f5c24c; }
+[data-r="mythic"] { --rc: #ff5c8a; }
+[data-r="exalted"] { --rc: #d9ccff; }
 [data-r="divine"] { --rc: #ffe27a; }
 [data-r="celestial"] { --rc: #7defff; }
 [data-r="transcendent"] { --rc: #5cf0c6; }

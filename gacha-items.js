@@ -9,10 +9,10 @@ export const RATES_PCT = {
 };
 export const RARITY_LABEL = Object.fromEntries(RARITIES.map(r => [r, r.toUpperCase()]));
 // 表示用の色(CSS の --rc にも同じ色)
-export const RARITY_COLOR = { common: '#cfd3e8', uncommon: '#6ee7a0', rare: '#6aa8ff', epic: '#b794ff', legendary: '#ff9a5c', mythic: '#ff5c6c', exalted: '#ff7ab8', divine: '#ffe27a', celestial: '#7defff', transcendent: '#5cf0c6', eternal: '#8a8cff', singularity: '#e55cff', primordial: '#ffffff' };
+export const RARITY_COLOR = { common: '#cfd3e8', uncommon: '#6ee7a0', rare: '#6aa8ff', epic: '#b794ff', legendary: '#f5c24c', mythic: '#ff5c8a', exalted: '#d9ccff', divine: '#ffe27a', celestial: '#7defff', transcendent: '#5cf0c6', eternal: '#8a8cff', singularity: '#e55cff', primordial: '#ffffff' };
 export const ID_PATTERN = /^[a-z0-9-]{1,32}$/;
 
-// イラスト素材(img/gacha/)。題材ごとに、リング・背景カード・名札の3つ(COMMON / UNCOMMON / RARE)
+// イラスト素材(img/gacha/)。題材ごとに、リング・背景カード・名札の3つ(COMMON 〜 EXALTED)
 const TITLES_COMMON = [
   ['newcomer', ['Newcomer', 'ニューカマー', '新人']],
   ['wanderer', ['Wanderer', 'ワンダラー', '流浪者']],
@@ -29,6 +29,38 @@ const TITLES_UNCOMMON = [
   ['rising-star', ['Rising Star', 'ライジングスター', '新星']],
   ['fortune-seeker', ['Fortune Seeker', 'フォーチュンシーカー', '寻运者']],
 ];
+const TITLES_EPIC = [
+  ['master-of-illusions', ['Master of Illusions', 'マスター・オブ・イリュージョン', '幻象大师']],
+  ['the-fallen-knight', ['The Fallen Knight', 'ザ・フォールン・ナイト', '堕落骑士']],
+  ['lord-of-shadows', ['Lord of Shadows', 'ロード・オブ・シャドウズ', '暗影之主']],
+  ['keeper-of-secrets', ['Keeper of Secrets', 'キーパー・オブ・シークレッツ', '秘密守护者']],
+  ['the-unbroken', ['The Unbroken', 'ジ・アンブロークン', '不屈者']],
+  ['harbinger-of-dawn', ['Harbinger of Dawn', 'ハービンジャー・オブ・ドーン', '黎明先驱']],
+];
+const TITLES_LEGENDARY = [
+  ['the-uncrowned-king', ['The Uncrowned King', '戴冠なき王', '无冕之王']],
+  ['dragon-sovereign', ['Dragon Sovereign', 'ドラゴン・ソブリン', '龙之君主']],
+  ['the-conqueror', ['The Conqueror', 'ザ・コンカラー', '征服者']],
+  ['the-chosen-one', ['The Chosen One', '選ばれし者', '天选之人']],
+  ['emperor-of-ashes', ['Emperor of Ashes', '灰の皇帝', '灰烬皇帝']],
+  ['the-last-guardian', ['The Last Guardian', '最後の守護者', '最后的守护者']],
+];
+const TITLES_MYTHIC = [
+  ['the-immortal', ['The Immortal', '不死なる者', '不朽者']],
+  ['the-godslayer', ['The Godslayer', '神殺し', '弑神者']],
+  ['herald-of-chaos', ['Herald of Chaos', 'ヘラルド・オブ・カオス', '混沌使者']],
+  ['heir-of-the-titans', ['Heir of the Titans', '巨人の継承者', '泰坦后裔']],
+  ['the-abyssal-monarch', ['The Abyssal Monarch', '深淵の君主', '深渊君主']],
+  ['oracle-of-destiny', ['Oracle of Destiny', '運命の神託', '命运神谕']],
+];
+const TITLES_EXALTED = [
+  ['the-ascended', ['The Ascended', '昇天者', '飞升者']],
+  ['the-enlightened', ['The Enlightened', '悟りを得た者', '觉悟者']],
+  ['the-supreme-one', ['The Supreme One', '至高の存在', '至高者']],
+  ['the-unrivaled', ['The Unrivaled', '並ぶ者なき者', '无双者']],
+  ['sovereign-of-order', ['Sovereign of Order', '秩序の君主', '秩序之主']],
+  ['the-perfect-being', ['The Perfect Being', '完全なる存在', '完美存在']],
+];
 const TITLES = [
   ['shadow-walker', ['Shadow Walker', 'シャドウウォーカー', '暗影行者']],
   ['flame-keeper', ['Flame Keeper', 'フレイムキーパー', '炎之守护者']],
@@ -44,6 +76,7 @@ const setOf = (rarity, titles) => titles.flatMap(([slug, names]) => [
   { id: `p-${slug}`, type: 'plate', rarity, img: `${IMG}plate-${slug}.webp`, names },
 ]);
 const COMMON_SET = setOf('common', TITLES_COMMON), UNCOMMON_SET = setOf('uncommon', TITLES_UNCOMMON), RARE_SET = setOf('rare', TITLES);
+const EPIC_SET = setOf('epic', TITLES_EPIC), LEGENDARY_SET = setOf('legendary', TITLES_LEGENDARY), MYTHIC_SET = setOf('mythic', TITLES_MYTHIC), EXALTED_SET = setOf('exalted', TITLES_EXALTED);
 export const ITEMS = [
   // ---- COMMON(イラスト・淡い色): リング・背景カード・名札 ----
   ...COMMON_SET,
@@ -51,6 +84,8 @@ export const ITEMS = [
   ...UNCOMMON_SET,
   // ---- RARE(イラスト): アイコンのリング / 背景カード / 名札(名前の横)。同じ6つの題材で、セットになっている ----
   ...RARE_SET,
+  // ---- EPIC(紫) / LEGENDARY(金) / MYTHIC(深紅と紫) / EXALTED(白と紫と金) ----
+  ...EPIC_SET, ...LEGENDARY_SET, ...MYTHIC_SET, ...EXALTED_SET,
 ];
 export const BY_ID = Object.fromEntries(ITEMS.map(i => [i.id, i]));
 export const itemName = (item, lang) => item.names[{ en: 0, ja: 1, zh: 2 }[lang] ?? 0];

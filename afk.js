@@ -1,13 +1,13 @@
 // AFK(ネオンのときだけ): タイマーを動かしている間、一定の間隔(初期設定10秒)で、自動でガチャを引く。
 // 景品は、プロフィールで使えるアイコンと、プロフィールの背景の飾り。図鑑で、どれを何個持っているか見られて、そこから使うものを選べる。
 // 回数や持ち物は、このブラウザに、アカウントごとに保存する。使うものに選んだ景品は、Firestore(プロフィール)に入るので、他の人にも見える。
-import { createGpuView } from './gpu-view.js?v=109';
-import { WGSL } from './physics-bg.js?v=109';
-import { firestore } from './auth.js?v=109';
-import { onState } from './friends-ui.js?v=109';
-import { unlockAudio, beep } from './sound.js?v=109';
-import { t, getLang } from './i18n.js?v=109';
-import { ITEMS, BY_ID, RATES_PCT, RARITIES, RARITY_LABEL, RARITY_COLOR, availableRarities, itemName, pull, frameSample, applyDeco, plateImg } from './gacha-items.js?v=109';
+import { createGpuView } from './gpu-view.js?v=111';
+import { WGSL } from './physics-bg.js?v=111';
+import { firestore } from './auth.js?v=111';
+import { onState } from './friends-ui.js?v=111';
+import { unlockAudio, beep } from './sound.js?v=111';
+import { t, getLang } from './i18n.js?v=111';
+import { ITEMS, BY_ID, RATES_PCT, RARITIES, RARITY_LABEL, RARITY_COLOR, availableRarities, itemName, pull, frameSample, applyDeco, plateImg } from './gacha-items.js?v=111';
 
 const host = document.getElementById('afk-view');
 const stage = document.getElementById('afk-stage');
