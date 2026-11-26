@@ -52,3 +52,16 @@ navButtons.forEach(btn => btn.addEventListener('click', () => {
 document.querySelector('.logo').addEventListener('click', e => { e.preventDefault(); setView('home'); });
 setView(location.hash.slice(1));
 window.addEventListener('hashchange', () => { const n = location.hash.slice(1) || 'home'; if (document.body.dataset.view !== n) setView(n); });
+
+// ヘッダーのメニューが入りきらないとき: マウスの縦のホイールで横に動かす。選んでいる項目は、見える位置までスクロールする
+(() => {
+  const nav = document.querySelector('.nav');
+  if (!nav) return;
+  nav.addEventListener('wheel', e => {
+    if (nav.scrollWidth <= nav.clientWidth || Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+    nav.scrollLeft += e.deltaY; e.preventDefault();
+  }, { passive: false });
+  const reveal = () => nav.querySelector('.nav-item.is-active')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  window.addEventListener('viewchange', reveal);
+  window.addEventListener('resize', reveal);
+})();

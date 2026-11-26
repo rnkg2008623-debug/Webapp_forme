@@ -1,8 +1,8 @@
 // English IO(ネオンのときだけ): Intro など、好きな欄を作って、その回数を書いていく。数字を入れて Enter を押すと、横のメーターがその分上がる。
 // 背景はWebGPU(白黒のゴシックの大聖堂)。データは、このブラウザに、アカウントごとに保存する。
-import { createGpuView } from './gpu-view.js?v=100';
-import { WGSL } from './physics-bg.js?v=100';
-import { t } from './i18n.js?v=100';
+import { createGpuView } from './gpu-view.js?v=101';
+import { WGSL } from './physics-bg.js?v=101';
+import { t } from './i18n.js?v=101';
 
 const host = document.getElementById('eio-view');
 const stage = document.getElementById('eio-stage');
