@@ -1,9 +1,15 @@
 // AFK のガチャの景品。題材ごとに、アイコンのリング(icon)・背景カード(deco)・名札(plate)の3つ。
 // レア度: COMMON(70%)=淡い色(灰紫) / UNCOMMON(25%)=緑 / RARE(5%)=青の光(イラスト素材 img/gacha/)。
 // id は Firestore(users/{uid} の icon / deco / plate)にも入るので、英小文字・数字・ハイフンだけにする(firestore.rules の形式と同じ)。
-export const RARITIES = ['common', 'uncommon', 'rare'];
-export const RATES = { common: 0.70, uncommon: 0.25, rare: 0.05 };
-export const RARITY_LABEL = { common: 'COMMON', uncommon: 'UNCOMMON', rare: 'RARE' };
+// レア度は13段階(上に行くほど出にくい)。確率は(%)。画像の素材がまだないレア度は、素材が届くまで、出ない扱い(下の pickRarity を参照)
+export const RARITIES = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic', 'exalted', 'divine', 'celestial', 'transcendent', 'eternal', 'singularity', 'primordial'];
+export const RATES_PCT = {
+  common: 95.123367, uncommon: 4, rare: 0.666667, epic: 0.133333, legendary: 0.04, mythic: 0.02, exalted: 0.01, divine: 0.003333,
+  celestial: 0.002, transcendent: 0.001, eternal: 0.000333, singularity: 0.0002, primordial: 0.0001,
+};
+export const RARITY_LABEL = Object.fromEntries(RARITIES.map(r => [r, r.toUpperCase()]));
+// 表示用の色(CSS の --rc にも同じ色)
+export const RARITY_COLOR = { common: '#cfd3e8', uncommon: '#6ee7a0', rare: '#6aa8ff', epic: '#b794ff', legendary: '#ff9a5c', mythic: '#ff5c6c', exalted: '#ff7ab8', divine: '#ffe27a', celestial: '#7defff', transcendent: '#5cf0c6', eternal: '#8a8cff', singularity: '#e55cff', primordial: '#ffffff' };
 export const ID_PATTERN = /^[a-z0-9-]{1,32}$/;
 
 // イラスト素材(img/gacha/)。題材ごとに、リング・背景カード・名札の3つ(COMMON / UNCOMMON / RARE)
@@ -51,7 +57,17 @@ export const itemName = (item, lang) => item.names[{ en: 0, ja: 1, zh: 2 }[lang]
 
 // ---- ガチャを1回引く(乱数は crypto から。レア度 → そのレア度の中から均等に) ----
 const rand = () => crypto.getRandomValues(new Uint32Array(1))[0] / 4294967296;
-export function pickRarity(r = rand()) { return r < RATES.common ? 'common' : r < RATES.common + RATES.uncommon ? 'uncommon' : 'rare'; }
+// 景品があるレア度だけが、対象。素材がまだないレア度の分は、あるレア度の中で、確率に応じて按分される(例: いまは COMMON / UNCOMMON / RARE だけ)
+export const availableRarities = () => RARITIES.filter(r => ITEMS.some(i => i.rarity === r));
+export function effectiveRates() {
+  const av = availableRarities(), total = av.reduce((s, r) => s + RATES_PCT[r], 0);
+  return Object.fromEntries(av.map(r => [r, RATES_PCT[r] / total]));
+}
+export function pickRarity(x = rand()) {
+  const rates = effectiveRates(); let acc = 0, last = 'common';
+  for (const r of RARITIES) { if (!(r in rates)) continue; acc += rates[r]; last = r; if (x < acc) return r; }
+  return last;
+}
 export function pull(r1 = rand(), r2 = rand()) {
   const pool = ITEMS.filter(i => i.rarity === pickRarity(r1));
   return pool[Math.min(pool.length - 1, Math.floor(r2 * pool.length))];

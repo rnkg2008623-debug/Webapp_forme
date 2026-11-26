@@ -1,13 +1,13 @@
 // AFK(ネオンのときだけ): タイマーを動かしている間、一定の間隔(初期設定10秒)で、自動でガチャを引く。
 // 景品は、プロフィールで使えるアイコンと、プロフィールの背景の飾り。図鑑で、どれを何個持っているか見られて、そこから使うものを選べる。
 // 回数や持ち物は、このブラウザに、アカウントごとに保存する。使うものに選んだ景品は、Firestore(プロフィール)に入るので、他の人にも見える。
-import { createGpuView } from './gpu-view.js?v=107';
-import { WGSL } from './physics-bg.js?v=107';
-import { firestore } from './auth.js?v=107';
-import { onState } from './friends-ui.js?v=107';
-import { unlockAudio, beep } from './sound.js?v=107';
-import { t, getLang } from './i18n.js?v=107';
-import { ITEMS, BY_ID, RATES, RARITIES, RARITY_LABEL, itemName, pull, frameSample, applyDeco, plateImg } from './gacha-items.js?v=107';
+import { createGpuView } from './gpu-view.js?v=109';
+import { WGSL } from './physics-bg.js?v=109';
+import { firestore } from './auth.js?v=109';
+import { onState } from './friends-ui.js?v=109';
+import { unlockAudio, beep } from './sound.js?v=109';
+import { t, getLang } from './i18n.js?v=109';
+import { ITEMS, BY_ID, RATES_PCT, RARITIES, RARITY_LABEL, RARITY_COLOR, availableRarities, itemName, pull, frameSample, applyDeco, plateImg } from './gacha-items.js?v=109';
 
 const host = document.getElementById('afk-view');
 const stage = document.getElementById('afk-stage');
@@ -111,7 +111,8 @@ function doPull() {
   hist.unshift({ it, isNew }); hist.length = Math.min(hist.length, 12);
   showResult(it, isNew); renderStats();
   if (!$('afk-dex').hidden) renderDex();
-  if (it.rarity === 'rare') { beep(1); flash(); }
+  const tier = RARITIES.indexOf(it.rarity);
+  if (tier >= 2) { beep(Math.min(3, tier - 1)); flash(); }   // RARE 以上は、光って、音が鳴る(上のレア度ほど、音が多い)
 }
 function preview(it, big) {
   if (it.type === 'icon') return frameSample(it, big ? 'big' : '');
@@ -160,7 +161,7 @@ function card(it) {
   return c;
 }
 function renderDex() {
-  const sum = RARITIES.map(r => { const all = ITEMS.filter(i => i.rarity === r), got = all.filter(i => data.inv[i.id]).length; return `<span class="afk-sum" data-r="${r}"><b>${RARITY_LABEL[r]}</b> ${got}/${all.length}</span>`; }).join('');
+  const sum = availableRarities().map(r => { const all = ITEMS.filter(i => i.rarity === r), got = all.filter(i => data.inv[i.id]).length; return `<span class="afk-sum" data-r="${r}"><b>${RARITY_LABEL[r]}</b> ${got}/${all.length}</span>`; }).join('');
   $('afk-dexsum').innerHTML = `<span class="afk-sum all"><b>${t('afk.collected')}</b> ${owned()}/${ITEMS.length}</span>${sum}`;
   const grid = (type, id) => $(id).replaceChildren(...ITEMS.filter(i => i.type === type).map(card));
   grid('icon', 'afk-icons'); grid('deco', 'afk-decos'); grid('plate', 'afk-plates');
@@ -178,7 +179,9 @@ function setDexMsg(text, ok) { const m = $('afk-dexmsg'); m.textContent = text; 
 // ---- 画面 ----
 const sparkle = '<svg class="afk-spark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0l2.2 8.800L24 12l-9.800 3.200L12 24l-2.200-8.800L0 12l9.800-3.200z"/></svg>';
 function build() {
-  const rates = RARITIES.map(r => `<span data-r="${r}">${RARITY_LABEL[r]} ${Math.round(RATES[r] * 100)}%</span>`).join('');
+  const have = new Set(availableRarities());
+  const pct = v => `${+v.toFixed(6)}%`;
+  const rates = `<details class="afk-ratelist"><summary>${t('afk.rates')}</summary><ul>${RARITIES.map(r => `<li data-r="${r}"${have.has(r) ? '' : ' class="pending"'}><b>${RARITY_LABEL[r]}</b><span>${pct(RATES_PCT[r])}</span>${have.has(r) ? '' : `<em>${t('afk.soon')}</em>`}</li>`).join('')}</ul><p>${t('afk.ratesNote')}</p></details>`;
   stage.innerHTML = `<div class="afk-page">
     <header class="afk-head">${sparkle}<div><h2>AFK <em>Gacha</em></h2><p>${t('afk.sub')}</p></div>
       <div class="afk-tabs" role="tablist"><button type="button" class="on" data-tab="gacha" role="tab">${t('afk.tabGacha')}</button><button type="button" data-tab="dex" role="tab">${t('afk.tabDex')} <small id="afk-dexcount">0/${ITEMS.length}</small></button></div></header>

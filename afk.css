@@ -126,3 +126,33 @@ html .gx-deco.gx-img::after { background: linear-gradient(110deg, transparent 38
 @media (prefers-reduced-motion: reduce) { .gx-ring { animation: none; } }
 .gx-deco.gx-img .fo-desc, .gx-deco.gx-img .pf-desc { color: #3f4a68; text-shadow: 0 0 6px rgba(255, 255, 255, .8); }
 html[data-theme="neon"] .gx-deco.gx-img .fo-desc, html[data-theme="neon"] .gx-deco.gx-img .pf-desc { color: #dfe4ff; text-shadow: 0 0 6px rgba(0, 0, 0, .8); }
+
+/* レア度の色(13段階)。--rc を、枠・文字・点などに使う */
+[data-r="common"] { --rc: #cfd3e8; }
+[data-r="uncommon"] { --rc: #6ee7a0; }
+[data-r="rare"] { --rc: #6aa8ff; }
+[data-r="epic"] { --rc: #b794ff; }
+[data-r="legendary"] { --rc: #ff9a5c; }
+[data-r="mythic"] { --rc: #ff5c6c; }
+[data-r="exalted"] { --rc: #ff7ab8; }
+[data-r="divine"] { --rc: #ffe27a; }
+[data-r="celestial"] { --rc: #7defff; }
+[data-r="transcendent"] { --rc: #5cf0c6; }
+[data-r="eternal"] { --rc: #8a8cff; }
+[data-r="singularity"] { --rc: #e55cff; }
+[data-r="primordial"] { --rc: #ffffff; }
+.afk-last[data-r] { border-color: color-mix(in srgb, var(--rc, #fff) 75%, transparent); box-shadow: 0 0 16px color-mix(in srgb, var(--rc, #fff) 35%, transparent), inset 0 0 14px color-mix(in srgb, var(--rc, #fff) 12%, transparent); }
+.afk-last[data-r="common"] { box-shadow: none; }
+.afk-last[data-r] .afk-lrar { color: var(--rc, inherit); }
+.afk-rates span, .afk-rates [data-r] { color: inherit; }
+.afk-ratelist { text-align: left; font-size: 1em; max-width: 26em; margin: 0 auto; } .afk-ratelist summary { cursor: pointer; text-align: center; opacity: .85; letter-spacing: .04em; }
+.afk-ratelist ul { list-style: none; margin-top: .6em; display: grid; gap: .25em; }
+.afk-ratelist li { display: grid; grid-template-columns: 9em 1fr auto; gap: .8em; padding: .15em .6em; border-left: 3px solid var(--rc); background: rgba(255, 255, 255, .04); font-variant-numeric: tabular-nums; }
+.afk-ratelist li b { color: var(--rc); letter-spacing: .06em; font-weight: 600; } .afk-ratelist li span { text-align: right; } .afk-ratelist li em { font-style: normal; font-size: .85em; opacity: .7; }
+.afk-ratelist li.pending { opacity: .5; } .afk-ratelist p { margin-top: .6em; font-size: .9em; opacity: .7; line-height: 1.5; }
+.afk-hist li[data-r] { border-left-color: var(--rc); } .afk-hist li[data-r="common"] { background: rgba(255, 255, 255, .04); }
+.afk-hist li[data-r]:not([data-r="common"]):not([data-r="uncommon"]) { background: color-mix(in srgb, var(--rc) 9%, transparent); }
+.afk-sum[data-r] { border-color: var(--rc); }
+.afk-item[data-r] { border-color: color-mix(in srgb, var(--rc) 65%, transparent); } .afk-item[data-r]:not([data-r="common"]) { box-shadow: 0 0 12px color-mix(in srgb, var(--rc) 30%, transparent); }
+.afk-item.equipped { box-shadow: 0 0 0 2px #fff, 0 0 18px rgba(255, 255, 255, .5); }
+.afk-item[data-r] .afk-rar { color: var(--rc); opacity: 1; }

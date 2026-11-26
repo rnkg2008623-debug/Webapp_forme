@@ -1,8 +1,8 @@
 // フレンド機能の画面: 右サイドバーの一覧と、ページの上に重ねて表示するフレンドUI
 //   左のレール: 人のマーク = フレンド一覧 / 人+のマーク = フレンド申請
-import { startSocial, formatCode, socialMessage, LIMITS } from './social.js?v=107';
-import { t } from './i18n.js?v=107';
-import { errorMessage } from './auth.js?v=107';
+import { startSocial, formatCode, socialMessage, LIMITS } from './social.js?v=109';
+import { t } from './i18n.js?v=109';
+import { errorMessage } from './auth.js?v=109';
 
 const $ = id => document.getElementById(id);
 const LABELS = { online: 'Online', busy: 'Busy', offline: 'Offline' };
@@ -47,8 +47,8 @@ function textButton(label, className, onClick) {
   b.addEventListener('click', onClick);
   return b;
 }
-import { PHOTO_PATTERN } from './avatar-image.js?v=107';
-import { BY_ID, applyFrame, applyDeco, applyPlate } from './gacha-items.js?v=107';
+import { PHOTO_PATTERN } from './avatar-image.js?v=109';
+import { BY_ID, applyFrame, applyDeco, applyPlate } from './gacha-items.js?v=109';
 function avatar(id, name, status, photo, icon) {
   let h = 0;
   for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) % 360;
