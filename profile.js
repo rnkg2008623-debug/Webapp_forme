@@ -1,12 +1,13 @@
 // プロフィール画面: 自分の情報、学習の集計、日ごとの学習時間のグラフ、Log history
-import { firestore } from './auth.js?v=98';
-import { formatCode, socialMessage } from './social.js?v=98';
-import { t, logMeta } from './i18n.js?v=98';
-import { errorMessage } from './auth.js?v=98';
-import { loadImage } from './avatar-image.js?v=98';
-import { openCropper } from './crop.js?v=98';
-import { onState, editMyProfile, makeAvatar } from './friends-ui.js?v=98';
-import { computeStats, dailySeries, niceScale, relativeTime, sampleLogs } from './stats.js?v=98';
+import { firestore } from './auth.js?v=100';
+import { formatCode, socialMessage } from './social.js?v=100';
+import { t, logMeta } from './i18n.js?v=100';
+import { errorMessage } from './auth.js?v=100';
+import { loadImage } from './avatar-image.js?v=100';
+import { openCropper } from './crop.js?v=100';
+import { onState, editMyProfile, makeAvatar } from './friends-ui.js?v=100';
+import { BY_ID, iconEl, applyDeco } from './gacha-items.js?v=100';
+import { computeStats, dailySeries, niceScale, relativeTime, sampleLogs } from './stats.js?v=100';
 
 const $ = id => document.getElementById(id);
 const el = (tag, className, text) => {
@@ -25,9 +26,9 @@ const LABELS = { online: 'Online', busy: 'Busy', offline: 'Offline' };
 
 // ---- 表示中の人の情報(自分、または友だち) ----
 function subjectInfo() {
-  if (isMe()) return state.me && { name: state.me.displayName, description: state.me.description, photo: state.me.photo, code: state.me.friendCode, key: 'me' + state.me.friendCode };
+  if (isMe()) return state.me && { name: state.me.displayName, description: state.me.description, photo: state.me.photo, code: state.me.friendCode, key: 'me' + state.me.friendCode, icon: state.me.icon, deco: state.me.deco };
   const fr = state.snap?.profiles[state.subject];
-  return fr && { name: fr.name, description: fr.description, photo: fr.photo, code: fr.friendCode, key: state.subject };
+  return fr && { name: fr.name, description: fr.description, photo: fr.photo, code: fr.friendCode, key: state.subject, icon: fr.icon, deco: fr.deco };
 }
 const studyingText = p => {
   if (!p?.studying || p.state === 'offline') return '';
@@ -47,6 +48,11 @@ function renderMe() {
   $('pf-avatar').replaceWith(av);
   $('pf-avatar-btn').disabled = !isMe();
   $('pf-avatar-btn').title = isMe() ? t('pf.avatarClick') : '';
+  // ガチャで当てた、アイコン(アバターの角)と、背景の飾り(自己紹介のカード)。他の人のプロフィールにも出る
+  const badge = $('pf-badge'), ic = BY_ID[who.icon];
+  badge.replaceChildren(); badge.hidden = !(ic && ic.type === 'icon');
+  if (!badge.hidden) badge.append(iconEl(ic));
+  applyDeco($('pf-idcard'), BY_ID[who.deco]);
   $('pf-name').textContent = who.name;
   $('pf-uid').textContent = who.code ? formatCode(who.code) : '—';
   const d = $('pf-desc');

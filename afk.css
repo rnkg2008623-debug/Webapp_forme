@@ -1,0 +1,97 @@
+/* ---------- ガチャの景品の見た目(プロフィールでも使う。ネオンでなくても出る) ---------- */
+.gx-icon { --c1: #888; --c2: #888; position: relative; display: inline-grid; place-items: center; width: 1em; height: 1em; border-radius: 50%; background: var(--c1); border: 2px solid rgba(255, 255, 255, .85); box-sizing: border-box; flex: none; vertical-align: middle; overflow: hidden; }
+.gx-icon svg { width: 62%; height: 62%; fill: #fff; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .35)); position: relative; z-index: 1; }
+.gx-icon[data-r="uncommon"] { background: linear-gradient(135deg, var(--c1), var(--c2)); }
+.gx-icon[data-r="rare"] { background: linear-gradient(135deg, var(--c1), var(--c2)); box-shadow: 0 0 6px var(--c2), 0 0 14px color-mix(in srgb, var(--c2) 65%, transparent); }
+.gx-icon[data-r="rare"]::after { content: ""; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, .75) 50%, transparent 62%); transform: translateX(-120%); animation: gx-shine 3s ease-in-out infinite; }
+@keyframes gx-shine { 0%, 55% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
+/* 背景の飾り: 上に薄い膜を重ねて、文字が読めるようにする */
+.gx-deco { --ov: rgba(255, 255, 255, .62); }
+html[data-theme="neon"] .gx-deco { --ov: rgba(6, 6, 12, .62); }
+html .pf-card.gx-deco, .afk-deco.gx-deco { background: linear-gradient(var(--ov), var(--ov)), var(--g); position: relative; overflow: hidden; }
+.gx-deco[data-r="rare"] { box-shadow: 0 0 0 1px var(--glow), 0 0 22px color-mix(in srgb, var(--glow) 55%, transparent); }
+.gx-deco[data-r="rare"]::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(110deg, transparent 38%, rgba(255, 255, 255, .45) 50%, transparent 62%); transform: translateX(-120%); animation: gx-shine 3.6s ease-in-out infinite; }
+.gx-deco[data-r="uncommon"] { box-shadow: 0 0 0 1px color-mix(in srgb, var(--glow) 55%, transparent); }
+html .pf-card.gx-deco > * { position: relative; z-index: 1; }
+/* プロフィールのアイコン(アバターの右上) */
+.pf-badge { position: absolute; top: -2%; right: -2%; z-index: 3; font-size: clamp(22px, 2.3vw, 38px); filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .3)); pointer-events: none; }
+.pf-badge[hidden] { display: none; }
+
+/* ---------- ネオン: AFK(ガチャ) ---------- */
+.nav-afk { display: none; }
+html[data-theme="neon"] .nav-afk { display: flex; }
+body[data-view="afk"] #afk-view { display: block; animation: page-in .5s ease both; }
+.afk { --afk-serif: "Cormorant Garamond", "Cinzel", "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", Georgia, serif; background: #020204; font-size: clamp(11px, .96vw, 18px); color: #fff; font-family: var(--afk-serif); overflow: hidden; }
+.afk .ts-fallback { background: radial-gradient(35% 55% at 50% 75%, rgba(210, 215, 255, .3), transparent 70%), #05050a; }
+.ts.afk > .afk-stage.afk-stage { position: absolute; inset: 0; z-index: 1; overflow: auto; scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, .4) transparent; }
+.afk button, .afk input { font-family: inherit; color: inherit; }
+.afk-page { max-width: 84em; margin: 0 auto; padding: 1.6em 2.4em 3em; animation: afk-in .7s cubic-bezier(.2, .7, .2, 1) both; }
+@keyframes afk-in { from { opacity: 0; transform: scale(1.03); filter: blur(6px); } }
+.afk-head { display: flex; align-items: center; gap: 1.1em; margin-bottom: 1.4em; flex-wrap: wrap; }
+.afk-spark { width: 3.2em; height: 3.2em; fill: #fff; filter: drop-shadow(0 0 8px #fff); flex: none; }
+.afk-head h2 { font: 500 3.4em/1 var(--afk-serif); text-shadow: 0 0 18px rgba(255, 255, 255, .5); } .afk-head h2 em { font-style: italic; }
+.afk-head p { margin-top: .4em; font-size: 1.3em; opacity: .85; }
+.afk-tabs { margin-left: auto; display: flex; gap: .6em; }
+.afk-tabs button { padding: .6em 1.4em; border: 1px solid rgba(255, 255, 255, .5); border-radius: 3px; background: rgba(0, 0, 0, .6); font-size: 1.25em; transition: box-shadow .2s, background .2s; }
+.afk-tabs button:hover { box-shadow: 0 0 14px rgba(255, 255, 255, .5); } .afk-tabs button.on { background: #fff; color: #08080c; font-weight: 600; box-shadow: 0 0 18px rgba(255, 255, 255, .5); }
+.afk-tabs small { opacity: .7; font-size: .8em; margin-left: .3em; }
+.afk-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.4em; }
+.afk-card { padding: 1.5em 1.7em; border: 1px solid rgba(255, 255, 255, .55); border-radius: 3px; background: linear-gradient(180deg, rgba(6, 6, 8, .9), rgba(3, 3, 5, .94)); box-shadow: inset 0 0 0 3px rgba(4, 4, 6, .85), inset 0 0 0 4px rgba(255, 255, 255, .22); }
+.afk.is-live .afk-timer { border-color: #fff; box-shadow: inset 0 0 0 3px rgba(4, 4, 6, .85), inset 0 0 0 4px #fff, 0 0 26px rgba(255, 255, 255, .35); }
+.afk-clock { font: 500 5.4em/1 var(--afk-serif); text-align: center; letter-spacing: .04em; font-variant-numeric: tabular-nums; text-shadow: 0 0 22px rgba(255, 255, 255, .5); margin: .2em 0 .5em; }
+.afk-settings { display: flex; gap: 1.6em; justify-content: center; flex-wrap: wrap; margin-bottom: 1em; } .afk-settings[hidden] { display: none; }
+.afk-settings label { display: flex; flex-direction: column; gap: .4em; font-size: 1.1em; opacity: .9; }
+.afk-hm, .afk-sc { display: inline-flex; align-items: center; gap: .4em; }
+.afk-settings input { width: 4.4em; height: 2.6em; text-align: center; font-size: 1.25em; background: rgba(0, 0, 0, .65); border: 1px solid rgba(255, 255, 255, .6); border-radius: 4px; outline: 0; -moz-appearance: textfield; }
+.afk-settings input::-webkit-outer-spin-button, .afk-settings input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.afk-settings input:focus { border-color: #fff; box-shadow: 0 0 14px rgba(255, 255, 255, .55); }
+.afk-settings i { font-style: normal; opacity: .8; }
+.afk-next { margin: .6em 0 1.1em; text-align: center; font-size: 1.1em; opacity: .9; }
+.afk-bar { height: .8em; border: 1px solid rgba(255, 255, 255, .7); border-radius: 1em; background: rgba(255, 255, 255, .1); margin-bottom: .5em; overflow: hidden; }
+.afk-bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #8a8a92, #fff); box-shadow: 0 0 12px #fff; border-radius: inherit; }
+.afk-btns { display: flex; gap: .8em; justify-content: center; flex-wrap: wrap; }
+.afk-pill { height: 2.9em; padding: 0 2em; border: 1.5px solid #fff; border-radius: 2em; background: rgba(0, 0, 0, .45); font-size: 1.2em; transition: box-shadow .2s, background .2s; }
+.afk-pill:hover { box-shadow: 0 0 18px rgba(255, 255, 255, .7); background: rgba(255, 255, 255, .12); } .afk-pill[hidden] { display: none; }
+.afk-pill.solid { background: #fff; color: #08080c; box-shadow: 0 0 16px rgba(255, 255, 255, .4); } .afk-pill.solid.alt { background: transparent; color: #fff; }
+.afk-msg { margin-top: .9em; text-align: center; color: #ff9a9a; font-size: 1.1em; } .afk-msg.ok { color: #9fe8b9; } .afk-msg[hidden] { display: none; }
+.afk-nums { display: flex; justify-content: center; gap: 2.4em; margin-top: 1.2em; padding-top: 1em; border-top: 1px solid rgba(255, 255, 255, .2); }
+.afk-nums dt { font-size: 1em; opacity: .7; text-align: center; } .afk-nums dd { font: 500 2em var(--afk-serif); text-align: center; }
+.afk-res h3 { font: 500 1.5em var(--afk-serif); margin-bottom: .6em; } .afk-res h4 { font: 500 1.15em var(--afk-serif); margin: 1.1em 0 .5em; opacity: .85; }
+.afk-last { min-height: 11em; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .5em; padding: 1.2em; border: 1px solid rgba(255, 255, 255, .3); border-radius: 3px; background: rgba(0, 0, 0, .5); font-size: 1em; }
+.afk-last[data-r="common"] { border-color: rgba(255, 255, 255, .5); }
+.afk-last[data-r="uncommon"] { border-color: #6ee7a0; box-shadow: 0 0 14px rgba(110, 231, 160, .35); }
+.afk-last[data-r="rare"] { border-color: #ffd166; box-shadow: 0 0 22px rgba(255, 209, 102, .6), inset 0 0 18px rgba(255, 209, 102, .18); }
+.afk-last.pop > * { animation: afk-pop .7s cubic-bezier(.2, 1.4, .4, 1) both; } @keyframes afk-pop { from { opacity: 0; transform: scale(.5) rotate(-8deg); } }
+.afk-wait { opacity: .6; font-size: 1.2em; }
+.afk-last .gx-icon.big { font-size: 5em; } .afk-deco { width: 5em; height: 3.2em; border-radius: 6px; padding: .6em .8em; display: flex; flex-direction: column; gap: .35em; justify-content: center; border: 1px solid rgba(255, 255, 255, .5); }
+.afk-deco i { display: block; height: .3em; border-radius: .3em; background: rgba(255, 255, 255, .55); width: 80%; } .afk-deco i + i { width: 55%; }
+.afk-deco.big { font-size: 1.8em; }
+.afk-lname { font: 600 1.7em var(--afk-serif); } .afk-lrar { font-size: 1.1em; opacity: .85; letter-spacing: .08em; }
+.afk-last[data-r="uncommon"] .afk-lrar { color: #6ee7a0; } .afk-last[data-r="rare"] .afk-lrar { color: #ffd166; }
+.afk-new { display: inline-block; padding: 0 .6em; border-radius: 1em; background: #ff7ab8; color: #08080c; font: 700 .85em/1.6 var(--afk-serif); }
+.afk-rates { display: flex; gap: 1.2em; justify-content: center; margin-top: 1em; font-size: 1.05em; flex-wrap: wrap; }
+.afk-rates [data-r="uncommon"] { color: #6ee7a0; } .afk-rates [data-r="rare"] { color: #ffd166; } .afk-rates span { opacity: .9; }
+.afk-hist { list-style: none; display: flex; flex-direction: column; gap: .4em; max-height: 14em; overflow: auto; scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, .4) transparent; }
+.afk-hist li { display: flex; align-items: center; gap: .8em; padding: .3em .6em; border-left: 3px solid rgba(255, 255, 255, .4); background: rgba(255, 255, 255, .04); font-size: 1.1em; }
+.afk-hist li[data-r="uncommon"] { border-left-color: #6ee7a0; } .afk-hist li[data-r="rare"] { border-left-color: #ffd166; background: rgba(255, 209, 102, .08); }
+.afk-hist .gx-icon { font-size: 1.8em; } .afk-hist .afk-deco { width: 2.2em; height: 1.5em; padding: .25em .3em; gap: .15em; font-size: 1em; } .afk-hist .afk-deco i { height: .14em; }
+.afk-hist li span { flex: 1; }
+.afk-flash { position: fixed; inset: 0; z-index: 20; pointer-events: none; background: radial-gradient(circle, rgba(255, 224, 140, .55), transparent 70%); opacity: 0; } .afk-flash.go { animation: afk-flash .9s ease-out; } @keyframes afk-flash { 0% { opacity: 0; } 15% { opacity: 1; } 100% { opacity: 0; } }
+/* 図鑑 */
+.afk-dexsum { display: flex; gap: 1.2em; flex-wrap: wrap; margin-bottom: 1em; font-size: 1.2em; }
+.afk-sum { padding: .35em 1em; border: 1px solid rgba(255, 255, 255, .5); border-radius: 2em; background: rgba(0, 0, 0, .55); } .afk-sum.all { background: #fff; color: #08080c; } .afk-sum[data-r="uncommon"] { border-color: #6ee7a0; } .afk-sum[data-r="rare"] { border-color: #ffd166; }
+.afk-h3 { font: 500 1.6em var(--afk-serif); margin: 1.2em 0 .6em; }
+.afk-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(11.5em, 1fr)); gap: .9em; }
+.afk-item { display: flex; flex-direction: column; align-items: center; gap: .5em; padding: .9em .7em; border: 1px solid rgba(255, 255, 255, .45); border-radius: 3px; background: linear-gradient(180deg, rgba(6, 6, 8, .9), rgba(3, 3, 5, .94)); text-align: center; }
+.afk-item[data-r="uncommon"] { border-color: rgba(110, 231, 160, .75); } .afk-item[data-r="rare"] { border-color: #ffd166; box-shadow: 0 0 14px rgba(255, 209, 102, .35); }
+.afk-item.equipped { box-shadow: 0 0 0 2px #fff, 0 0 18px rgba(255, 255, 255, .5); }
+.afk-pv { position: relative; height: 4.2em; display: grid; place-items: center; } .afk-item .gx-icon { font-size: 3.6em; } .afk-item .afk-deco { font-size: 1.2em; }
+.afk-item.locked .afk-pv > :not(.afk-q) { filter: grayscale(1) brightness(.25) contrast(1.2); }
+.afk-q { position: absolute; inset: 0; display: grid; place-items: center; font: 600 2.2em var(--afk-serif); opacity: .75; }
+.afk-iname { font: 500 1.2em var(--afk-serif); min-height: 1.3em; }
+.afk-imeta { display: flex; gap: .7em; align-items: center; font-size: .95em; } .afk-rar { opacity: .75; letter-spacing: .06em; } .afk-item[data-r="uncommon"] .afk-rar { color: #6ee7a0; opacity: 1; } .afk-item[data-r="rare"] .afk-rar { color: #ffd166; opacity: 1; }
+.afk-cnt { font: 600 1.2em var(--afk-serif); }
+.afk-use { margin-top: .2em; padding: .35em 1.2em; border: 1px solid #fff; border-radius: 2em; background: rgba(0, 0, 0, .45); font-size: 1em; transition: box-shadow .2s, background .2s; } .afk-use:hover:not(:disabled) { box-shadow: 0 0 12px rgba(255, 255, 255, .6); background: rgba(255, 255, 255, .12); }
+.afk-item.equipped .afk-use { background: #fff; color: #08080c; }
+@media (max-width: 900px) { .afk-grid { grid-template-columns: 1fr; } .afk-page { padding: 1em 1em 2em; } .afk-clock { font-size: 4em; } .afk-tabs { margin-left: 0; } }
+@media (prefers-reduced-motion: reduce) { .afk-page, body[data-view="afk"] #afk-view { animation: none; } .gx-icon[data-r="rare"]::after, .gx-deco[data-r="rare"]::after { animation: none; } }

@@ -31,4 +31,5 @@
 `firestore.rules` / `database.rules.json` を変更したときは、Firebase コンソールのそれぞれの「ルール」タブに、ファイルの全文を貼り付けて「公開」してください(サイトを更新しても、ルールは自動では変わりません)。
 友だちのログが Recent log やプロフィールに出ないときは、Firestore のルールが古いままになっています。
 **お知らせ**(ヘッダーの Notice)も、`firestore.rules` の `announcements` のルールを公開しないと表示も投稿もできません。「みんなの今日」(お知らせの下のタブ)も、同じ `firestore.rules` の `dailyPosts` のルールが必要です。
+AFK のガチャで当てたアイコン・背景の飾りをプロフィールに付けるには、`firestore.rules` の `users` の `icon` / `deco` のルールが必要です(ルールの公開をやり直してください)。
 お知らせを出せるのは `hireo559@gmail.com` のアカウントだけです(`firestore.rules` の `isOwner()` と `notices.js` の `OWNER`)。

@@ -1,0 +1,90 @@
+// AFK のガチャの景品: プロフィールで使えるアイコン(icon)と、プロフィールの背景の飾り(deco)。
+// レア度: COMMON(70%)=シンプルな色 / UNCOMMON(25%)=少しグラデーション / RARE(5%)=少し光る。
+// id は Firestore(users/{uid} の icon / deco)にも入るので、英小文字・数字・ハイフンだけにする(firestore.rules の形式と同じ)。
+export const RARITIES = ['common', 'uncommon', 'rare'];
+export const RATES = { common: 0.70, uncommon: 0.25, rare: 0.05 };
+export const RARITY_LABEL = { common: 'COMMON', uncommon: 'UNCOMMON', rare: 'RARE' };
+export const ID_PATTERN = /^[a-z0-9-]{1,32}$/;
+
+const GLYPHS = {
+  star: 'M12 2.5l2.9 6.1 6.6.9-4.8 4.6 1.2 6.6L12 17.400 6.100 20.700l1.200-6.600L2.500 9.500l6.600-.9z',
+  heart: 'M12 21s-7.500-4.600-9.500-9.200C1.200 8.200 3.400 5 6.600 5c2 0 3.500 1.100 5.400 3.200C13.900 6.100 15.400 5 17.400 5c3.200 0 5.400 3.200 4.100 6.800C19.500 16.400 12 21 12 21z',
+  moon: 'M20 14.500A8.500 8.500 0 0 1 9.500 4 8.500 8.500 0 1 0 20 14.500z',
+  bolt: 'M13 2L4.500 13.500H11L10 22l9-12h-6.500z',
+  leaf: 'M5 19C5 9 11 4 20 4c0 9-5 15-15 15z',
+  drop: 'M12 2.500c4 4.500 6.500 7.500 6.500 11a6.500 6.500 0 0 1-13 0c0-3.500 2.500-6.500 6.500-11z',
+  flame: 'M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3.500 2-4.500 0 2 1 3 2 3 0-3 0-6 1-9.500z',
+  crown: 'M3 8l4.500 4L12 5l4.500 7L21 8l-2 11H5z',
+  diamond: 'M12 3l8 6-8 12L4 9z',
+};
+// [id, 種類, レア度, 色1, 色2(グラデーション・光), 形, [English, 日本語, 中文]]
+const I = (id, r, c1, c2, glyph, names) => ({ id, type: 'icon', rarity: r, c1, c2, glyph, names });
+const D = (id, r, c1, c2, c3, names) => ({ id, type: 'deco', rarity: r, c1, c2, c3, names });
+export const ITEMS = [
+  // ---- アイコン: COMMON(単色) ----
+  I('i-red-star', 'common', '#e5534b', '#e5534b', 'star', ['Red Star', '赤い星', '红星']),
+  I('i-pink-heart', 'common', '#e86aa6', '#e86aa6', 'heart', ['Pink Heart', 'ピンクのハート', '粉色爱心']),
+  I('i-slate-moon', 'common', '#5b6b8c', '#5b6b8c', 'moon', ['Slate Moon', 'くすんだ月', '灰蓝月亮']),
+  I('i-amber-bolt', 'common', '#e0a526', '#e0a526', 'bolt', ['Amber Bolt', '琥珀の稲妻', '琥珀闪电']),
+  I('i-green-leaf', 'common', '#3fa66b', '#3fa66b', 'leaf', ['Green Leaf', '緑の葉', '绿叶']),
+  I('i-blue-drop', 'common', '#3b82d6', '#3b82d6', 'drop', ['Blue Drop', '青いしずく', '蓝色水滴']),
+  // ---- アイコン: UNCOMMON(グラデーション) ----
+  I('i-ember-flame', 'uncommon', '#ff9a3c', '#ff3d6e', 'flame', ['Ember Flame', '燃える炎', '余烬火焰']),
+  I('i-sun-crown', 'uncommon', '#ffd45a', '#ff9f43', 'crown', ['Sun Crown', '太陽の王冠', '太阳王冠']),
+  I('i-frost-diamond', 'uncommon', '#4fd1ff', '#7b5bff', 'diamond', ['Frost Diamond', '氷のダイヤ', '冰晶钻石']),
+  I('i-meadow-leaf', 'uncommon', '#7ee08a', '#1fa39a', 'leaf', ['Meadow Leaf', '草原の葉', '草地之叶']),
+  // ---- アイコン: RARE(光る) ----
+  I('i-gold-star', 'rare', '#ffe27a', '#ffb300', 'star', ['Golden Star', '黄金の星', '黄金之星']),
+  I('i-lunar-moon', 'rare', '#c9d6ff', '#7c8cff', 'moon', ['Lunar Glow', '月光', '月华']),
+  I('i-inferno-flame', 'rare', '#ff7a59', '#ff2e63', 'flame', ['Inferno', '業火', '烈焰']),
+  // ---- 背景の飾り: COMMON(単色) ----
+  D('d-sky', 'common', '#cfe3ff', '#cfe3ff', '', ['Sky', '空色', '天空蓝']),
+  D('d-mint', 'common', '#cdeedd', '#cdeedd', '', ['Mint', 'ミント', '薄荷绿']),
+  D('d-peach', 'common', '#ffdcc8', '#ffdcc8', '', ['Peach', 'もも色', '蜜桃色']),
+  D('d-lilac', 'common', '#e1d5f7', '#e1d5f7', '', ['Lilac', 'ライラック', '丁香紫']),
+  D('d-lemon', 'common', '#fff2b3', '#fff2b3', '', ['Lemon', 'レモン', '柠檬黄']),
+  D('d-rose', 'common', '#ffd3df', '#ffd3df', '', ['Rose', 'ローズ', '玫瑰粉']),
+  // ---- 背景の飾り: UNCOMMON(グラデーション) ----
+  D('d-sunset', 'uncommon', '#ffd1a8', '#ffa6c9', '', ['Sunset', '夕焼け', '日落']),
+  D('d-ocean', 'uncommon', '#a8e6ff', '#9aa8ff', '', ['Ocean', '海', '海洋']),
+  D('d-forest', 'uncommon', '#c4f0c2', '#7fd1b9', '', ['Forest', '森', '森林']),
+  D('d-dusk', 'uncommon', '#d6b8ff', '#8fb3ff', '', ['Dusk', '黄昏', '黄昏']),
+  // ---- 背景の飾り: RARE(光る) ----
+  D('d-aurora', 'rare', '#7cf3c8', '#7aa8ff', '#d28bff', ['Aurora', 'オーロラ', '极光']),
+  D('d-gold', 'rare', '#ffe08a', '#ffb347', '#ffe9a8', ['Gilded', '金の輝き', '鎏金']),
+  D('d-starlight', 'rare', '#2a2f6b', '#6a4cc4', '#9c7bff', ['Starlight', '星あかり', '星光']),
+];
+export const BY_ID = Object.fromEntries(ITEMS.map(i => [i.id, i]));
+export const itemName = (item, lang) => item.names[{ en: 0, ja: 1, zh: 2 }[lang] ?? 0];
+
+// ---- ガチャを1回引く(乱数は crypto から。レア度 → そのレア度の中から均等に) ----
+const rand = () => crypto.getRandomValues(new Uint32Array(1))[0] / 4294967296;
+export function pickRarity(r = rand()) { return r < RATES.common ? 'common' : r < RATES.common + RATES.uncommon ? 'uncommon' : 'rare'; }
+export function pull(r1 = rand(), r2 = rand()) {
+  const pool = ITEMS.filter(i => i.rarity === pickRarity(r1));
+  return pool[Math.min(pool.length - 1, Math.floor(r2 * pool.length))];
+}
+
+// ---- 見た目 ----
+const NS = 'http://www.w3.org/2000/svg';
+// アイコン: 色の丸の中に、白い形(大きさは font-size で決まる)
+export function iconEl(item, extraClass = '') {
+  const s = document.createElement('span');
+  s.className = `gx-icon ${extraClass}`.trim(); s.dataset.r = item.rarity;
+  s.style.setProperty('--c1', item.c1); s.style.setProperty('--c2', item.c2);
+  const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('viewBox', '0 0 24 24'); svg.setAttribute('aria-hidden', 'true');
+  const p = document.createElementNS(NS, 'path'); p.setAttribute('d', GLYPHS[item.glyph]); svg.append(p); s.append(svg);
+  return s;
+}
+// 背景の飾り: 要素に、クラスと色を付ける(item が null なら外す)。中身の文字が読めるよう、上に薄い膜を重ねる(色は CSS 側)
+export function applyDeco(node, item) {
+  node.classList.remove('gx-deco');
+  node.removeAttribute('data-r');
+  for (const k of ['--g', '--glow']) node.style.removeProperty(k);
+  if (!item || item.type !== 'deco') return;
+  const bg = item.rarity === 'common' ? item.c1
+    : item.rarity === 'uncommon' ? `linear-gradient(135deg, ${item.c1}, ${item.c2})`
+    : `linear-gradient(135deg, ${item.c1}, ${item.c2} 55%, ${item.c3})`;
+  node.classList.add('gx-deco'); node.dataset.r = item.rarity;
+  node.style.setProperty('--g', bg); node.style.setProperty('--glow', item.c2);
+}

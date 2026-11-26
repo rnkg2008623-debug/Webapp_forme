@@ -1,20 +1,21 @@
 // ホーム画面はログイン済みのユーザーだけが見られる。未ログインならログイン画面へ戻す。
-import { onUser, logOut } from './auth.js?v=98';
-import { t, getLang, setLang } from './i18n.js?v=98';
-import { mountFriends } from './friends-ui.js?v=98';
-import { mountProfile } from './profile.js?v=98';
-import { mountTimer } from './timer.js?v=98';
-import { mountPomodoro } from './pomodoro.js?v=98';
-import { startLogs } from './logs-store.js?v=98';
-import { mountRecent } from './recent.js?v=98';
-import { mountManual } from './manual.js?v=98';
-import { mountNotices } from './notices.js?v=98';
-import { mountCompare } from './compare.js?v=98';
-import './theme.js?v=98';
-import { mountMock } from './mock.js?v=98';
-import { mountEio } from './eio.js?v=98';
-import { mountNotes } from './notes.js?v=98';
-import { mountBgVideo } from './bgvideo.js?v=98';
+import { onUser, logOut } from './auth.js?v=100';
+import { t, getLang, setLang } from './i18n.js?v=100';
+import { mountFriends } from './friends-ui.js?v=100';
+import { mountProfile } from './profile.js?v=100';
+import { mountTimer } from './timer.js?v=100';
+import { mountPomodoro } from './pomodoro.js?v=100';
+import { startLogs } from './logs-store.js?v=100';
+import { mountRecent } from './recent.js?v=100';
+import { mountManual } from './manual.js?v=100';
+import { mountNotices } from './notices.js?v=100';
+import { mountCompare } from './compare.js?v=100';
+import './theme.js?v=100';
+import { mountAfk } from './afk.js?v=100';
+import { mountMock } from './mock.js?v=100';
+import { mountEio } from './eio.js?v=100';
+import { mountNotes } from './notes.js?v=100';
+import { mountBgVideo } from './bgvideo.js?v=100';
 
 let social;
 onUser(async user => {
@@ -27,7 +28,7 @@ onUser(async user => {
   try { mountNotes(user); } catch (e) { console.error('Notesを開始できませんでした', e); }
   mountBgVideo().catch(e => console.error('背景動画を開始できませんでした', e));
   mountNotices(user).catch(e => console.error('お知らせを開始できませんでした', e));
-  try { social = await mountFriends(user); mountProfile(user, social).catch(e => console.error('プロフィールを開始できませんでした', e)); startLogs(user).catch(e => console.error('学習ログを読み込めませんでした', e)); mountRecent(); mountManual(user); mountTimer(user).catch(e => console.error('タイマーを開始できませんでした', e)); mountPomodoro(user).catch(e => console.error('Pomodoroを開始できませんでした', e)); }
+  try { social = await mountFriends(user); mountProfile(user, social).catch(e => console.error('プロフィールを開始できませんでした', e)); try { mountAfk(user, social); } catch (e) { console.error('AFKを開始できませんでした', e); } startLogs(user).catch(e => console.error('学習ログを読み込めませんでした', e)); mountRecent(); mountManual(user); mountTimer(user).catch(e => console.error('タイマーを開始できませんでした', e)); mountPomodoro(user).catch(e => console.error('Pomodoroを開始できませんでした', e)); }
   catch (e) { console.error('フレンド機能を開始できませんでした', e); document.getElementById('friend-list').replaceChildren(Object.assign(document.createElement('li'), { className: 'fm-empty', textContent: t('fr.loadFail') })); }
 });
 
