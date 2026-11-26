@@ -106,3 +106,23 @@ body[data-view="afk"] #afk-view { display: block; animation: page-in .5s ease bo
 .afk-item.equipped .afk-use { background: #fff; color: #08080c; }
 @media (max-width: 900px) { .afk-grid { grid-template-columns: 1fr; } .afk-page { padding: 1em 1em 2em; } .afk-clock { font-size: 4em; } .afk-tabs { margin-left: 0; } }
 @media (prefers-reduced-motion: reduce) { .afk-page, body[data-view="afk"] #afk-view { animation: none; } .gx-icon[data-r="rare"]::after, .gx-deco[data-r="rare"]::after { animation: none; } }
+
+/* ---------- イラスト素材(RARE): リング・背景カード・名札 ---------- */
+.gx-ringimg::before { display: none; }
+.gx-ring { position: absolute; width: 145%; height: 145%; left: -22.5%; top: -22.5%; max-width: none; z-index: 3; pointer-events: none; user-select: none; filter: drop-shadow(0 0 4px rgba(120, 140, 255, .55)); animation: gx-ringglow 3.4s ease-in-out infinite; }
+@keyframes gx-ringglow { 50% { filter: drop-shadow(0 0 9px rgba(150, 170, 255, .95)); } }
+.gx-sample .gx-ring { z-index: 1; }
+html .gx-deco.gx-img { --ovg: linear-gradient(90deg, rgba(255, 255, 255, .66), rgba(255, 255, 255, .4) 42%, rgba(255, 255, 255, .55)); background: var(--ovg), var(--g); }
+html[data-theme="neon"] .gx-deco.gx-img { --ovg: linear-gradient(90deg, rgba(6, 6, 12, .55), rgba(6, 6, 12, .2) 45%, rgba(6, 6, 12, .55)); }
+html .gx-deco.gx-img::after { background: linear-gradient(110deg, transparent 38%, rgba(255, 255, 255, .35) 50%, transparent 62%); }
+.gx-plate { height: 1.7em; width: auto; max-width: 11em; margin-left: .6em; vertical-align: middle; display: inline-block; pointer-events: none; user-select: none; filter: drop-shadow(0 1px 3px rgba(40, 60, 120, .3)); }
+.fo-name .gx-plate, .fo-me-name .gx-plate { height: 1.5em; }
+.pf-name .gx-plate { height: .9em; margin-left: .5em; }
+.afk-plate { padding: .3em; display: grid; place-items: center; } .afk-plate .gx-plate { margin: 0; height: 2.6em; max-width: 100%; } .afk-plate.big .gx-plate { height: 4em; }
+.afk-hist .afk-plate .gx-plate { height: 1.5em; } .afk-hist .afk-plate { padding: 0; }
+.afk-items.wide { grid-template-columns: repeat(auto-fill, minmax(17em, 1fr)); } .afk-items.wide .afk-plate .gx-plate { height: 3.2em; }
+.afk-deco.gx-img { width: 7em; height: 3.2em; } .afk-deco.gx-img i { display: none; }
+.afk-item .afk-deco.gx-img { font-size: 1.1em; } .afk-hist .afk-deco.gx-img { width: 3.6em; height: 1.5em; }
+@media (prefers-reduced-motion: reduce) { .gx-ring { animation: none; } }
+.gx-deco.gx-img .fo-desc, .gx-deco.gx-img .pf-desc { color: #3f4a68; text-shadow: 0 0 6px rgba(255, 255, 255, .8); }
+html[data-theme="neon"] .gx-deco.gx-img .fo-desc, html[data-theme="neon"] .gx-deco.gx-img .pf-desc { color: #dfe4ff; text-shadow: 0 0 6px rgba(0, 0, 0, .8); }

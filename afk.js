@@ -1,13 +1,13 @@
 // AFK(ネオンのときだけ): タイマーを動かしている間、一定の間隔(初期設定10秒)で、自動でガチャを引く。
 // 景品は、プロフィールで使えるアイコンと、プロフィールの背景の飾り。図鑑で、どれを何個持っているか見られて、そこから使うものを選べる。
 // 回数や持ち物は、このブラウザに、アカウントごとに保存する。使うものに選んだ景品は、Firestore(プロフィール)に入るので、他の人にも見える。
-import { createGpuView } from './gpu-view.js?v=102';
-import { WGSL } from './physics-bg.js?v=102';
-import { firestore } from './auth.js?v=102';
-import { onState } from './friends-ui.js?v=102';
-import { unlockAudio, beep } from './sound.js?v=102';
-import { t, getLang } from './i18n.js?v=102';
-import { ITEMS, BY_ID, RATES, RARITIES, RARITY_LABEL, itemName, pull, frameSample, applyDeco } from './gacha-items.js?v=102';
+import { createGpuView } from './gpu-view.js?v=104';
+import { WGSL } from './physics-bg.js?v=104';
+import { firestore } from './auth.js?v=104';
+import { onState } from './friends-ui.js?v=104';
+import { unlockAudio, beep } from './sound.js?v=104';
+import { t, getLang } from './i18n.js?v=104';
+import { ITEMS, BY_ID, RATES, RARITIES, RARITY_LABEL, itemName, pull, frameSample, applyDeco, plateImg } from './gacha-items.js?v=104';
 
 const host = document.getElementById('afk-view');
 const stage = document.getElementById('afk-stage');
@@ -15,7 +15,7 @@ const $ = id => document.getElementById(id);
 const pad2 = n => String(n).padStart(2, '0');
 const MAX_MIN = 720, DEFAULT_MIN = 25, DEFAULT_SEC = 10, MIN_SEC = 3, MAX_SEC = 3600;   // タイマーの最大は12時間(学習ログの上限と同じ)
 
-let uid = '', f = null, db = null, social = null, me = { icon: '', deco: '' };
+let uid = '', f = null, db = null, social = null, me = { icon: '', deco: '', plate: '' };
 let data = { inv: {}, pulls: 0, sec: DEFAULT_SEC, minutes: DEFAULT_MIN };
 const key = () => `afk:v1:${uid}`;
 function load() {
@@ -115,11 +115,12 @@ function doPull() {
 }
 function preview(it, big) {
   if (it.type === 'icon') return frameSample(it, big ? 'big' : '');
+  if (it.type === 'plate') { const w = document.createElement('div'); w.className = `afk-plate ${big ? 'big' : ''}`; w.append(plateImg(it)); return w; }
   const d = document.createElement('div'); d.className = `afk-deco ${big ? 'big' : ''}`; applyDeco(d, it);
   const l1 = document.createElement('i'), l2 = document.createElement('i'); d.append(l1, l2);
   return d;
 }
-const typeLabel = it => t(it.type === 'icon' ? 'afk.typeIcon' : 'afk.typeDeco');
+const typeLabel = it => t(it.type === 'icon' ? 'afk.typeIcon' : it.type === 'plate' ? 'afk.typePlate' : 'afk.typeDeco');
 function showResult(it, isNew) {
   const box = $('afk-last');
   box.dataset.r = it.rarity; box.classList.remove('pop'); void box.offsetWidth; box.classList.add('pop');
@@ -162,7 +163,7 @@ function renderDex() {
   const sum = RARITIES.map(r => { const all = ITEMS.filter(i => i.rarity === r), got = all.filter(i => data.inv[i.id]).length; return `<span class="afk-sum" data-r="${r}"><b>${RARITY_LABEL[r]}</b> ${got}/${all.length}</span>`; }).join('');
   $('afk-dexsum').innerHTML = `<span class="afk-sum all"><b>${t('afk.collected')}</b> ${owned()}/${ITEMS.length}</span>${sum}`;
   const grid = (type, id) => $(id).replaceChildren(...ITEMS.filter(i => i.type === type).map(card));
-  grid('icon', 'afk-icons'); grid('deco', 'afk-decos');
+  grid('icon', 'afk-icons'); grid('deco', 'afk-decos'); grid('plate', 'afk-plates');
 }
 async function use(id) {
   const it = BY_ID[id]; if (!it || !data.inv[id] || !social) return;
@@ -204,6 +205,7 @@ function build() {
       <div class="afk-dexsum" id="afk-dexsum"></div><p class="afk-msg" id="afk-dexmsg" role="status" hidden></p>
       <h3 class="afk-h3">${t('afk.icons')}</h3><div class="afk-items" id="afk-icons"></div>
       <h3 class="afk-h3">${t('afk.decos')}</h3><div class="afk-items" id="afk-decos"></div>
+      <h3 class="afk-h3">${t('afk.plates')}</h3><div class="afk-items wide" id="afk-plates"></div>
     </section>
     <div class="afk-flash" id="afk-flash" aria-hidden="true"></div></div>`;
   syncInputs(); renderStats(); renderTimer();
@@ -243,6 +245,6 @@ export const afk = { start: () => { punch = performance.now() / 1000; return vie
 export function mountAfk(user, api) {
   uid = user.uid; social = api; data = load();
   build(); wire();
-  onState(s => { me = { icon: s.me?.icon || '', deco: s.me?.deco || '' }; if (!$('afk-dex').hidden) renderDex(); });
+  onState(s => { me = { icon: s.me?.icon || '', deco: s.me?.deco || '', plate: s.me?.plate || '' }; if (!$('afk-dex').hidden) renderDex(); });
   firestore().then(x => { ({ m: f, db } = x); }).catch(() => {});
 }

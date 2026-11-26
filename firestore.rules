@@ -15,10 +15,11 @@ service cloud.firestore {
     }
     // オーナーのアカウント(お知らせを出せるのはこのメールアドレスだけ)
     function isOwner() { return signedIn() && request.auth.token.email == 'hireo559@gmail.com'; }
-    // ガチャで当てた、プロフィールのアイコン / 背景の飾りの id(英小文字・数字・ハイフンだけ。無くてもよい)
+    // ガチャで当てた、プロフィールのアイコンの枠 / 背景カード / 名札の id(英小文字・数字・ハイフンだけ。無くてもよい)
     function validCosmetic(d) {
       return (!('icon' in d) || (d.icon is string && d.icon.matches('^[a-z0-9-]{1,32}$')))
-          && (!('deco' in d) || (d.deco is string && d.deco.matches('^[a-z0-9-]{1,32}$')));
+          && (!('deco' in d) || (d.deco is string && d.deco.matches('^[a-z0-9-]{1,32}$')))
+          && (!('plate' in d) || (d.plate is string && d.plate.matches('^[a-z0-9-]{1,32}$')));
     }
     function validDesc(d) { return !('description' in d) || (d.description is string && d.description.size() <= 60); }
 
@@ -32,7 +33,7 @@ service cloud.firestore {
         && validPhoto(request.resource.data)
         && getAfter(/databases/$(database)/documents/friendCodes/$(request.resource.data.friendCode)).data.uid == uid();
       allow update: if signedIn() && userId == uid()
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName', 'description', 'photo', 'icon', 'deco'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName', 'description', 'photo', 'icon', 'deco', 'plate'])
         && validName(request.resource.data.displayName)
         && validDesc(request.resource.data)
         && validPhoto(request.resource.data)

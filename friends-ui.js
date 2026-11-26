@@ -1,8 +1,8 @@
 // フレンド機能の画面: 右サイドバーの一覧と、ページの上に重ねて表示するフレンドUI
 //   左のレール: 人のマーク = フレンド一覧 / 人+のマーク = フレンド申請
-import { startSocial, formatCode, socialMessage, LIMITS } from './social.js?v=102';
-import { t } from './i18n.js?v=102';
-import { errorMessage } from './auth.js?v=102';
+import { startSocial, formatCode, socialMessage, LIMITS } from './social.js?v=104';
+import { t } from './i18n.js?v=104';
+import { errorMessage } from './auth.js?v=104';
 
 const $ = id => document.getElementById(id);
 const LABELS = { online: 'Online', busy: 'Busy', offline: 'Offline' };
@@ -47,8 +47,8 @@ function textButton(label, className, onClick) {
   b.addEventListener('click', onClick);
   return b;
 }
-import { PHOTO_PATTERN } from './avatar-image.js?v=102';
-import { BY_ID, applyFrame } from './gacha-items.js?v=102';
+import { PHOTO_PATTERN } from './avatar-image.js?v=104';
+import { BY_ID, applyFrame, applyDeco, applyPlate } from './gacha-items.js?v=104';
 function avatar(id, name, status, photo, icon) {
   let h = 0;
   for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) % 360;
@@ -142,7 +142,8 @@ function friendsView(s) {
   const who = el('div', 'fo-me-who');
   who.append(avatar('me' + s.me.friendCode, s.me.displayName, s.myStatus, s.me.photo, s.me.icon), (() => {
     const text = el('div', 'fo-me-text');
-    text.append(el('div', 'fo-me-name', s.me.displayName), el('div', 'fo-desc', s.me.description || t('fr.noBio')));
+    const myName = el('div', 'fo-me-name', s.me.displayName); applyPlate(myName, BY_ID[s.me.plate]);
+    text.append(myName, el('div', 'fo-desc', s.me.description || t('fr.noBio')));
     return text;
   })());
   const seg = el('div', 'seg');
@@ -162,7 +163,9 @@ function friendsView(s) {
     const p = profile(s, fr.uid), st = statusOf(s, fr.uid), memo = s.memos[fr.uid];
     const card = el('article', 'fo-card');
     const info = el('div', 'fo-info');
-    info.append(nameLink(fr.uid, p.name, 'fo-name'), el('div', 'fo-desc', p.description || t('fr.noBio')));
+    const nameBtn = nameLink(fr.uid, p.name, 'fo-name'); applyPlate(nameBtn, BY_ID[p.plate]);   // 名札(名前の横)
+    applyDeco(card, BY_ID[p.deco]);                                                              // 背景カード(そのフレンドのカードの後ろ)
+    info.append(nameBtn, el('div', 'fo-desc', p.description || t('fr.noBio')));
     const studying = studyingText(s, fr.uid);
     if (studying) info.append(el('div', 'fo-study', studying));
     if (memo) info.append(el('div', 'fo-memo', t('fr.memoPrefix', { m: memo })));

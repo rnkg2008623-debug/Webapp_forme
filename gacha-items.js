@@ -20,6 +20,21 @@ const GLYPHS = {
 // [id, 種類, レア度, 色1, 色2(グラデーション・光), 形, [English, 日本語, 中文]]
 const I = (id, r, c1, c2, glyph, names) => ({ id, type: 'icon', rarity: r, c1, c2, glyph, names });
 const D = (id, r, c1, c2, c3, names) => ({ id, type: 'deco', rarity: r, c1, c2, c3, names });
+// RARE のイラスト素材(img/gacha/)。題材ごとに、リング・背景カード・名札の3つ
+const TITLES = [
+  ['shadow-walker', ['Shadow Walker', 'シャドウウォーカー', '暗影行者']],
+  ['flame-keeper', ['Flame Keeper', 'フレイムキーパー', '炎之守护者']],
+  ['moonlight-guardian', ['Moonlight Guardian', 'ムーンライトガーディアン', '月光守卫']],
+  ['stormbringer', ['Stormbringer', 'ストームブリンガー', '风暴使者']],
+  ['fate-seeker', ['Fate Seeker', 'フェイトシーカー', '寻命者']],
+  ['the-fearless', ['The Fearless', 'ザ・フィアレス', '无畏者']],
+];
+const IMG = 'img/gacha/';
+const RARE_SET = TITLES.flatMap(([slug, names]) => [
+  { id: `i-${slug}`, type: 'icon', rarity: 'rare', img: `${IMG}ring-${slug}.webp`, names },
+  { id: `d-${slug}`, type: 'deco', rarity: 'rare', img: `${IMG}bg-${slug}.webp`, names },
+  { id: `p-${slug}`, type: 'plate', rarity: 'rare', img: `${IMG}plate-${slug}.webp`, names },
+]);
 export const ITEMS = [
   // ---- アイコン: COMMON(単色) ----
   I('i-red-star', 'common', '#e5534b', '#e5534b', 'star', ['Red Ring', '赤いリング', '红色圆环']),
@@ -33,10 +48,6 @@ export const ITEMS = [
   I('i-sun-crown', 'uncommon', '#ffd45a', '#ff9f43', 'crown', ['Sun Ring', '太陽のリング', '太阳圆环']),
   I('i-frost-diamond', 'uncommon', '#4fd1ff', '#7b5bff', 'diamond', ['Frost Ring', '氷のリング', '冰晶圆环']),
   I('i-meadow-leaf', 'uncommon', '#7ee08a', '#1fa39a', 'leaf', ['Meadow Ring', '草原のリング', '草地圆环']),
-  // ---- アイコン: RARE(光る) ----
-  I('i-gold-star', 'rare', '#ffe27a', '#ffb300', 'star', ['Golden Halo', '黄金のかがやき', '金色光环']),
-  I('i-lunar-moon', 'rare', '#c9d6ff', '#7c8cff', 'moon', ['Lunar Halo', '月のかがやき', '月光光环']),
-  I('i-inferno-flame', 'rare', '#ff7a59', '#ff2e63', 'flame', ['Inferno Halo', '業火のかがやき', '烈焰光环']),
   // ---- 背景の飾り: COMMON(単色) ----
   D('d-sky', 'common', '#cfe3ff', '#cfe3ff', '', ['Sky', '空色', '天空蓝']),
   D('d-mint', 'common', '#cdeedd', '#cdeedd', '', ['Mint', 'ミント', '薄荷绿']),
@@ -49,10 +60,8 @@ export const ITEMS = [
   D('d-ocean', 'uncommon', '#a8e6ff', '#9aa8ff', '', ['Ocean', '海', '海洋']),
   D('d-forest', 'uncommon', '#c4f0c2', '#7fd1b9', '', ['Forest', '森', '森林']),
   D('d-dusk', 'uncommon', '#d6b8ff', '#8fb3ff', '', ['Dusk', '黄昏', '黄昏']),
-  // ---- 背景の飾り: RARE(光る) ----
-  D('d-aurora', 'rare', '#7cf3c8', '#7aa8ff', '#d28bff', ['Aurora', 'オーロラ', '极光']),
-  D('d-gold', 'rare', '#ffe08a', '#ffb347', '#ffe9a8', ['Gilded', '金の輝き', '鎏金']),
-  D('d-starlight', 'rare', '#2a2f6b', '#6a4cc4', '#9c7bff', ['Starlight', '星あかり', '星光']),
+  // ---- RARE(イラスト): アイコンのリング / 背景カード / 名札(名前の横)。同じ6つの題材で、セットになっている ----
+  ...RARE_SET,
 ];
 export const BY_ID = Object.fromEntries(ITEMS.map(i => [i.id, i]));
 export const itemName = (item, lang) => item.names[{ en: 0, ja: 1, zh: 2 }[lang] ?? 0];
@@ -78,10 +87,15 @@ export function iconEl(item, extraClass = '') {
 }
 // 背景の飾り: 要素に、クラスと色を付ける(item が null なら外す)。中身の文字が読めるよう、上に薄い膜を重ねる(色は CSS 側)
 export function applyDeco(node, item) {
-  node.classList.remove('gx-deco');
+  node.classList.remove('gx-deco', 'gx-img');
   node.removeAttribute('data-r');
   for (const k of ['--g', '--glow']) node.style.removeProperty(k);
   if (!item || item.type !== 'deco') return;
+  if (item.img) {   // イラストの背景カード
+    node.classList.add('gx-deco', 'gx-img'); node.dataset.r = item.rarity;
+    node.style.setProperty('--g', `url("${item.img}") center / cover no-repeat`); node.style.setProperty('--glow', '#7c8cff');
+    return;
+  }
   const bg = item.rarity === 'common' ? item.c1
     : item.rarity === 'uncommon' ? `linear-gradient(135deg, ${item.c1}, ${item.c2})`
     : `linear-gradient(135deg, ${item.c1}, ${item.c2} 55%, ${item.c3})`;
@@ -91,11 +105,17 @@ export function applyDeco(node, item) {
 
 // アイコンの飾り枠: アバターのまわりに、リングと、角の小さな印を付ける(item が null なら外す)。リングの見た目は CSS(.gx-frame)
 export function applyFrame(node, item) {
-  node.classList.remove('gx-frame');
+  node.classList.remove('gx-frame', 'gx-ringimg');
   node.removeAttribute('data-fr');
   node.querySelector(':scope > .gx-orn')?.remove();
+  node.querySelector(':scope > .gx-ring')?.remove();
   for (const k of ['--c1', '--c2']) node.style.removeProperty(k);
   if (!item || item.type !== 'icon') return;
+  if (item.img) {   // イラストのリング: アバターの上から重ねる(中は透明)
+    node.classList.add('gx-frame', 'gx-ringimg'); node.dataset.fr = item.rarity;
+    const im = document.createElement('img'); im.className = 'gx-ring'; im.src = item.img; im.alt = ''; im.decoding = 'async'; im.draggable = false;
+    node.append(im); return;
+  }
   node.classList.add('gx-frame'); node.dataset.fr = item.rarity;
   node.style.setProperty('--c1', item.c1); node.style.setProperty('--c2', item.c2);
   const orn = document.createElement('span'); orn.className = 'gx-orn'; orn.setAttribute('aria-hidden', 'true'); orn.append(iconEl(item));
@@ -106,3 +126,12 @@ export function frameSample(item, extraClass = '') {
   const s = document.createElement('span'); s.className = `gx-sample ${extraClass}`.trim();
   applyFrame(s, item); return s;
 }
+
+// 名札: 名前の横に、小さく並べる(item が null なら外す)。node の中に <img> を足す
+export function applyPlate(node, item) {
+  node.querySelectorAll(':scope > .gx-plate').forEach(n => n.remove());
+  if (!item || item.type !== 'plate') return;
+  const im = document.createElement('img'); im.className = 'gx-plate'; im.src = item.img; im.alt = item.names[0]; im.decoding = 'async'; im.draggable = false;
+  node.append(im);
+}
+export const plateImg = item => { const im = document.createElement('img'); im.className = 'gx-plate flat'; im.src = item.img; im.alt = item.names[0]; im.decoding = 'async'; im.draggable = false; return im; };

@@ -1,6 +1,6 @@
 // フレンド機能のデータ層: プロフィール・フレンドコード・申請・フレンド(Firestore)と、オンライン状態(Realtime Database)
-import { firestore, realtime } from './auth.js?v=102';
-import { t, hasKey } from './i18n.js?v=102';
+import { firestore, realtime } from './auth.js?v=104';
+import { t, hasKey } from './i18n.js?v=104';
 
 const ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // 0/O, 1/I/L など紛らわしい文字を除く
 const genCode = () => Array.from(crypto.getRandomValues(new Uint8Array(8)), b => ALPHABET[b % ALPHABET.length]).join('');
@@ -43,7 +43,7 @@ export async function startSocial(user, render) {
     }
   }
   const mine = await ensureProfile();
-  state.me = { displayName: mine.displayName, description: mine.description || '', friendCode: mine.friendCode, photo: mine.photo || '', icon: mine.icon || '', deco: mine.deco || '' };
+  state.me = { displayName: mine.displayName, description: mine.description || '', friendCode: mine.friendCode, photo: mine.photo || '', icon: mine.icon || '', deco: mine.deco || '', plate: mine.plate || '' };
 
   // 相手のプロフィールは、変更がすぐ反映されるよう購読しておく
   const profileSubs = new Map();
@@ -51,9 +51,9 @@ export async function startSocial(user, render) {
     if (profileSubs.has(id)) return;
     profileSubs.set(id, f.onSnapshot(f.doc(db, 'users', id), s => {
       const d = s.exists() ? s.data() : null;
-      state.profiles[id] = { name: d?.displayName ?? t('user.unknown'), description: d?.description ?? '', photo: d?.photo ?? '', friendCode: d?.friendCode ?? '', icon: d?.icon ?? '', deco: d?.deco ?? '' };
+      state.profiles[id] = { name: d?.displayName ?? t('user.unknown'), description: d?.description ?? '', photo: d?.photo ?? '', friendCode: d?.friendCode ?? '', icon: d?.icon ?? '', deco: d?.deco ?? '', plate: d?.plate ?? '' };
       notify();
-    }, () => { state.profiles[id] = { name: t('user.unknown'), description: '', photo: '', friendCode: '', icon: '', deco: '' }; notify(); }));
+    }, () => { state.profiles[id] = { name: t('user.unknown'), description: '', photo: '', friendCode: '', icon: '', deco: '', plate: '' }; notify(); }));
   }
 
   // ---- オンライン状態(接続が切れると自動でオフラインになる) ----
@@ -148,7 +148,7 @@ export async function startSocial(user, render) {
     },
     // ガチャで当てたアイコン / 背景の飾りを、プロフィールに付ける(id=null で外す)。他の人にも見える
     async setCosmetic(kind, id) {
-      if (kind !== 'icon' && kind !== 'deco') throw fail('bad-kind');
+      if (kind !== 'icon' && kind !== 'deco' && kind !== 'plate') throw fail('bad-kind');
       if (id !== null && !/^[a-z0-9-]{1,32}$/.test(id)) throw fail('bad-id');
       await f.updateDoc(f.doc(db, 'users', uid), { [kind]: id === null ? f.deleteField() : id });
       state.me = { ...state.me, [kind]: id === null ? '' : id };

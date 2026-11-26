@@ -1,13 +1,13 @@
 // プロフィール画面: 自分の情報、学習の集計、日ごとの学習時間のグラフ、Log history
-import { firestore } from './auth.js?v=102';
-import { formatCode, socialMessage } from './social.js?v=102';
-import { t, logMeta } from './i18n.js?v=102';
-import { errorMessage } from './auth.js?v=102';
-import { loadImage } from './avatar-image.js?v=102';
-import { openCropper } from './crop.js?v=102';
-import { onState, editMyProfile, makeAvatar } from './friends-ui.js?v=102';
-import { BY_ID, applyDeco } from './gacha-items.js?v=102';
-import { computeStats, dailySeries, niceScale, relativeTime, sampleLogs } from './stats.js?v=102';
+import { firestore } from './auth.js?v=104';
+import { formatCode, socialMessage } from './social.js?v=104';
+import { t, logMeta } from './i18n.js?v=104';
+import { errorMessage } from './auth.js?v=104';
+import { loadImage } from './avatar-image.js?v=104';
+import { openCropper } from './crop.js?v=104';
+import { onState, editMyProfile, makeAvatar } from './friends-ui.js?v=104';
+import { BY_ID, applyDeco, applyPlate } from './gacha-items.js?v=104';
+import { computeStats, dailySeries, niceScale, relativeTime, sampleLogs } from './stats.js?v=104';
 
 const $ = id => document.getElementById(id);
 const el = (tag, className, text) => {
@@ -26,9 +26,9 @@ const LABELS = { online: 'Online', busy: 'Busy', offline: 'Offline' };
 
 // ---- 表示中の人の情報(自分、または友だち) ----
 function subjectInfo() {
-  if (isMe()) return state.me && { name: state.me.displayName, description: state.me.description, photo: state.me.photo, code: state.me.friendCode, key: 'me' + state.me.friendCode, icon: state.me.icon, deco: state.me.deco };
+  if (isMe()) return state.me && { name: state.me.displayName, description: state.me.description, photo: state.me.photo, code: state.me.friendCode, key: 'me' + state.me.friendCode, icon: state.me.icon, deco: state.me.deco, plate: state.me.plate };
   const fr = state.snap?.profiles[state.subject];
-  return fr && { name: fr.name, description: fr.description, photo: fr.photo, code: fr.friendCode, key: state.subject, icon: fr.icon, deco: fr.deco };
+  return fr && { name: fr.name, description: fr.description, photo: fr.photo, code: fr.friendCode, key: state.subject, icon: fr.icon, deco: fr.deco, plate: fr.plate };
 }
 const studyingText = p => {
   if (!p?.studying || p.state === 'offline') return '';
@@ -51,6 +51,7 @@ function renderMe() {
   // ガチャで当てた、背景の飾り(自己紹介のカード)。アイコンの飾り枠は、makeAvatar が付ける。他の人のプロフィールにも出る
   applyDeco($('pf-idcard'), BY_ID[who.deco]);
   $('pf-name').textContent = who.name;
+  applyPlate($('pf-name'), BY_ID[who.plate]);   // 名札(名前の横)
   $('pf-uid').textContent = who.code ? formatCode(who.code) : '—';
   const d = $('pf-desc');
   d.textContent = who.description || (isMe() ? t('pf.descEmptyMe') : t('pf.descEmpty'));
