@@ -13,9 +13,20 @@ html .pf-card.gx-deco, .afk-deco.gx-deco { background: linear-gradient(var(--ov)
 .gx-deco[data-r="rare"]::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(110deg, transparent 38%, rgba(255, 255, 255, .45) 50%, transparent 62%); transform: translateX(-120%); animation: gx-shine 3.6s ease-in-out infinite; }
 .gx-deco[data-r="uncommon"] { box-shadow: 0 0 0 1px color-mix(in srgb, var(--glow) 55%, transparent); }
 html .pf-card.gx-deco > * { position: relative; z-index: 1; }
-/* プロフィールのアイコン(アバターの右上) */
-.pf-badge { position: absolute; top: -2%; right: -2%; z-index: 3; font-size: clamp(22px, 2.3vw, 38px); filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .3)); pointer-events: none; }
-.pf-badge[hidden] { display: none; }
+
+/* アイコンの飾り枠: アバターのまわりを囲むリング(COMMON=単色 / UNCOMMON=グラデーション / RARE=光る)と、角の小さな印 */
+.gx-frame { --c1: #888; --c2: #888; --fw: 6%; }
+.gx-frame::before { content: ""; position: absolute; inset: calc(-1 * var(--fw) - 2px); border-radius: 50%; padding: var(--fw); background: var(--c1); pointer-events: none; z-index: 2;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+.gx-frame[data-fr="uncommon"]::before { background: linear-gradient(135deg, var(--c1), var(--c2)); }
+.gx-frame[data-fr="rare"]::before { background: linear-gradient(110deg, var(--c1), var(--c2), #fff, var(--c2), var(--c1)); background-size: 300% 100%; animation: gx-ring 3.2s linear infinite; filter: drop-shadow(0 0 5px var(--c2)) drop-shadow(0 0 10px color-mix(in srgb, var(--c2) 60%, transparent)); }
+@keyframes gx-ring { to { background-position: -300% 0; } }
+.gx-orn { position: absolute; top: -9%; right: -9%; width: 32%; height: 32%; z-index: 3; pointer-events: none; }
+.gx-orn .gx-icon { width: 100%; height: 100%; font-size: inherit; border-width: max(1.5px, 4%); }
+.gx-sample { position: relative; display: inline-block; width: 2.4em; height: 2.4em; border-radius: 50%; background: linear-gradient(160deg, #cfe6ee, #6d9ab5); flex: none; }
+.gx-sample.big { width: 5em; height: 5em; }
+.afk-item .gx-sample { font-size: 1.7em; } .afk-hist .gx-sample { font-size: .8em; margin: 0 .4em; } .afk-last .gx-sample.big { font-size: 1.1em; margin: .3em; }
+@media (prefers-reduced-motion: reduce) { .gx-frame[data-fr="rare"]::before { animation: none; } }
 
 /* ---------- ネオン: AFK(ガチャ) ---------- */
 .nav-afk { display: none; }
@@ -63,7 +74,7 @@ body[data-view="afk"] #afk-view { display: block; animation: page-in .5s ease bo
 .afk-last[data-r="rare"] { border-color: #ffd166; box-shadow: 0 0 22px rgba(255, 209, 102, .6), inset 0 0 18px rgba(255, 209, 102, .18); }
 .afk-last.pop > * { animation: afk-pop .7s cubic-bezier(.2, 1.4, .4, 1) both; } @keyframes afk-pop { from { opacity: 0; transform: scale(.5) rotate(-8deg); } }
 .afk-wait { opacity: .6; font-size: 1.2em; }
-.afk-last .gx-icon.big { font-size: 5em; } .afk-deco { width: 5em; height: 3.2em; border-radius: 6px; padding: .6em .8em; display: flex; flex-direction: column; gap: .35em; justify-content: center; border: 1px solid rgba(255, 255, 255, .5); }
+.afk-last .gx-sample.big { }.afk-deco { width: 5em; height: 3.2em; border-radius: 6px; padding: .6em .8em; display: flex; flex-direction: column; gap: .35em; justify-content: center; border: 1px solid rgba(255, 255, 255, .5); }
 .afk-deco i { display: block; height: .3em; border-radius: .3em; background: rgba(255, 255, 255, .55); width: 80%; } .afk-deco i + i { width: 55%; }
 .afk-deco.big { font-size: 1.8em; }
 .afk-lname { font: 600 1.7em var(--afk-serif); } .afk-lrar { font-size: 1.1em; opacity: .85; letter-spacing: .08em; }
@@ -74,7 +85,7 @@ body[data-view="afk"] #afk-view { display: block; animation: page-in .5s ease bo
 .afk-hist { list-style: none; display: flex; flex-direction: column; gap: .4em; max-height: 14em; overflow: auto; scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, .4) transparent; }
 .afk-hist li { display: flex; align-items: center; gap: .8em; padding: .3em .6em; border-left: 3px solid rgba(255, 255, 255, .4); background: rgba(255, 255, 255, .04); font-size: 1.1em; }
 .afk-hist li[data-r="uncommon"] { border-left-color: #6ee7a0; } .afk-hist li[data-r="rare"] { border-left-color: #ffd166; background: rgba(255, 209, 102, .08); }
-.afk-hist .gx-icon { font-size: 1.8em; } .afk-hist .afk-deco { width: 2.2em; height: 1.5em; padding: .25em .3em; gap: .15em; font-size: 1em; } .afk-hist .afk-deco i { height: .14em; }
+.afk-hist .afk-deco { width: 2.2em; height: 1.5em; padding: .25em .3em; gap: .15em; font-size: 1em; } .afk-hist .afk-deco i { height: .14em; }
 .afk-hist li span { flex: 1; }
 .afk-flash { position: fixed; inset: 0; z-index: 20; pointer-events: none; background: radial-gradient(circle, rgba(255, 224, 140, .55), transparent 70%); opacity: 0; } .afk-flash.go { animation: afk-flash .9s ease-out; } @keyframes afk-flash { 0% { opacity: 0; } 15% { opacity: 1; } 100% { opacity: 0; } }
 /* 図鑑 */
@@ -85,7 +96,7 @@ body[data-view="afk"] #afk-view { display: block; animation: page-in .5s ease bo
 .afk-item { display: flex; flex-direction: column; align-items: center; gap: .5em; padding: .9em .7em; border: 1px solid rgba(255, 255, 255, .45); border-radius: 3px; background: linear-gradient(180deg, rgba(6, 6, 8, .9), rgba(3, 3, 5, .94)); text-align: center; }
 .afk-item[data-r="uncommon"] { border-color: rgba(110, 231, 160, .75); } .afk-item[data-r="rare"] { border-color: #ffd166; box-shadow: 0 0 14px rgba(255, 209, 102, .35); }
 .afk-item.equipped { box-shadow: 0 0 0 2px #fff, 0 0 18px rgba(255, 255, 255, .5); }
-.afk-pv { position: relative; height: 4.2em; display: grid; place-items: center; } .afk-item .gx-icon { font-size: 3.6em; } .afk-item .afk-deco { font-size: 1.2em; }
+.afk-pv { position: relative; height: 4.6em; display: grid; place-items: center; } .afk-item .afk-deco { font-size: 1.2em; }
 .afk-item.locked .afk-pv > :not(.afk-q) { filter: grayscale(1) brightness(.25) contrast(1.2); }
 .afk-q { position: absolute; inset: 0; display: grid; place-items: center; font: 600 2.2em var(--afk-serif); opacity: .75; }
 .afk-iname { font: 500 1.2em var(--afk-serif); min-height: 1.3em; }

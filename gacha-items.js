@@ -22,21 +22,21 @@ const I = (id, r, c1, c2, glyph, names) => ({ id, type: 'icon', rarity: r, c1, c
 const D = (id, r, c1, c2, c3, names) => ({ id, type: 'deco', rarity: r, c1, c2, c3, names });
 export const ITEMS = [
   // ---- アイコン: COMMON(単色) ----
-  I('i-red-star', 'common', '#e5534b', '#e5534b', 'star', ['Red Star', '赤い星', '红星']),
-  I('i-pink-heart', 'common', '#e86aa6', '#e86aa6', 'heart', ['Pink Heart', 'ピンクのハート', '粉色爱心']),
-  I('i-slate-moon', 'common', '#5b6b8c', '#5b6b8c', 'moon', ['Slate Moon', 'くすんだ月', '灰蓝月亮']),
-  I('i-amber-bolt', 'common', '#e0a526', '#e0a526', 'bolt', ['Amber Bolt', '琥珀の稲妻', '琥珀闪电']),
-  I('i-green-leaf', 'common', '#3fa66b', '#3fa66b', 'leaf', ['Green Leaf', '緑の葉', '绿叶']),
-  I('i-blue-drop', 'common', '#3b82d6', '#3b82d6', 'drop', ['Blue Drop', '青いしずく', '蓝色水滴']),
+  I('i-red-star', 'common', '#e5534b', '#e5534b', 'star', ['Red Ring', '赤いリング', '红色圆环']),
+  I('i-pink-heart', 'common', '#e86aa6', '#e86aa6', 'heart', ['Pink Ring', 'ピンクのリング', '粉色圆环']),
+  I('i-slate-moon', 'common', '#5b6b8c', '#5b6b8c', 'moon', ['Slate Ring', 'くすんだ青のリング', '灰蓝圆环']),
+  I('i-amber-bolt', 'common', '#e0a526', '#e0a526', 'bolt', ['Amber Ring', '琥珀色のリング', '琥珀圆环']),
+  I('i-green-leaf', 'common', '#3fa66b', '#3fa66b', 'leaf', ['Green Ring', '緑のリング', '绿色圆环']),
+  I('i-blue-drop', 'common', '#3b82d6', '#3b82d6', 'drop', ['Blue Ring', '青いリング', '蓝色圆环']),
   // ---- アイコン: UNCOMMON(グラデーション) ----
-  I('i-ember-flame', 'uncommon', '#ff9a3c', '#ff3d6e', 'flame', ['Ember Flame', '燃える炎', '余烬火焰']),
-  I('i-sun-crown', 'uncommon', '#ffd45a', '#ff9f43', 'crown', ['Sun Crown', '太陽の王冠', '太阳王冠']),
-  I('i-frost-diamond', 'uncommon', '#4fd1ff', '#7b5bff', 'diamond', ['Frost Diamond', '氷のダイヤ', '冰晶钻石']),
-  I('i-meadow-leaf', 'uncommon', '#7ee08a', '#1fa39a', 'leaf', ['Meadow Leaf', '草原の葉', '草地之叶']),
+  I('i-ember-flame', 'uncommon', '#ff9a3c', '#ff3d6e', 'flame', ['Ember Ring', '燃えるリング', '余烬圆环']),
+  I('i-sun-crown', 'uncommon', '#ffd45a', '#ff9f43', 'crown', ['Sun Ring', '太陽のリング', '太阳圆环']),
+  I('i-frost-diamond', 'uncommon', '#4fd1ff', '#7b5bff', 'diamond', ['Frost Ring', '氷のリング', '冰晶圆环']),
+  I('i-meadow-leaf', 'uncommon', '#7ee08a', '#1fa39a', 'leaf', ['Meadow Ring', '草原のリング', '草地圆环']),
   // ---- アイコン: RARE(光る) ----
-  I('i-gold-star', 'rare', '#ffe27a', '#ffb300', 'star', ['Golden Star', '黄金の星', '黄金之星']),
-  I('i-lunar-moon', 'rare', '#c9d6ff', '#7c8cff', 'moon', ['Lunar Glow', '月光', '月华']),
-  I('i-inferno-flame', 'rare', '#ff7a59', '#ff2e63', 'flame', ['Inferno', '業火', '烈焰']),
+  I('i-gold-star', 'rare', '#ffe27a', '#ffb300', 'star', ['Golden Halo', '黄金のかがやき', '金色光环']),
+  I('i-lunar-moon', 'rare', '#c9d6ff', '#7c8cff', 'moon', ['Lunar Halo', '月のかがやき', '月光光环']),
+  I('i-inferno-flame', 'rare', '#ff7a59', '#ff2e63', 'flame', ['Inferno Halo', '業火のかがやき', '烈焰光环']),
   // ---- 背景の飾り: COMMON(単色) ----
   D('d-sky', 'common', '#cfe3ff', '#cfe3ff', '', ['Sky', '空色', '天空蓝']),
   D('d-mint', 'common', '#cdeedd', '#cdeedd', '', ['Mint', 'ミント', '薄荷绿']),
@@ -87,4 +87,22 @@ export function applyDeco(node, item) {
     : `linear-gradient(135deg, ${item.c1}, ${item.c2} 55%, ${item.c3})`;
   node.classList.add('gx-deco'); node.dataset.r = item.rarity;
   node.style.setProperty('--g', bg); node.style.setProperty('--glow', item.c2);
+}
+
+// アイコンの飾り枠: アバターのまわりに、リングと、角の小さな印を付ける(item が null なら外す)。リングの見た目は CSS(.gx-frame)
+export function applyFrame(node, item) {
+  node.classList.remove('gx-frame');
+  node.removeAttribute('data-fr');
+  node.querySelector(':scope > .gx-orn')?.remove();
+  for (const k of ['--c1', '--c2']) node.style.removeProperty(k);
+  if (!item || item.type !== 'icon') return;
+  node.classList.add('gx-frame'); node.dataset.fr = item.rarity;
+  node.style.setProperty('--c1', item.c1); node.style.setProperty('--c2', item.c2);
+  const orn = document.createElement('span'); orn.className = 'gx-orn'; orn.setAttribute('aria-hidden', 'true'); orn.append(iconEl(item));
+  node.append(orn);
+}
+// 図鑑・結果に出す見本: 丸いアバターに、枠を付けたもの
+export function frameSample(item, extraClass = '') {
+  const s = document.createElement('span'); s.className = `gx-sample ${extraClass}`.trim();
+  applyFrame(s, item); return s;
 }

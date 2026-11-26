@@ -1,8 +1,8 @@
 // フレンド機能の画面: 右サイドバーの一覧と、ページの上に重ねて表示するフレンドUI
 //   左のレール: 人のマーク = フレンド一覧 / 人+のマーク = フレンド申請
-import { startSocial, formatCode, socialMessage, LIMITS } from './social.js?v=101';
-import { t } from './i18n.js?v=101';
-import { errorMessage } from './auth.js?v=101';
+import { startSocial, formatCode, socialMessage, LIMITS } from './social.js?v=102';
+import { t } from './i18n.js?v=102';
+import { errorMessage } from './auth.js?v=102';
 
 const $ = id => document.getElementById(id);
 const LABELS = { online: 'Online', busy: 'Busy', offline: 'Offline' };
@@ -47,8 +47,9 @@ function textButton(label, className, onClick) {
   b.addEventListener('click', onClick);
   return b;
 }
-import { PHOTO_PATTERN } from './avatar-image.js?v=101';
-function avatar(id, name, status, photo) {
+import { PHOTO_PATTERN } from './avatar-image.js?v=102';
+import { BY_ID, applyFrame } from './gacha-items.js?v=102';
+function avatar(id, name, status, photo, icon) {
   let h = 0;
   for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) % 360;
   const a = el('span', 'fo-avatar', [...name][0]?.toUpperCase() || '?');
@@ -60,6 +61,7 @@ function avatar(id, name, status, photo) {
     a.classList.add('has-photo');
   }
   if (status) a.append(el('span', `dot ${status}`));
+  if (icon && BY_ID[icon]) applyFrame(a, BY_ID[icon]);   // ガチャで当てた、アイコンの飾り枠(他の人にも見える)
   return a;
 }
 const pad = n => String(n).padStart(2, '0');
@@ -138,7 +140,7 @@ function friendsView(s) {
   // 上部: 自分のプロフィールとステータス
   const bar = el('div', 'fo-me');
   const who = el('div', 'fo-me-who');
-  who.append(avatar('me' + s.me.friendCode, s.me.displayName, s.myStatus, s.me.photo), (() => {
+  who.append(avatar('me' + s.me.friendCode, s.me.displayName, s.myStatus, s.me.photo, s.me.icon), (() => {
     const text = el('div', 'fo-me-text');
     text.append(el('div', 'fo-me-name', s.me.displayName), el('div', 'fo-desc', s.me.description || t('fr.noBio')));
     return text;
@@ -179,7 +181,7 @@ function friendsView(s) {
       onSave: v => api.actions.saveMemo(fr.uid, v.memo),
     })), del);
     side.append(btns, el('div', 'fo-seen', lastSeen(s.presence[fr.uid])));
-    card.append(avatar(fr.uid, p.name, st, p.photo), info, side);
+    card.append(avatar(fr.uid, p.name, st, p.photo, p.icon), info, side);
     return card;
   });
   return { bar, cards: cards.length ? cards : [el('p', 'fo-empty', t('fr.emptyOverlay'))] };
@@ -223,7 +225,7 @@ function requestsView(s) {
     btns.append(
       iconButton('check', t('fr.accept'), 'ok', () => attempt(() => api.actions.accept(q), setMsg)),
       iconButton('cross', t('fr.decline'), 'danger', () => attempt(() => api.actions.decline(q), setMsg)));
-    card.append(avatar(q.uid, p.name, undefined, p.photo), el('span', 'fo-div'), info, el('span', 'fo-div'), btns);
+    card.append(avatar(q.uid, p.name, undefined, p.photo, p.icon), el('span', 'fo-div'), info, el('span', 'fo-div'), btns);
     return card;
   });
   if (!cards.length) cards.push(el('p', 'fo-empty', t('fr.noIncoming')));
@@ -234,7 +236,7 @@ function requestsView(s) {
       const card = el('article', 'fo-card request pending');
       const info = el('div', 'fo-info');
       info.append(el('div', 'fo-name', p.name), el('div', 'fo-desc', p.description || t('fr.noBio')));
-      card.append(avatar(q.uid, p.name, undefined, p.photo), el('span', 'fo-div'), info, el('span', 'fo-div'),
+      card.append(avatar(q.uid, p.name, undefined, p.photo, p.icon), el('span', 'fo-div'), info, el('span', 'fo-div'),
         iconButton('cross', t('fr.cancelReq'), 'danger', () => attempt(() => api.actions.cancel(q), setMsg)));
       cards.push(card);
     }
@@ -263,7 +265,7 @@ function render(state) {
     const studying = studyingText(state, fr.uid);
     if (studying) stLine.append(el('span', 'sep', '|'), el('span', 'study', studying));   // Online | Studying for 02:30h
     info.append(nameLink(fr.uid, profile(state, fr.uid).name, 'name'), stLine);
-    const small = avatar(fr.uid, profile(state, fr.uid).name, undefined, profile(state, fr.uid).photo);
+    const small = avatar(fr.uid, profile(state, fr.uid).name, undefined, profile(state, fr.uid).photo, profile(state, fr.uid).icon);
     small.classList.add('sm');
     li.append(small, info);
     return li;

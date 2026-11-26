@@ -1,8 +1,8 @@
 // Compare: 自分と友だちの「今日」「今週(月曜〜今日)」の勉強時間を、棒グラフで比べる。
 // ヘッダーの Compare を押すと、フレンドと同じように、ページの上に画面が重なって出る。開いている間だけ、ログを読み込む。
-import { firestore } from './auth.js?v=101';
-import { onState, makeAvatar } from './friends-ui.js?v=101';
-import { t, duration } from './i18n.js?v=101';
+import { firestore } from './auth.js?v=102';
+import { onState, makeAvatar } from './friends-ui.js?v=102';
+import { t, duration } from './i18n.js?v=102';
 
 const $ = id => document.getElementById(id);
 let f, db, user;
@@ -49,8 +49,8 @@ function syncSubs() {
 
 // ---- 描画 ----
 function people() {
-  const me = { uid: user.uid, name: t('cp.you'), initialOf: state?.me?.displayName || user.displayName || '', photo: state?.me?.photo || '', isMe: true };
-  const others = (state?.friends || []).map(x => ({ uid: x.uid, name: state.profiles[x.uid]?.name ?? '…', photo: state.profiles[x.uid]?.photo || '', isMe: false }));
+  const me = { uid: user.uid, name: t('cp.you'), initialOf: state?.me?.displayName || user.displayName || '', photo: state?.me?.photo || '', icon: state?.me?.icon || '', isMe: true };
+  const others = (state?.friends || []).map(x => ({ uid: x.uid, name: state.profiles[x.uid]?.name ?? '…', photo: state.profiles[x.uid]?.photo || '', icon: state.profiles[x.uid]?.icon || '', isMe: false }));
   return [me, ...others];
 }
 
@@ -67,7 +67,7 @@ function section(title, note, rows, loading) {
     const li = el('li', 'cp-row' + (r.isMe ? ' me' : '') + (rank === 1 && r.min > 0 ? ' first' : ''));
     li.append(el('span', 'cp-rank', r.min > 0 ? t('cp.rank', { n: rank }) : '–'));
     const who = el('div', 'cp-who');
-    const av = makeAvatar(r.uid, r.initialOf || r.name, '', r.photo); av.classList.add('cp-av');
+    const av = makeAvatar(r.uid, r.initialOf || r.name, '', r.photo, r.icon); av.classList.add('cp-av');
     who.append(av, el('span', 'cp-name', r.name));
     const track = el('div', 'cp-track');
     const bar = el('i', 'cp-bar'); bar.style.width = r.min > 0 ? `${Math.max(2, (r.min / max) * 100)}%` : '0';
