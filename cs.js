@@ -1,10 +1,10 @@
 // CS(ネオンのときだけ): 「IBDP Computer Science HL」の学習サイトの画面一式。背景はWebGPU(白黒のゴシックの大聖堂)で、ずっと動いている。
 // 画面: home / topics / practice / pa(Practice の一覧。A1〜A4) / lesson(A1〜A4 の学習ページ) / case(Case Study)
-import { createGpuView } from './gpu-view.js?v=115';
-import { WGSL } from './cs-bg.js?v=115';
-import { GROUPS, TERMS, FIGS } from './casestudy.js?v=115';
-import { isDone, toggleDone, countDone } from './cs-progress.js?v=115';
-import { mountQuiz, quizScore, quizTotal, QUIZ_CODES } from './quiz.js?v=115';
+import { createGpuView } from './gpu-view.js?v=116';
+import { WGSL } from './cs-bg.js?v=116';
+import { GROUPS, TERMS, FIGS } from './casestudy.js?v=116';
+import { isDone, toggleDone, countDone } from './cs-progress.js?v=116';
+import { mountQuiz, quizScore, quizTotal, QUIZ_CODES } from './quiz.js?v=116';
 
 const host = document.getElementById('cs-view');
 const stage = document.getElementById('cs-stage');

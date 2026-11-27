@@ -1,5 +1,5 @@
 // AFK の経済: 売却のコイン、アップグレード、クエスト。計算だけをここに置く(画面は afk.js)。
-import { pickRarity, higherRarity, pullFrom, rand } from './gacha-items.js?v=115';
+import { pickRarity, higherRarity, pullFrom, rand } from './gacha-items.js?v=116';
 
 // レア度ごとの売却のコイン(1個あたり)
 export const SELL = { common: 5, uncommon: 25, rare: 100, epic: 500, legendary: 1000, mythic: 2500, exalted: 5000, divine: 7500, celestial: 10000, transcendent: 15000, eternal: 20000, primordial: 30000 };
