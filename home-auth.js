@@ -1,21 +1,22 @@
 // ホーム画面はログイン済みのユーザーだけが見られる。未ログインならログイン画面へ戻す。
-import { onUser, logOut } from './auth.js?v=116';
-import { t, getLang, setLang } from './i18n.js?v=116';
-import { mountFriends } from './friends-ui.js?v=116';
-import { mountProfile } from './profile.js?v=116';
-import { mountTimer } from './timer.js?v=116';
-import { mountPomodoro } from './pomodoro.js?v=116';
-import { startLogs } from './logs-store.js?v=116';
-import { mountRecent } from './recent.js?v=116';
-import { mountManual } from './manual.js?v=116';
-import { mountNotices } from './notices.js?v=116';
-import { mountCompare } from './compare.js?v=116';
-import './theme.js?v=116';
-import { mountAfk } from './afk.js?v=116';
-import { mountMock } from './mock.js?v=116';
-import { mountTodo } from './todo.js?v=116';
-import { mountNotes } from './notes.js?v=116';
-import { mountBgVideo } from './bgvideo.js?v=116';
+import { onUser, logOut } from './auth.js?v=118';
+import { t, getLang, setLang } from './i18n.js?v=118';
+import { mountFriends } from './friends-ui.js?v=118';
+import { mountProfile } from './profile.js?v=118';
+import { mountTimer } from './timer.js?v=118';
+import { mountPomodoro } from './pomodoro.js?v=118';
+import { startLogs } from './logs-store.js?v=118';
+import { mountRecent } from './recent.js?v=118';
+import { mountManual } from './manual.js?v=118';
+import { mountNotices } from './notices.js?v=118';
+import { mountCompare } from './compare.js?v=118';
+import './theme.js?v=118';
+import { mountAfk } from './afk.js?v=118';
+import { mountMock } from './mock.js?v=118';
+import { mountEnglish } from './english.js?v=118';
+import { mountTodo } from './todo.js?v=118';
+import { mountNotes } from './notes.js?v=118';
+import { mountBgVideo } from './bgvideo.js?v=118';
 
 let social;
 onUser(async user => {
@@ -24,6 +25,7 @@ onUser(async user => {
   if (social) return;
   mountCompare(user).catch(e => console.error('Compareを開始できませんでした', e));
   try { mountMock(user); } catch (e) { console.error('Mockを開始できませんでした', e); }
+  try { mountEnglish(user); } catch (e) { console.error('Englishを開始できませんでした', e); }
   try { mountTodo(user); } catch (e) { console.error('To-Doを開始できませんでした', e); }
   try { mountNotes(user); } catch (e) { console.error('Notesを開始できませんでした', e); }
   mountBgVideo().catch(e => console.error('背景動画を開始できませんでした', e));
