@@ -1,9 +1,9 @@
 // English(ネオンのときだけ): 単語を CSV(English, meaning)で取り込んで、取り込みごとに「ボックス」(ラベルと日時つき)に分ける。
 // ボックスを選ぶと、カードのクイズ(中央に問題、下に4択)で復習できる。単語ごとに、答えた回数・正解数・正解率を記録して、Statistic で見られる。
 // 背景はWebGPU(白黒のゴシックの大聖堂)。データは、このブラウザに、アカウントごとに保存する。
-import { createGpuView } from './gpu-view.js?v=118';
-import { WGSL } from './physics-bg.js?v=118';
-import { t, getLang } from './i18n.js?v=118';
+import { createGpuView } from './gpu-view.js?v=119';
+import { WGSL } from './physics-bg.js?v=119';
+import { t, getLang } from './i18n.js?v=119';
 
 const host = document.getElementById('english-view');
 const stage = document.getElementById('english-stage');
@@ -53,7 +53,7 @@ function load() {
   try {
     const d = JSON.parse(localStorage.getItem(key()));
     if (d && Array.isArray(d.boxes)) return { boxes: d.boxes.slice(0, MAX_BOXES).map(b => ({
-      id: String(b.id || rid()), label: String(b.label || '').slice(0, 40), at: Number(b.at) || Date.now(),
+      id: String(b.id || rid()), title: String(b.title || '').slice(0, 60), label: String(b.label || '').slice(0, 40), at: Number(b.at) || Date.now(),
       words: (Array.isArray(b.words) ? b.words : []).slice(0, MAX_WORDS_BOX).map(w => ({ id: String(w.id || rid()), en: String(w.en || '').slice(0, MAX_LEN), mean: String(w.mean || '').slice(0, MAX_LEN),
         n: Math.max(0, Math.floor(+w.n) || 0), ok: Math.max(0, Math.min(Math.floor(+w.n) || 0, Math.floor(+w.ok) || 0)), last: Number(w.last) || 0, streak: Math.max(0, Math.floor(+w.streak) || 0) })).filter(w => w.en && w.mean) })) };
   } catch { /* 無視 */ }
@@ -66,10 +66,11 @@ const pct = v => (v === null ? '–' : `${Math.round(v * 100)}%`);
 const fmtDT = ms => new Intl.DateTimeFormat(LOCALES[getLang()] || 'en-GB', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(ms));
 const fmtD = ms => (ms ? new Intl.DateTimeFormat(LOCALES[getLang()] || 'en-GB', { month: 'short', day: 'numeric' }).format(new Date(ms)) : '–');
 const sum = (arr, f) => arr.reduce((s, x) => s + f(x), 0);
+const boxName = b => b.title || b.label || t('eg.noLabel');
 const boxStat = b => { const n = sum(b.words, w => w.n), ok = sum(b.words, w => w.ok); return { n, ok, acc: n ? ok / n : null, seen: b.words.filter(w => w.n).length, mastered: b.words.filter(w => w.n >= 3 && w.ok / w.n >= 0.8).length }; };
 
 // ---- 状態 ----
-let tab = 'boxes', setupId = '', quiz = null, statBox = 'all', statSort = 'acc', statDir = 1, statQ = '', statShow = 100, impText = '', impLabel = '', impMsg = '';
+let tab = 'boxes', setupId = '', quiz = null, statBox = 'all', statSort = 'acc', statDir = 1, statQ = '', statShow = 100, impText = '', impLabel = '', impTitle = '', impMsg = '';
 const sparkle = '<svg class="eg-spark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0l2.2 8.800L24 12l-9.800 3.200L12 24l-2.200-8.800L0 12l9.800-3.200z"/></svg>';
 
 // ---- クイズ ----
@@ -97,6 +98,7 @@ function answer(k) {
   if (w) { w.n++; w.last = Date.now(); if (right) { w.ok++; w.streak++; } else w.streak = 0; save(); }
   if (right) quiz.correct++; else quiz.missed.push({ ask: q.ask, ans: q.ans, picked: q.choices[k] });
   render();
+  if (right) setTimeout(() => { if (quiz && quiz.qs[quiz.i] === q && !quiz.done) nextQ(); }, 450);   // 正解は、「正解」の表示だけで、すぐ次の問題へ
 }
 function nextQ() {
   if (!quiz) return;
@@ -114,7 +116,7 @@ function boxesHtml() {
   return list.map(b => {
     const day = new Intl.DateTimeFormat(LOCALES[getLang()] || 'en-GB', { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(b.at)), s = boxStat(b);
     const head = day !== lastDay ? `<h3 class="eg-day">${esc(day)}</h3>` : ''; lastDay = day;
-    return `${head}<article class="eg-box" data-box="${b.id}"><div class="eg-boxtop"><h4 title="${esc(t('eg.renameHint'))}" data-rename="${b.id}">${esc(b.label || t('eg.noLabel'))}</h4><time>${esc(fmtDT(b.at))}</time></div>
+    return `${head}<article class="eg-box" data-box="${b.id}"><div class="eg-boxtop"><h4 title="${esc(t('eg.renameHint'))}" data-rename="${b.id}">${esc(boxName(b))}${b.title && b.label ? ` <span class="eg-chip">${esc(b.label)}</span>` : ''}</h4><time>${esc(fmtDT(b.at))}</time></div>
       <div class="eg-boxnums"><span><b>${b.words.length}</b>${esc(t('eg.words'))}</span><span><b>${pct(s.acc)}</b>${esc(t('eg.accuracy'))}</span><span><b>${s.mastered}</b>${esc(t('eg.mastered'))}</span><span><b>${fmtN(s.n)}</b>${esc(t('eg.answers'))}</span></div>
       <div class="eg-bar"><i style="width:${b.words.length ? s.mastered / b.words.length * 100 : 0}%"></i></div>
       <div class="eg-boxbtns"><button type="button" class="eg-pill solid sm" data-study="${b.id}" ${b.words.length >= 2 ? '' : 'disabled'}>${esc(t('eg.study'))}</button><button type="button" class="eg-pill sm" data-resetbox="${b.id}">${esc(t('eg.resetStats'))}</button><button type="button" class="eg-pill sm danger" data-delbox="${b.id}">${esc(t('eg.deleteBox'))}</button></div></article>`;
@@ -124,7 +126,7 @@ const fmtN = n => Number(n).toLocaleString();
 function setupHtml() {
   const b = data.boxes.find(x => x.id === setupId); if (!b) return '';
   const sel = (id, opts, cur) => `<select id="${id}">${opts.map(([v, l]) => `<option value="${v}" ${String(v) === String(cur) ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>`;
-  return `<div class="eg-setup"><h3>${esc(b.label || t('eg.noLabel'))} <small>${b.words.length} ${esc(t('eg.words'))}</small></h3>
+  return `<div class="eg-setup"><h3>${esc(boxName(b))} <small>${b.words.length} ${esc(t('eg.words'))}</small></h3>
     <label>${esc(t('eg.dir'))}${sel('eg-dir', [['en2m', t('eg.dirEn')], ['m2en', t('eg.dirMean')], ['mixed', t('eg.dirMixed')]], 'en2m')}</label>
     <label>${esc(t('eg.mode'))}${sel('eg-mode', [['all', t('eg.modeAll')], ['weak', t('eg.modeWeak')]], 'all')}</label>
     <label>${esc(t('eg.count'))}${sel('eg-count', [[10, '10'], [20, '20'], [50, '50'], [0, t('eg.countAll')]], Math.min(20, b.words.length) === b.words.length ? 0 : 20)}</label>
@@ -138,15 +140,17 @@ function quizHtml() {
   }
   const q = quiz.qs[quiz.i], answered = q.picked >= 0, w = data.boxes.find(b => b.id === quiz.boxId)?.words.find(x => x.id === q.id);
   const choices = q.choices.map((c, k) => { const cls = !answered ? '' : c === q.ans ? ' right' : k === q.picked ? ' wrong' : ' dim'; return `<button type="button" class="eg-choice${cls}" data-pick="${k}" ${answered ? 'disabled' : ''}><kbd>${k + 1}</kbd><span>${esc(c)}</span></button>`; }).join('');
-  const fb = answered ? `<p class="eg-fb ${q.choices[q.picked] === q.ans ? 'ok' : 'ng'}">${esc(q.choices[q.picked] === q.ans ? t('eg.right') : t('eg.wrong', { a: q.ans }))}${w ? ` <small>${esc(t('eg.wordStat', { n: w.n, a: pct(acc(w)) }))}</small>` : ''}</p>` : '';
-  return `<div class="eg-quizbar"><button type="button" class="eg-pill sm" data-quit>${esc(t('eg.quit'))}</button><div class="eg-prog"><i style="width:${(quiz.i + (answered ? 1 : 0)) / quiz.qs.length * 100}%"></i></div><span>${quiz.i + 1} / ${quiz.qs.length} · ${quiz.correct} ✓</span></div>
+  const right = answered && q.choices[q.picked] === q.ans;
+  const fb = answered && !right ? `<p class="eg-fb ng">${esc(t('eg.wrong', { a: q.ans }))}${w ? ` <small>${esc(t('eg.wordStat', { n: w.n, a: pct(acc(w)) }))}</small>` : ''}</p>` : '';
+  return `<div class="eg-quizbar"><button type="button" class="eg-pill sm" data-quit>${esc(t('eg.quit'))}</button><div class="eg-prog"><i style="width:${(quiz.i + (answered ? 1 : 0)) / quiz.qs.length * 100}%"></i></div><span>${right ? `<b class="eg-ok">${esc(t('eg.right'))}</b> ` : ''}${quiz.i + 1} / ${quiz.qs.length} · ${quiz.correct} ✓</span></div>
     <div class="eg-card" data-dir="${q.dir}"><small>${esc(q.dir === 'en2m' ? t('eg.askEn') : t('eg.askMean'))}</small><div class="eg-q">${esc(q.ask)}</div></div>
     ${fb}<div class="eg-choices">${choices}</div>
-    <div class="eg-next">${answered ? `<button type="button" class="eg-pill solid" data-next>${esc(quiz.i + 1 >= quiz.qs.length ? t('eg.finish') : t('eg.next'))} <kbd>Enter</kbd></button>` : `<span class="eg-hint">${esc(t('eg.keyHint'))}</span>`}</div>`;
+    <div class="eg-next">${answered && !right ? `<button type="button" class="eg-pill solid" data-next>${esc(quiz.i + 1 >= quiz.qs.length ? t('eg.finish') : t('eg.next'))} <kbd>Enter</kbd></button>` : right ? '' : `<span class="eg-hint">${esc(t('eg.keyHint'))}</span>`}</div>`;
 }
 function importHtml() {
   return `<div class="eg-import"><h3>${esc(t('eg.importTitle'))}</h3><p class="eg-note">${esc(t('eg.importNote'))}</p>
     <pre class="eg-sample">English,meaning\nabandon,見捨てる\nambiguous,あいまいな</pre>
+    <label class="eg-f"><span>${esc(t('eg.boxTitle'))}</span><input id="eg-title" maxlength="60" value="${esc(impTitle)}" placeholder="${esc(t('eg.titlePh'))}"></label>
     <label class="eg-f"><span>${esc(t('eg.label'))}</span><input id="eg-label" maxlength="40" value="${esc(impLabel)}" placeholder="${esc(t('eg.labelPh'))}"></label>
     <label class="eg-f"><span>${esc(t('eg.paste'))}</span><textarea id="eg-text" rows="9" placeholder="English,meaning">${esc(impText)}</textarea></label>
     <div class="eg-btns"><label class="eg-pill file">${esc(t('eg.chooseFile'))}<input id="eg-file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain" hidden></label><button type="button" class="eg-pill solid" id="eg-import">${esc(t('eg.import'))}</button></div>
@@ -161,11 +165,11 @@ function statsHtml() {
   rows.sort((a, b) => { const x = val(a), y = val(b); return (x < y ? -1 : x > y ? 1 : 0) * statDir; });
   const shown = rows.slice(0, statShow);
   const th = (k, l) => `<th><button type="button" data-sort="${k}" class="${statSort === k ? 'on' : ''}">${esc(l)}${statSort === k ? (statDir > 0 ? ' ▲' : ' ▼') : ''}</button></th>`;
-  const boxRows = [...data.boxes].sort((a, b) => b.at - a.at).map(b => { const s = boxStat(b); return `<tr><td>${esc(b.label || t('eg.noLabel'))}</td><td>${esc(fmtD(b.at))}</td><td>${b.words.length}</td><td>${s.n}</td><td>${pct(s.acc)}</td><td>${s.mastered}</td></tr>`; }).join('');
+  const boxRows = [...data.boxes].sort((a, b) => b.at - a.at).map(b => { const s = boxStat(b); return `<tr><td>${esc(boxName(b))}${b.title && b.label ? ` <span class="eg-chip">${esc(b.label)}</span>` : ''}</td><td>${esc(fmtD(b.at))}</td><td>${b.words.length}</td><td>${s.n}</td><td>${pct(s.acc)}</td><td>${s.mastered}</td></tr>`; }).join('');
   return `<div class="eg-stats"><div class="eg-cards"><div><b>${fmtN(words.length)}</b><span>${esc(t('eg.words'))}</span></div><div><b>${fmtN(seen)}</b><span>${esc(t('eg.seen'))}</span></div><div><b>${fmtN(n)}</b><span>${esc(t('eg.answers'))}</span></div><div><b>${pct(n ? ok / n : null)}</b><span>${esc(t('eg.accuracy'))}</span></div><div><b>${fmtN(mastered)}</b><span>${esc(t('eg.mastered'))}</span></div></div>
     <p class="eg-note">${esc(t('eg.masteredNote'))}</p>
-    ${data.boxes.length ? `<h3>${esc(t('eg.perBox'))}</h3><div class="eg-tablewrap"><table class="eg-table"><thead><tr><th>${esc(t('eg.label'))}</th><th>${esc(t('eg.importedAt'))}</th><th>${esc(t('eg.words'))}</th><th>${esc(t('eg.answers'))}</th><th>${esc(t('eg.accuracy'))}</th><th>${esc(t('eg.mastered'))}</th></tr></thead><tbody>${boxRows}</tbody></table></div>` : ''}
-    <h3>${esc(t('eg.perWord'))}</h3><div class="eg-filters"><select id="eg-statbox"><option value="all">${esc(t('eg.allBoxes'))}</option>${[...data.boxes].sort((a, b) => b.at - a.at).map(b => `<option value="${b.id}" ${b.id === statBox ? 'selected' : ''}>${esc(b.label || t('eg.noLabel'))} · ${esc(fmtD(b.at))}</option>`).join('')}</select><input id="eg-statq" type="search" value="${esc(statQ)}" placeholder="${esc(t('eg.search'))}"></div>
+    ${data.boxes.length ? `<h3>${esc(t('eg.perBox'))}</h3><div class="eg-tablewrap"><table class="eg-table"><thead><tr><th>${esc(t('eg.boxTitle'))}</th><th>${esc(t('eg.importedAt'))}</th><th>${esc(t('eg.words'))}</th><th>${esc(t('eg.answers'))}</th><th>${esc(t('eg.accuracy'))}</th><th>${esc(t('eg.mastered'))}</th></tr></thead><tbody>${boxRows}</tbody></table></div>` : ''}
+    <h3>${esc(t('eg.perWord'))}</h3><div class="eg-filters"><select id="eg-statbox"><option value="all">${esc(t('eg.allBoxes'))}</option>${[...data.boxes].sort((a, b) => b.at - a.at).map(b => `<option value="${b.id}" ${b.id === statBox ? 'selected' : ''}>${esc(boxName(b))} · ${esc(fmtD(b.at))}</option>`).join('')}</select><input id="eg-statq" type="search" value="${esc(statQ)}" placeholder="${esc(t('eg.search'))}"></div>
     <div class="eg-tablewrap"><table class="eg-table words"><thead><tr>${th('en', 'English')}<th>${esc(t('eg.meaning'))}</th>${th('n', t('eg.answers'))}${th('ok', t('eg.correct'))}${th('wrong', t('eg.incorrect'))}${th('acc', t('eg.accuracy'))}${th('last', t('eg.lastAns'))}</tr></thead><tbody>${shown.map(({ w }) => { const a = acc(w); return `<tr><td class="en">${esc(w.en)}</td><td>${esc(w.mean)}</td><td>${w.n}</td><td>${w.ok}</td><td>${w.n - w.ok}</td><td class="accell"><span class="eg-mini"><i style="width:${a === null ? 0 : a * 100}%" class="${a !== null && a < 0.7 ? 'low' : ''}"></i></span>${pct(a)}</td><td>${esc(fmtD(w.last))}</td></tr>`; }).join('') || `<tr><td colspan="7" class="none">${esc(t('eg.noWords'))}</td></tr>`}</tbody></table></div>
     ${rows.length > shown.length ? `<div class="eg-btns"><button type="button" class="eg-pill sm" data-more>${esc(t('eg.more', { n: rows.length - shown.length }))}</button></div>` : ''}</div>`;
 }
@@ -203,7 +207,7 @@ function wire() {
     if (q('[data-retry]')) { const b = quiz.boxId, o = quiz.opt || { dir: 'en2m', mode: 'all', count: 20 }; startQuiz(b, o); quiz.opt = o; return; }
     if ((x = q('[data-delbox]'))) { if (confirm(t('eg.confirmDel'))) { data.boxes = data.boxes.filter(b => b.id !== x.dataset.delbox); save(); render(); } return; }
     if ((x = q('[data-resetbox]'))) { if (confirm(t('eg.confirmReset'))) { const b = data.boxes.find(b2 => b2.id === x.dataset.resetbox); b?.words.forEach(w => { w.n = 0; w.ok = 0; w.last = 0; w.streak = 0; }); save(); render(); } return; }
-    if ((x = q('[data-rename]'))) { if (e.detail >= 2) { const b = data.boxes.find(b2 => b2.id === x.dataset.rename); const v = (prompt(t('eg.renamePrompt'), b?.label || '') ?? '').trim().slice(0, 40); if (b && v) { b.label = v; save(); render(); } } return; }
+    if ((x = q('[data-rename]'))) { if (e.detail >= 2) { const b = data.boxes.find(b2 => b2.id === x.dataset.rename); const v = (prompt(t('eg.renamePrompt'), b ? boxName(b) : '') ?? '').trim().slice(0, 60); if (b && v) { b.title = v; save(); render(); } } return; }
     if ((x = q('[data-sort]'))) { const k = x.dataset.sort; if (statSort === k) statDir = -statDir; else { statSort = k; statDir = k === 'en' ? 1 : (k === 'acc' ? 1 : -1); } render(); return; }
     if (q('[data-more]')) { statShow += 200; render(); return; }
     if (q('#eg-import')) { doImport(); }
@@ -211,11 +215,12 @@ function wire() {
   stage.addEventListener('input', e => {
     if (e.target.id === 'eg-text') { impText = e.target.value; updatePreview(); }
     else if (e.target.id === 'eg-label') impLabel = e.target.value;
+    else if (e.target.id === 'eg-title') impTitle = e.target.value;
     else if (e.target.id === 'eg-statq') { statQ = e.target.value; const pos = e.target.selectionStart; statShow = 100; render(); const i = $('eg-statq'); i.focus(); i.setSelectionRange(pos, pos); }
   });
   stage.addEventListener('change', async e => {
     if (e.target.id === 'eg-statbox') { statBox = e.target.value; statShow = 100; render(); }
-    else if (e.target.id === 'eg-file') { const f = e.target.files[0]; if (!f) return; impText = await readFile(f); if (!impLabel) impLabel = f.name.replace(/\.[^.]+$/, '').slice(0, 40); e.target.value = ''; render(); }
+    else if (e.target.id === 'eg-file') { const f = e.target.files[0]; if (!f) return; impText = await readFile(f); if (!impTitle) impTitle = f.name.replace(/\.[^.]+$/, '').slice(0, 60); e.target.value = ''; render(); }
   });
   document.addEventListener('keydown', e => {
     if (document.body.dataset.view !== 'english' || !quiz || quiz.done || e.target.closest('input, textarea, select')) return;
@@ -225,15 +230,15 @@ function wire() {
   window.addEventListener('langchange', () => render());
 }
 function doImport() {
-  const label = $('eg-label').value.trim().slice(0, 40), text = $('eg-text').value;
+  const title = $('eg-title').value.trim().slice(0, 60), label = $('eg-label').value.trim().slice(0, 40), text = $('eg-text').value;
   const r = wordsFromCsv(text);
   const say = s => { impMsg = s; const m = $('eg-msg'); if (m) { m.textContent = s; m.hidden = !s; } };
   if (!r.words.length) return say(t('eg.importNone'));
   if (data.boxes.length >= MAX_BOXES) return say(t('eg.tooManyBoxes'));
   const words = r.words.slice(0, MAX_WORDS_BOX);
-  data.boxes.push({ id: rid(), label: label || t('eg.defaultLabel'), at: Date.now(), words });
+  data.boxes.push({ id: rid(), title: title || label || t('eg.defaultLabel'), label: title ? label : '', at: Date.now(), words });
   if (!save()) { data.boxes.pop(); return say(t('eg.saveFail')); }
-  const n = words.length, s = r.skipped + (r.words.length - n); impText = ''; impLabel = ''; impMsg = t('eg.imported', { n, s });
+  const n = words.length, s = r.skipped + (r.words.length - n); impText = ''; impLabel = ''; impTitle = ''; impMsg = t('eg.imported', { n, s });
   tab = 'boxes'; render();
   const m = document.createElement('p'); m.className = 'eg-msg ok'; m.textContent = impMsg; stage.querySelector('.eg-page').insertBefore(m, stage.querySelector('.eg-page > :nth-child(2)')); impMsg = '';
 }

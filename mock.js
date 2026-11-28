@@ -1,8 +1,8 @@
 // Mock(ネオンのときだけ): 科目を入力して、その科目のガントチャートを作る。タスク(名前・開始日・終了日・進み具合)を並べて、
 // 今日の線と、模試の日の線も出る。背景はWebGPU(白黒のゴシックの大聖堂)。データは、このブラウザに、アカウントごとに保存する。
-import { createGpuView } from './gpu-view.js?v=118';
-import { WGSL } from './physics-bg.js?v=118';
-import { t, getLang } from './i18n.js?v=118';
+import { createGpuView } from './gpu-view.js?v=119';
+import { WGSL } from './physics-bg.js?v=119';
+import { t, getLang } from './i18n.js?v=119';
 
 const host = document.getElementById('mock-view');
 const stage = document.getElementById('mock-stage');

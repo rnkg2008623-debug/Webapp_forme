@@ -1,14 +1,14 @@
 // AFK(ネオンのときだけ): タイマーを動かしている間、一定の間隔(初期設定10秒)で、自動でガチャを引く。
 // 景品は、プロフィールで使えるアイコンと、プロフィールの背景の飾り。図鑑で、どれを何個持っているか見られて、そこから使うものを選べる。
 // 回数や持ち物は、このブラウザに、アカウントごとに保存する。使うものに選んだ景品は、Firestore(プロフィール)に入るので、他の人にも見える。
-import { createGpuView } from './gpu-view.js?v=118';
-import { WGSL } from './physics-bg.js?v=118';
-import { firestore } from './auth.js?v=118';
-import { onState } from './friends-ui.js?v=118';
-import { unlockAudio, beep } from './sound.js?v=118';
-import { t, getLang } from './i18n.js?v=118';
-import { ITEMS, BY_ID, RATES_PCT, RARITIES, RARITY_LABEL, availableRarities, itemName, frameSample, applyDeco, plateImg } from './gacha-items.js?v=118';
-import { UPGRADES, UPGRADE_KEYS, MAX_LEVEL, newLevels, clampLevels, effect, intervalSec, nextCost, sellPrice, rollPulls, DAILY, WAKE, WEEKLY, normalizeQuests, studiedMinutes, weekStart, isWakeWindow } from './afk-eco.js?v=118';
+import { createGpuView } from './gpu-view.js?v=119';
+import { WGSL } from './physics-bg.js?v=119';
+import { firestore } from './auth.js?v=119';
+import { onState } from './friends-ui.js?v=119';
+import { unlockAudio, beep } from './sound.js?v=119';
+import { t, getLang } from './i18n.js?v=119';
+import { ITEMS, BY_ID, RATES_PCT, RARITIES, RARITY_LABEL, availableRarities, itemName, frameSample, applyDeco, plateImg } from './gacha-items.js?v=119';
+import { UPGRADES, UPGRADE_KEYS, MAX_LEVEL, newLevels, clampLevels, effect, intervalSec, nextCost, sellPrice, rollPulls, DAILY, WAKE, WEEKLY, normalizeQuests, studiedMinutes, weekStart, isWakeWindow } from './afk-eco.js?v=119';
 
 const host = document.getElementById('afk-view');
 const stage = document.getElementById('afk-stage');
