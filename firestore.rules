@@ -125,5 +125,16 @@ service cloud.firestore {
       allow update: if false;
       allow delete: if signedIn() && (resource.data.uid == uid() || isOwner());
     }
+
+    // AFK ガチャの持ち物(図鑑): 他のプレイヤーも見られる。書けるのは本人だけ。
+    match /collections/{id} {
+      allow read: if signedIn();
+      allow create, update: if signedIn() && id == uid()
+        && request.resource.data.keys().hasOnly(['inv', 'at'])
+        && request.resource.data.inv is map
+        && request.resource.data.inv.size() <= 400
+        && request.resource.data.at == request.time;
+      allow delete: if signedIn() && id == uid();
+    }
   }
 }

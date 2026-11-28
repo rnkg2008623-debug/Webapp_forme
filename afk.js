@@ -1,14 +1,14 @@
 // AFK(ネオンのときだけ): タイマーを動かしている間、一定の間隔(初期設定10秒)で、自動でガチャを引く。
 // 景品は、プロフィールで使えるアイコンと、プロフィールの背景の飾り。図鑑で、どれを何個持っているか見られて、そこから使うものを選べる。
 // 回数や持ち物は、このブラウザに、アカウントごとに保存する。使うものに選んだ景品は、Firestore(プロフィール)に入るので、他の人にも見える。
-import { createGpuView } from './gpu-view.js?v=120';
-import { WGSL } from './physics-bg.js?v=120';
-import { firestore } from './auth.js?v=120';
-import { onState } from './friends-ui.js?v=120';
-import { unlockAudio, beep } from './sound.js?v=120';
-import { t, getLang } from './i18n.js?v=120';
-import { ITEMS, BY_ID, RATES_PCT, RARITIES, RARITY_LABEL, availableRarities, itemName, frameSample, applyDeco, plateImg } from './gacha-items.js?v=120';
-import { UPGRADES, UPGRADE_KEYS, MAX_LEVEL, newLevels, clampLevels, effect, intervalSec, nextCost, sellPrice, rollPulls, DAILY, WAKE, WEEKLY, normalizeQuests, studiedMinutes, weekStart, isWakeWindow } from './afk-eco.js?v=120';
+import { createGpuView } from './gpu-view.js?v=121';
+import { WGSL } from './physics-bg.js?v=121';
+import { firestore } from './auth.js?v=121';
+import { onState } from './friends-ui.js?v=121';
+import { unlockAudio, beep } from './sound.js?v=121';
+import { t, getLang } from './i18n.js?v=121';
+import { ITEMS, BY_ID, RATES_PCT, RARITIES, RARITY_LABEL, availableRarities, itemName, frameSample, applyDeco, plateImg } from './gacha-items.js?v=121';
+import { UPGRADES, UPGRADE_KEYS, MAX_LEVEL, newLevels, clampLevels, effect, intervalSec, nextCost, sellPrice, rollPulls, DAILY, WAKE, WEEKLY, normalizeQuests, studiedMinutes, weekStart, isWakeWindow } from './afk-eco.js?v=121';
 
 const host = document.getElementById('afk-view');
 const stage = document.getElementById('afk-stage');
@@ -32,9 +32,19 @@ function load() {
   } catch { /* 無視 */ }
   return blankData();
 }
-const save = () => { try { localStorage.setItem(key(), JSON.stringify({ v: 2, ...data })); } catch { /* 無視 */ } };
+const save = () => { try { localStorage.setItem(key(), JSON.stringify({ v: 2, ...data })); } catch { /* 無視 */ } publishSoon(); };
+// 持ち物を、Firestore(collections/{uid})にも書いて、他のプレイヤーが図鑑を見られるようにする(まとめて、少し遅らせて書く)
+let pubTimer = 0;
+function publishSoon() { clearTimeout(pubTimer); pubTimer = setTimeout(publish, 1500); }
+async function publish() {
+  if (!f || !db || !uid) return;
+  const inv = {}; for (const [id, n] of Object.entries(data.inv)) if (BY_ID[id] && n > 0) inv[id] = n;
+  try { await f.setDoc(f.doc(db, 'collections', uid), { inv, at: f.serverTimestamp() }); } catch (e) { console.warn('図鑑を公開できませんでした', e.code); }
+}
 const fmtN = n => Number(n).toLocaleString();
-const owned = () => ITEMS.filter(i => data.inv[i.id]).length;
+let viewUid = '', peerInv = null, peerOff = null, peers = [];   // viewUid: 見ている相手(空なら自分)
+const curInv = () => (viewUid ? (peerInv || {}) : data.inv);
+const owned = () => ITEMS.filter(i => curInv()[i.id]).length;
 
 // ---- タイマー ----
 const st = { mode: 'idle', total: 0, endAt: 0, remaining: 0, nextAt: 0, nextRemain: 0, session: 0, startedAt: 0 };
@@ -163,15 +173,15 @@ function renderStats() {
 
 // ---- 図鑑 ----
 function card(it) {
-  const n = data.inv[it.id] || 0;
-  const equipped = me[it.type] === it.id;
+  const n = curInv()[it.id] || 0, mine = !viewUid;
+  const equipped = mine && me[it.type] === it.id;
   const c = document.createElement('div'); c.className = `afk-item${n ? '' : ' locked'}${equipped ? ' equipped' : ''}`; c.dataset.r = it.rarity; c.dataset.id = it.id;
   const pv = document.createElement('div'); pv.className = 'afk-pv'; pv.append(preview(it, false)); if (!n) pv.append(Object.assign(document.createElement('span'), { className: 'afk-q', textContent: '?' }));
   const nm = document.createElement('div'); nm.className = 'afk-iname'; nm.textContent = n ? itemName(it, getLang()) : '???';
   const meta = document.createElement('div'); meta.className = 'afk-imeta';
   meta.append(Object.assign(document.createElement('span'), { className: 'afk-rar', textContent: RARITY_LABEL[it.rarity] }), Object.assign(document.createElement('b'), { className: 'afk-cnt', textContent: `×${n}` }));
   c.append(pv, nm, meta);
-  if (n) {
+  if (n && mine) {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'afk-use'; b.dataset.use = it.id;
     b.textContent = equipped ? t('afk.unequip') : t('afk.equip'); b.setAttribute('aria-pressed', String(equipped));
     const sb = document.createElement('button'); sb.type = 'button'; sb.className = 'afk-sell'; sb.dataset.sell = it.id;
@@ -183,6 +193,9 @@ function card(it) {
 }
 function renderDex() {
   const sum = availableRarities().map(r => { const all = ITEMS.filter(i => i.rarity === r), got = all.filter(i => data.inv[i.id]).length; return `<span class="afk-sum" data-r="${r}"><b>${RARITY_LABEL[r]}</b> ${got}/${all.length}</span>`; }).join('');
+  const sel = $('afk-who');
+  if (sel) { sel.innerHTML = `<option value="">${t('afk.myColl')}</option>` + peers.map(p => `<option value="${p.uid}">${p.name.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))}</option>`).join(''); sel.value = viewUid; }
+  $('afk-peernote').hidden = !viewUid; $('afk-peernote').textContent = viewUid ? (peerInv === null ? t('afk.peerLoading') : Object.keys(peerInv).length ? t('afk.peerView', { n: peers.find(p => p.uid === viewUid)?.name || '' }) : t('afk.peerNone')) : '';
   $('afk-dexsum').innerHTML = `<span class="afk-sum all"><b>${t('afk.collected')}</b> ${owned()}/${ITEMS.length}</span>${sum}`;
   const grid = (type, id) => $(id).replaceChildren(...ITEMS.filter(i => i.type === type).map(card));
   grid('icon', 'afk-icons'); grid('deco', 'afk-decos'); grid('plate', 'afk-plates');
@@ -316,6 +329,7 @@ function build() {
     <section id="afk-shop" hidden><p class="afk-msg" id="afk-shopmsg" role="status" hidden></p><div id="afk-shopbody"></div></section>
     <section id="afk-quests" hidden><div id="afk-questbody"></div></section>
     <section id="afk-dex" hidden>
+      <div class="afk-who"><label>${t('afk.whose')}<select id="afk-who"></select></label><span class="afk-note" id="afk-peernote" hidden></span></div>
       <div class="afk-dexsum" id="afk-dexsum"></div><p class="afk-msg" id="afk-dexmsg" role="status" hidden></p>
       <h3 class="afk-h3">${t('afk.icons')}</h3><div class="afk-items" id="afk-icons"></div>
       <h3 class="afk-h3">${t('afk.decos')}</h3><div class="afk-items" id="afk-decos"></div>
@@ -324,6 +338,11 @@ function build() {
     <div class="afk-flash" id="afk-flash" aria-hidden="true"></div></div>`;
   syncInputs(); renderStats(); renderTimer(); renderShop(); renderQuests();
   if (hist.length) showResult(lastResults);
+}
+function watchPeer(id) {
+  peerOff?.(); peerOff = null; peerInv = null; viewUid = id;
+  if (id && f && db) peerOff = f.onSnapshot(f.doc(db, 'collections', id), s => { peerInv = s.exists() ? (s.data().inv || {}) : {}; renderDex(); }, err => { console.warn(err.code); peerInv = {}; renderDex(); });
+  renderDex();
 }
 let currentTab = 'gacha';
 function openTab(name) {
@@ -343,6 +362,9 @@ function wire() {
     if (e.target.closest('#afk-go')) { toggle(); return; }
     if (e.target.closest('#afk-finish')) { finishEarly(); return; }
     const u = e.target.closest('[data-use]'); if (u) use(u.dataset.use);
+  });
+  stage.addEventListener('change', e => {
+    if (e.target.id === 'afk-who') { watchPeer(e.target.value); return; }
   });
   stage.addEventListener('change', e => {   // 開始前に、時間や間隔を変えたら、すぐ覚える
     if (!e.target.matches('#afk-h, #afk-m') || st.mode === 'running' || st.mode === 'paused') return;
@@ -364,9 +386,9 @@ export function mountAfk(user, api) {
   uid = user.uid; social = api; data = load();
   build(); wire(); checkWake();
   setInterval(() => { checkWake(); if (!$('afk-quests').hidden) renderQuests(); }, 20000);
-  onState(s => { me = { icon: s.me?.icon || '', deco: s.me?.deco || '', plate: s.me?.plate || '' }; if (!$('afk-dex').hidden) renderDex(); });
+  onState(s => { peers = (s.friends || []).map(x => ({ uid: x.uid, name: s.profiles?.[x.uid]?.name || '…' })).sort((p, q) => p.name.localeCompare(q.name)); me = { icon: s.me?.icon || '', deco: s.me?.deco || '', plate: s.me?.plate || '' }; if (!$('afk-dex').hidden) renderDex(); });
   firestore().then(x => {
-    ({ m: f, db } = x);
+    ({ m: f, db } = x); if (Object.keys(data.inv).length) publishSoon();
     // 今週ぶんの自分の学習ログ(クエストの勉強時間)。AFK で記録したぶんも、ここに入る
     f.onSnapshot(f.query(f.collection(db, 'users', uid, 'logs'), f.where('at', '>=', weekStart()), f.orderBy('at', 'desc'), f.limit(2000)),
       snap => { logs = snap.docs.map(d => { const v = d.data(); return { minutes: v.minutes || 0, at: v.at?.toDate?.() }; }).filter(l => l.at); renderQuests(); },

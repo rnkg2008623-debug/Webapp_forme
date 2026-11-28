@@ -1,9 +1,9 @@
 // English(ネオンのときだけ): 単語を CSV(English, meaning)で取り込んで、取り込みごとに「ボックス」(ラベルと日時つき)に分ける。
 // ボックスを選ぶと、カードのクイズ(中央に問題、下に4択)で復習できる。単語ごとに、答えた回数・正解数・正解率を記録して、Statistic で見られる。
 // 背景はWebGPU(白黒のゴシックの大聖堂)。データは、このブラウザに、アカウントごとに保存する。
-import { createGpuView } from './gpu-view.js?v=120';
-import { WGSL } from './physics-bg.js?v=120';
-import { t, getLang } from './i18n.js?v=120';
+import { createGpuView } from './gpu-view.js?v=121';
+import { WGSL } from './physics-bg.js?v=121';
+import { t, getLang } from './i18n.js?v=121';
 
 const host = document.getElementById('english-view');
 const stage = document.getElementById('english-stage');
