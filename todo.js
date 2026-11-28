@@ -1,9 +1,9 @@
 // To-Do(ネオンのときだけ): やること(内容・日付・開始と終了の時刻)を入れて、選んだ日からの7日間を、時間割のように表示する。
 // 横が時間(1時間ずつ)、縦が日。同じ時間に重なるものは、段を分けて並べる。下には、7日間のやることリスト(チェックで完了)。
 // 背景はWebGPU(白黒のゴシックの大聖堂)。データは、このブラウザに、アカウントごとに保存する。
-import { createGpuView } from './gpu-view.js?v=119';
-import { WGSL } from './physics-bg.js?v=119';
-import { t, getLang } from './i18n.js?v=119';
+import { createGpuView } from './gpu-view.js?v=120';
+import { WGSL } from './physics-bg.js?v=120';
+import { t, getLang } from './i18n.js?v=120';
 
 const host = document.getElementById('todo-view');
 const stage = document.getElementById('todo-stage');
